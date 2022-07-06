@@ -1,3 +1,5 @@
+import argparse
+import logging
 import math
 import os
 
@@ -260,48 +262,6 @@ def aggregate_game(typ, corrflag, rating, color):
 
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
-def game(agg):
-	conn = sql.connect(q.get_connstr())
-	csr = conn.cursor()
-
-	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
-	csr.execute(sql_cmd)
-	conn.commit()
-
-	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
-		rating = 1200
-		while rating < 2900:
-			for corr_flag in ['0', '1']:
-				for color in ['White', 'Black']:
-					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, corr_flag, rating, color)
-					sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-					sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
-					csr.execute(sql_cmd)
-					conn.commit()
-					print(f'{agg}: Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}, color = {color}')
-			rating = rating + 100
-	conn.close()
-
-def event(agg):
-	conn = sql.connect(q.get_connstr())
-	csr = conn.cursor()
-
-	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
-	csr.execute(sql_cmd)
-	conn.commit()
-	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
-		rating = 1200
-		while rating < 2900:
-			for corr_flag in ['0', '1']:
-				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, corr_flag, rating)
-				sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-				sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
-				csr.execute(sql_cmd)
-				conn.commit()
-				print(f'{agg}: Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}')
-			rating = rating + 100
-	conn.close()
-
 def evaluation(agg):
 	conn = sql.connect(q.get_connstr())
 	csr = conn.cursor()
@@ -323,12 +283,77 @@ def evaluation(agg):
 						sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 						csr.execute(sql_cmd)
 						conn.commit()
-						print(f'{agg}: Done with type = {typ}, min_rating = {rating}, eval_group = {eval_group}, color = {color}, corr_flag = {corr_flag}')
+						logging.info(f'Done with type = {typ}, min_rating = {rating}, eval_group = {eval_group}, color = {color}, corr_flag = {corr_flag}')
+			rating = rating + 100
+	conn.close()
+
+def event(agg):
+	conn = sql.connect(q.get_connstr())
+	csr = conn.cursor()
+
+	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
+	csr.execute(sql_cmd)
+	conn.commit()
+	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
+		rating = 1200
+		while rating < 2900:
+			for corr_flag in ['0', '1']:
+				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, corr_flag, rating)
+				sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+				sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+				csr.execute(sql_cmd)
+				conn.commit()
+				logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}')
+			rating = rating + 100
+	conn.close()
+
+def game(agg):
+	conn = sql.connect(q.get_connstr())
+	csr = conn.cursor()
+
+	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
+	csr.execute(sql_cmd)
+	conn.commit()
+
+	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
+		rating = 1200
+		while rating < 2900:
+			for corr_flag in ['0', '1']:
+				for color in ['White', 'Black']:
+					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, corr_flag, rating, color)
+					sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+					sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+					csr.execute(sql_cmd)
+					conn.commit()
+					logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}, color = {color}')
 			rating = rating + 100
 	conn.close()
 
 def main():
-	typ = 'Game' # [Game, Event, Evaluation]
+	logging.basicConfig(format='%(funcName)s\t%(levelname)s\t%(message)s', level=logging.INFO)
+
+	vrs_num = '1.0'
+	parser = argparse.ArgumentParser(
+		description = 'Control Statistic Aggregator',
+		formatter_class = argparse.ArgumentDefaultsHelpFormatter,
+		usage = argparse.SUPPRESS
+	)
+	parser.add_argument(
+		'-v', '--version',
+		action = 'version',
+		version = '%(prog)s ' + vrs_num
+	)
+	parser.add_argument(
+		'-t', '--typ',
+		default = 'Event',
+		choices = ['Evaluation', 'Event', 'Game'],
+		help = 'Aggregation level'
+	)
+
+	args = parser.parse_args()
+	config = vars(args)
+	typ = config['typ']
+
 	if typ == 'Game':
 		game(typ)
 	elif typ == 'Event':
