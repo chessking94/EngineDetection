@@ -202,6 +202,12 @@ def aggregate_game(typ, corrflag, rating, color):
 		ci_max = 100 - ci_min
 		lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [ci_min, 25, 50, 75, ci_max])
 
+		if typ == 'Score' and qtr3 > 100:
+			qtr3 = 100
+		if typ == 'Score' and upper_pcnt > 100:
+			upper_pcnt = 100
+
+
 		# plt_type = 'box' # [hist, box]
 		# plt_path = f'C:\\Users\\eehunt\\Repository\\EngineDetection\\plots\\{plt_type}'
 		# plt_name = f'{typ}_{rating}_{corrflag}_{plt_type}.png'
@@ -278,9 +284,9 @@ def evaluation(agg):
 				for color in ['White', 'Black']:
 					for i in range(9):
 						eval_group = i + 1
-						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, corr_flag, rating, eval_group, color)
-						sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-						sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_evals(typ, corr_flag, rating, eval_group, color)
+						sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+						sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 						csr.execute(sql_cmd)
 						conn.commit()
 						logging.info(f'Done with type = {typ}, min_rating = {rating}, eval_group = {eval_group}, color = {color}, corr_flag = {corr_flag}')
@@ -299,8 +305,8 @@ def event(agg):
 		while rating < 2900:
 			for corr_flag in ['0', '1']:
 				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, corr_flag, rating)
-				sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-				sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+				sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+				sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 				csr.execute(sql_cmd)
 				conn.commit()
 				logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}')
@@ -321,12 +327,13 @@ def game(agg):
 			for corr_flag in ['0', '1']:
 				for color in ['White', 'Black']:
 					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, corr_flag, rating, color)
-					sql_cmd = 'INSERT INTO StatisticsSummary (Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-					sql_cmd = sql_cmd + f"VALUES ('{agg}', '{typ}', {rating}, {corr_flag}, '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+					sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+					sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 					csr.execute(sql_cmd)
 					conn.commit()
 					logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}, color = {color}')
 			rating = rating + 100
+
 	conn.close()
 
 def main():
