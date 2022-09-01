@@ -11,12 +11,12 @@ from matplotlib import pyplot as plt
 import Queries as q
 
 
-def aggregate_evals(typ, corr_flag, rating, eval_group, color):
+def aggregate_evals(typ, tctype, rating, eval_group, color):
 	if typ == 'ACPL':
-		qry_text = q.eval_acpl(corr_flag, rating, eval_group, color)
+		qry_text = q.eval_acpl(tctype, rating, eval_group, color)
 	else:
 		N = typ[1:2]
-		qry_text = q.eval_tx(corr_flag, rating, eval_group, color, N)
+		qry_text = q.eval_tx(tctype, rating, eval_group, color, N)
 	conn_str = q.get_connstr()
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
@@ -34,7 +34,7 @@ def aggregate_evals(typ, corr_flag, rating, eval_group, color):
 
 		# plt_type = 'box' # [hist, box]
 		# plt_path = f'C:\\Users\\eehunt\\Repository\\EngineDetection\\plots\\{plt_type}'
-		# plt_name = f'{typ}_{rating}_{corr_flag}_{plt_type}.png'
+		# plt_name = f'{typ}_{rating}_{tctype}_{plt_type}.png'
 		# plt_full = os.path.join(plt_path, plt_name)
 		# if typ in ['ACPL', 'SDCPL']:
 		# 	mn = 0
@@ -53,7 +53,7 @@ def aggregate_evals(typ, corr_flag, rating, eval_group, color):
 		# 	plt.figure('Histogram')
 		# 	plt.hist(data_arr, bins=b)
 		# 	plt.xlim(mn, mx*1.1)
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corr_flag}, {ci_max}% confidence interval')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, {ci_max}% confidence interval')
 		# 	plt.axvline(lower_pcnt, color='k', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(av, color='red', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(upper_pcnt, color='k', linestyle='dashed', linewidth=1)
@@ -64,7 +64,7 @@ def aggregate_evals(typ, corr_flag, rating, eval_group, color):
 		# 	plt.figure('Boxplot')
 		# 	whis = [ci_min, ci_max]
 		# 	bp = plt.boxplot(data_arr, vert=0, whis=whis, sym='+')
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corr_flag}, Whiskers = {whis}')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, Whiskers = {whis}')
 		# 	plt.xlim(mn, mx*1.1)
 
 		# 	lwhis = bp['whiskers'][0].get_xdata()[1]
@@ -92,16 +92,16 @@ def aggregate_evals(typ, corr_flag, rating, eval_group, color):
 
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
-def aggregate_event(typ, corrflag, rating):
+def aggregate_event(typ, tctype, rating):
 	if typ == 'ACPL':
-		qry_text = q.event_acpl(corrflag, rating)
+		qry_text = q.event_acpl(tctype, rating)
 	elif typ == 'SDCPL':
-		qry_text = q.event_sdcpl(corrflag, rating)
+		qry_text = q.event_sdcpl(tctype, rating)
 	elif typ == 'Score':
-		qry_text = q.event_score(corrflag, rating)
+		qry_text = q.event_score(tctype, rating)
 	else:
 		N = typ[1:2]
-		qry_text = q.event_tx(corrflag, rating, N)
+		qry_text = q.event_tx(tctype, rating, N)
 	conn_str = q.get_connstr()
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
@@ -119,7 +119,7 @@ def aggregate_event(typ, corrflag, rating):
 
 		# plt_type = 'box' # [hist, box]
 		# plt_path = f'C:\\Users\\eehunt\\Repository\\EngineDetection\\plots\\{plt_type}'
-		# plt_name = f'{typ}_{rating}_{corrflag}_{plt_type}.png'
+		# plt_name = f'{typ}_{rating}_{tctype}_{plt_type}.png'
 		# plt_full = os.path.join(plt_path, plt_name)
 		# if typ in ['ACPL', 'SDCPL']:
 		# 	mn = 0
@@ -138,7 +138,7 @@ def aggregate_event(typ, corrflag, rating):
 		# 	plt.figure('Histogram')
 		# 	plt.hist(data_arr, bins=b)
 		# 	plt.xlim(mn, mx*1.1)
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corrflag}, {ci_max}% confidence interval')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, {ci_max}% confidence interval')
 		# 	plt.axvline(lower_pcnt, color='k', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(av, color='red', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(upper_pcnt, color='k', linestyle='dashed', linewidth=1)
@@ -149,7 +149,7 @@ def aggregate_event(typ, corrflag, rating):
 		# 	plt.figure('Boxplot')
 		# 	whis = [ci_min, ci_max]
 		# 	bp = plt.boxplot(data_arr, vert=0, whis=whis, sym='+')
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corrflag}, Whiskers = {whis}')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, Whiskers = {whis}')
 		# 	plt.xlim(mn, mx*1.1)
 
 		# 	lwhis = bp['whiskers'][0].get_xdata()[1]
@@ -177,16 +177,16 @@ def aggregate_event(typ, corrflag, rating):
 
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
-def aggregate_game(typ, corrflag, rating, color):
+def aggregate_game(typ, tctype, rating, color):
 	if typ == 'ACPL':
-		qry_text = q.game_acpl(corrflag, rating, color)
+		qry_text = q.game_acpl(tctype, rating, color)
 	elif typ == 'SDCPL':
-		qry_text = q.game_sdcpl(corrflag, rating, color)
+		qry_text = q.game_sdcpl(tctype, rating, color)
 	elif typ == 'Score':
-		qry_text = q.game_score(corrflag, rating, color)
+		qry_text = q.game_score(tctype, rating, color)
 	else:
 		N = typ[1:2]
-		qry_text = q.game_tx(corrflag, rating, color, N)
+		qry_text = q.game_tx(tctype, rating, color, N)
 	conn_str = q.get_connstr()
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
@@ -210,7 +210,7 @@ def aggregate_game(typ, corrflag, rating, color):
 
 		# plt_type = 'box' # [hist, box]
 		# plt_path = f'C:\\Users\\eehunt\\Repository\\EngineDetection\\plots\\{plt_type}'
-		# plt_name = f'{typ}_{rating}_{corrflag}_{plt_type}.png'
+		# plt_name = f'{typ}_{rating}_{tctype}_{plt_type}.png'
 		# plt_full = os.path.join(plt_path, plt_name)
 		# if typ in ['ACPL', 'SDCPL']:
 		# 	mn = 0
@@ -229,7 +229,7 @@ def aggregate_game(typ, corrflag, rating, color):
 		# 	plt.figure('Histogram')
 		# 	plt.hist(data_arr, bins=b)
 		# 	plt.xlim(mn, mx*1.1)
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corrflag}, {ci_max}% confidence interval')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, {ci_max}% confidence interval')
 		# 	plt.axvline(lower_pcnt, color='k', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(av, color='red', linestyle='dashed', linewidth=1)
 		# 	plt.axvline(upper_pcnt, color='k', linestyle='dashed', linewidth=1)
@@ -240,7 +240,7 @@ def aggregate_game(typ, corrflag, rating, color):
 		# 	plt.figure('Boxplot')
 		# 	whis = [ci_min, ci_max]
 		# 	bp = plt.boxplot(data_arr, vert=0, whis=whis, sym='+')
-		# 	plt.title(f'Type: {typ}, Rating: {rating}, Corr_Flag = {corrflag}, Whiskers = {whis}')
+		# 	plt.title(f'Type: {typ}, Rating: {rating}, TimeControlType = {tctype}, Whiskers = {whis}')
 		# 	plt.xlim(mn, mx*1.1)
 
 		# 	lwhis = bp['whiskers'][0].get_xdata()[1]
@@ -268,11 +268,11 @@ def aggregate_game(typ, corrflag, rating, color):
 
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
-def evaluation(agg):
+def evaluation(src, agg):
 	conn = sql.connect(q.get_connstr())
 	csr = conn.cursor()
 
-	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
+	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
 
@@ -280,58 +280,58 @@ def evaluation(agg):
 	for typ in ['ACPL', 'T1', 'T2', 'T3', 'T4', 'T5']:
 		rating = 1200
 		while rating < 2900:
-			for corr_flag in ['0', '1']:
+			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
 				for color in ['White', 'Black']:
 					for i in range(9):
 						eval_group = i + 1
-						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_evals(typ, corr_flag, rating, eval_group, color)
-						sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-						sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_evals(typ, tc_type, rating, eval_group, color)
+						sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+						sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 						csr.execute(sql_cmd)
 						conn.commit()
-						logging.info(f'Done with type = {typ}, min_rating = {rating}, eval_group = {eval_group}, color = {color}, corr_flag = {corr_flag}')
+						logging.info(f'Done with type = {typ}, min_rating = {rating}, eval_group = {eval_group}, color = {color}, timecontroltype = {tc_type}')
 			rating = rating + 100
 	conn.close()
 
-def event(agg):
+def event(src, agg):
 	conn = sql.connect(q.get_connstr())
 	csr = conn.cursor()
 
-	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
+	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
 	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
 		rating = 1200
 		while rating < 2900:
-			for corr_flag in ['0', '1']:
-				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, corr_flag, rating)
-				sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-				sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
+				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, tc_type, rating)
+				sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+				sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 				csr.execute(sql_cmd)
 				conn.commit()
-				logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}')
+				logging.info(f'Done with type = {typ}, rating = {rating}, timecontroltype = {tc_type}')
 			rating = rating + 100
 	conn.close()
 
-def game(agg):
+def game(src, agg):
 	conn = sql.connect(q.get_connstr())
 	csr = conn.cursor()
 
-	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Aggregation = '{agg}'"
+	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
 
 	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
 		rating = 1200
 		while rating < 2900:
-			for corr_flag in ['0', '1']:
+			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
 				for color in ['White', 'Black']:
-					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, corr_flag, rating, color)
-					sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, CorrFlag, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
-					sql_cmd = sql_cmd + f"VALUES ('Control', '{agg}', '{typ}', {rating}, {corr_flag}, '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, tc_type, rating, color)
+					sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+					sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 					csr.execute(sql_cmd)
 					conn.commit()
-					logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {corr_flag}, color = {color}')
+					logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {tc_type}, color = {color}')
 			rating = rating + 100
 
 	conn.close()
@@ -356,17 +356,24 @@ def main():
 		choices = ['Evaluation', 'Event', 'Game'],
 		help = 'Aggregation level'
 	)
+	parser.add_argument(
+		'-s', '--src',
+		default = 'Control',
+		choices = ['Control', 'Lichess'],
+		help = 'Data source'
+	)
 
 	args = parser.parse_args()
 	config = vars(args)
 	typ = config['typ']
+	src = config['src']
 
 	if typ == 'Game':
-		game(typ)
+		game(src, typ)
 	elif typ == 'Event':
-		event(typ)
+		event(src, typ)
 	elif typ == 'Evaluation':
-		evaluation(typ)
+		evaluation(src, typ)
 
 
 if __name__ == '__main__':

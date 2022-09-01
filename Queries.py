@@ -9,52 +9,78 @@ def get_connstr():
     return conn_str
 
 # game level
-def game_acpl(corrflag, rating, color):
-	qry = f"SELECT ACPL FROM vwControlGameSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND Color = '{color}'"
+def game_acpl(tctype, rating, color):
+	qry = f"SELECT ACPL FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_sdcpl(corrflag, rating, color):
-	qry = f"SELECT SDCPL FROM vwControlGameSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND Color = '{color}'"
+def game_sdcpl(tctype, rating, color):
+	qry = f"SELECT SDCPL FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_tx(corrflag, rating, color, N):
-	qry = f"SELECT T{N} FROM vwControlGameSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND Color = '{color}'"
+def game_tx(tctype, rating, color, N):
+	qry = f"SELECT T{N} FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_score(corrflag, rating, color):
-	qry = f"SELECT Score FROM vwControlGameSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND Color = '{color}'"
+def game_score(tctype, rating, color):
+	qry = f"SELECT Score FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
 # event level
-def event_acpl(corrflag, rating):
-	qry = f'SELECT ACPL FROM vwControlEventSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating}'
+def event_acpl(tctype, rating):
+	qry = f"SELECT ACPL FROM vwControlEventSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating}"
 	return qry
 
-def event_sdcpl(corrflag, rating):
-	qry = f'SELECT SDCPL FROM vwControlEventSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating}'
+def event_sdcpl(tctype, rating):
+	qry = f"SELECT SDCPL FROM vwControlEventSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating}"
 	return qry
 
-def event_tx(corrflag, rating, N):
-	qry = f'SELECT T{N} FROM vwControlEventSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating}'
+def event_tx(tctype, rating, N):
+	qry = f"SELECT T{N} FROM vwControlEventSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating}"
 	return qry
 
-def event_score(corrflag, rating):
-	qry = f'SELECT Score FROM vwControlEventSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating}'
+def event_score(tctype, rating):
+	qry = f"SELECT Score FROM vwControlEventSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating}"
 	return qry
 
 # eval level
-def eval_acpl(corrflag, rating, evalgroup, color):
-	qry = f"SELECT ACPL FROM vwControlEvalSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}' AND ACPL > 0"
+def eval_acpl(tctype, rating, evalgroup, color):
+	qry = f"SELECT ACPL FROM vwControlEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}' AND ACPL > 0"
 	return qry
 
-def eval_tx(corrflag, rating, evalgroup, color, N):
-	qry = f"SELECT T{N} FROM vwControlEvalSummary WHERE CorrFlag = {corrflag} AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
+def eval_tx(tctype, rating, evalgroup, color, N):
+	qry = f"SELECT T{N} FROM vwControlEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
 	return qry
 
 # in progress, would require additional processing steps
-# def eval_score(corrflag, rating, evalgroup, color):
-# 	qry = f"SELECT PointsGained, TotalPoints FROM vwControlEvalSummary WHERE g.CorrFlag = {corrflag} AND r.RatingGroup = {rating} AND e.GroupID = {evalgroup} AND m.Color = '{color}'"
+# def eval_score(tctype, rating, evalgroup, color):
+# 	qry = f"SELECT PointsGained, TotalPoints FROM vwControlEvalSummary WHERE TimeControlType = {tctype} AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
 # 	return qry
+
+# lichess game
+def lichess_game_acpl(tctype, rating, color):
+	qry = f"SELECT ACPL FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+	return qry
+
+def lichess_game_sdcpl(tctype, rating, color):
+	qry = f"SELECT SDCPL FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+	return qry
+
+def lichess_game_tx(tctype, rating, color, N):
+	qry = f"SELECT T{N} FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+	return qry
+
+def lichess_game_score(tctype, rating, color):
+	qry = f"SELECT Score FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+	return qry
+
+# lichess evaluation
+def lichess_eval_acpl(tctype, rating, color, evalgroup):
+	qry = f"SELECT ACPL FROM vwLichessEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}' AND GroupID = {evalgroup}"
+	return qry
+
+def lichess_eval_tx(tctype, rating, color, evalgroup, N):
+	qry = f"SELECT T{N} FROM vwLichessEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}' AND GroupID = {evalgroup}"
+	return qry
 
 # testing data
 def construct_test(typ, lastname, firstname, tmnt, roundnum, color, startdate, enddate, result):
