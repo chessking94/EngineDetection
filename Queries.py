@@ -1,28 +1,28 @@
 import json
 
 # misc
-def get_connstr():
+def get_conf(key):
     fname = r'C:\Users\eehunt\Repository\confidential.json'
     with open(fname, 'r') as t:
         key_data = json.load(t)
-    conn_str = key_data.get('SqlServerConnectionStringTrusted')
-    return conn_str
+    val = key_data.get(key)
+    return val
 
 # game level
-def game_acpl(tctype, rating, color):
-	qry = f"SELECT ACPL FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+def game_acpl(src, tctype, rating, color):
+	qry = f"SELECT ACPL FROM vw{src}GameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_sdcpl(tctype, rating, color):
-	qry = f"SELECT SDCPL FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+def game_sdcpl(src, tctype, rating, color):
+	qry = f"SELECT SDCPL FROM vw{src}GameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_tx(tctype, rating, color, N):
-	qry = f"SELECT T{N} FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+def game_tx(src, tctype, rating, color, N):
+	qry = f"SELECT T{N} FROM vw{src}GameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
-def game_score(tctype, rating, color):
-	qry = f"SELECT Score FROM vwControlGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
+def game_score(src, tctype, rating, color):
+	qry = f"SELECT Score FROM vw{src}GameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
 	return qry
 
 # event level
@@ -43,44 +43,18 @@ def event_score(tctype, rating):
 	return qry
 
 # eval level
-def eval_acpl(tctype, rating, evalgroup, color):
-	qry = f"SELECT ACPL FROM vwControlEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}' AND ACPL > 0"
+def eval_acpl(src, tctype, rating, evalgroup, color):
+	qry = f"SELECT ACPL FROM vw{src}EvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}' AND ACPL > 0"
 	return qry
 
-def eval_tx(tctype, rating, evalgroup, color, N):
-	qry = f"SELECT T{N} FROM vwControlEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
+def eval_tx(src, tctype, rating, evalgroup, color, N):
+	qry = f"SELECT T{N} FROM vw{src}EvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
 	return qry
 
 # in progress, would require additional processing steps
 # def eval_score(tctype, rating, evalgroup, color):
 # 	qry = f"SELECT PointsGained, TotalPoints FROM vwControlEvalSummary WHERE TimeControlType = {tctype} AND RatingGroup = {rating} AND GroupID = {evalgroup} AND Color = '{color}'"
 # 	return qry
-
-# lichess game
-def lichess_game_acpl(tctype, rating, color):
-	qry = f"SELECT ACPL FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
-	return qry
-
-def lichess_game_sdcpl(tctype, rating, color):
-	qry = f"SELECT SDCPL FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
-	return qry
-
-def lichess_game_tx(tctype, rating, color, N):
-	qry = f"SELECT T{N} FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
-	return qry
-
-def lichess_game_score(tctype, rating, color):
-	qry = f"SELECT Score FROM vwLichessGameSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}'"
-	return qry
-
-# lichess evaluation
-def lichess_eval_acpl(tctype, rating, color, evalgroup):
-	qry = f"SELECT ACPL FROM vwLichessEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}' AND GroupID = {evalgroup}"
-	return qry
-
-def lichess_eval_tx(tctype, rating, color, evalgroup, N):
-	qry = f"SELECT T{N} FROM vwLichessEvalSummary WHERE TimeControlType = '{tctype}' AND RatingGroup = {rating} AND Color = '{color}' AND GroupID = {evalgroup}"
-	return qry
 
 # testing data
 def construct_test(typ, lastname, firstname, tmnt, roundnum, color, startdate, enddate, result):

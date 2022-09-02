@@ -11,13 +11,13 @@ from matplotlib import pyplot as plt
 import Queries as q
 
 
-def aggregate_evals(typ, tctype, rating, eval_group, color):
+def aggregate_evals(src, typ, tctype, rating, eval_group, color):
 	if typ == 'ACPL':
-		qry_text = q.eval_acpl(tctype, rating, eval_group, color)
+		qry_text = q.eval_acpl(src, tctype, rating, eval_group, color)
 	else:
 		N = typ[1:2]
-		qry_text = q.eval_tx(tctype, rating, eval_group, color, N)
-	conn_str = q.get_connstr()
+		qry_text = q.eval_tx(src, tctype, rating, eval_group, color, N)
+	conn_str = q.get_conf('SqlServerConnectionStringTrusted')
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
 	conn.close()
@@ -102,7 +102,7 @@ def aggregate_event(typ, tctype, rating):
 	else:
 		N = typ[1:2]
 		qry_text = q.event_tx(tctype, rating, N)
-	conn_str = q.get_connstr()
+	conn_str = q.get_conf('SqlServerConnectionStringTrusted')
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
 	conn.close()
@@ -177,17 +177,17 @@ def aggregate_event(typ, tctype, rating):
 
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
-def aggregate_game(typ, tctype, rating, color):
+def aggregate_game(src, typ, tctype, rating, color):
 	if typ == 'ACPL':
-		qry_text = q.game_acpl(tctype, rating, color)
+		qry_text = q.game_acpl(src, tctype, rating, color)
 	elif typ == 'SDCPL':
-		qry_text = q.game_sdcpl(tctype, rating, color)
+		qry_text = q.game_sdcpl(src, tctype, rating, color)
 	elif typ == 'Score':
-		qry_text = q.game_score(tctype, rating, color)
+		qry_text = q.game_score(src, tctype, rating, color)
 	else:
 		N = typ[1:2]
 		qry_text = q.game_tx(tctype, rating, color, N)
-	conn_str = q.get_connstr()
+	conn_str = q.get_conf('SqlServerConnectionStringTrusted')
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
 	conn.close()
@@ -269,22 +269,29 @@ def aggregate_game(typ, tctype, rating, color):
 	return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
 def evaluation(src, agg):
-	conn = sql.connect(q.get_connstr())
+	conn = sql.connect(q.get_conf('SqlServerConnectionStringTrusted'))
 	csr = conn.cursor()
 
 	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
 
+	if src == 'Control':
+		tc_list = ['Classical', 'Correspondence']
+		rating_dict = {'min': 1200, 'max': 2900}
+	elif src == 'Lichess':
+		tc_list = ['Rapid', 'Classical']
+		rating_dict = {'min': 2200, 'max': 3400}
+
 	# this takes a long time to run FYI
 	for typ in ['ACPL', 'T1', 'T2', 'T3', 'T4', 'T5']:
-		rating = 1200
-		while rating < 2900:
-			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
+		rating = rating_dict['min']
+		while rating < rating_dict['max']:
+			for tc_type in tc_list:
 				for color in ['White', 'Black']:
 					for i in range(9):
 						eval_group = i + 1
-						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_evals(typ, tc_type, rating, eval_group, color)
+						ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_evals(src, typ, tc_type, rating, eval_group, color)
 						sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
 						sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', '{color}', {eval_group}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 						csr.execute(sql_cmd)
@@ -294,16 +301,24 @@ def evaluation(src, agg):
 	conn.close()
 
 def event(src, agg):
-	conn = sql.connect(q.get_connstr())
+	conn = sql.connect(q.get_conf('SqlServerConnectionStringTrusted'))
 	csr = conn.cursor()
 
 	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
+
+	if src == 'Control':
+		tc_list = ['Classical', 'Correspondence']
+		rating_dict = {'min': 1200, 'max': 2900}
+	elif src == 'Lichess':
+		tc_list = ['Rapid', 'Classical']
+		rating_dict = {'min': 2200, 'max': 3400}
+
 	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
-		rating = 1200
-		while rating < 2900:
-			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
+		rating = rating_dict['min']
+		while rating < rating_dict['max']:
+			for tc_type in tc_list:
 				ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_event(typ, tc_type, rating)
 				sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
 				sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', 'N/A', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
@@ -314,19 +329,26 @@ def event(src, agg):
 	conn.close()
 
 def game(src, agg):
-	conn = sql.connect(q.get_connstr())
+	conn = sql.connect(q.get_conf('SqlServerConnectionStringTrusted'))
 	csr = conn.cursor()
 
 	sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{src}' AND Aggregation = '{agg}'"
 	csr.execute(sql_cmd)
 	conn.commit()
 
+	if src == 'Control':
+		tc_list = ['Classical', 'Correspondence']
+		rating_dict = {'min': 1200, 'max': 2900}
+	elif src == 'Lichess':
+		tc_list = ['Rapid', 'Classical']
+		rating_dict = {'min': 2200, 'max': 3400}
+
 	for typ in ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']:
-		rating = 1200
-		while rating < 2900:
-			for tc_type in ['Rapid', 'Classical', 'Correspondence']:
+		rating = rating_dict['min']
+		while rating < rating_dict['max']:
+			for tc_type in tc_list:
 				for color in ['White', 'Black']:
-					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(typ, tc_type, rating, color)
+					ct, av, sd, lower, qt1, qt2, qt3, upper = aggregate_game(src, typ, tc_type, rating, color)
 					sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
 					sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 					csr.execute(sql_cmd)
@@ -367,13 +389,17 @@ def main():
 	config = vars(args)
 	typ = config['typ']
 	src = config['src']
-
-	if typ == 'Game':
-		game(src, typ)
-	elif typ == 'Event':
-		event(src, typ)
-	elif typ == 'Evaluation':
+	
+	if typ == 'Evaluation':
 		evaluation(src, typ)
+	elif typ == 'Event':
+		if src == 'Lichess':
+			logging.critical('Lichess not developed for event analysis!')
+			raise SystemExit
+		else:
+			event(src, typ)
+	elif typ == 'Game':
+		game(src, typ)
 
 
 if __name__ == '__main__':
