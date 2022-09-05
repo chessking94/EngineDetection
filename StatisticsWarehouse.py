@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 
 import Queries as q
 
+# TODO: Add CLI to allow for dynamic refreshes; i.e. only certain parameters. No need to trigger a complete refresh
 
 def aggregate_evals(src, typ, tctype, rating, eval_group, color):
 	if typ == 'ACPL':
@@ -186,7 +187,7 @@ def aggregate_game(src, typ, tctype, rating, color):
 		qry_text = q.game_score(src, tctype, rating, color)
 	else:
 		N = typ[1:2]
-		qry_text = q.game_tx(tctype, rating, color, N)
+		qry_text = q.game_tx(src, tctype, rating, color, N)
 	conn_str = q.get_conf('SqlServerConnectionStringTrusted')
 	conn = sql.connect(conn_str)
 	data_np = pd.read_sql(qry_text, conn).to_numpy()
@@ -353,7 +354,7 @@ def game(src, agg):
 					sql_cmd = sql_cmd + f"VALUES ('{src}', '{agg}', '{typ}', {rating}, '{tc_type}', '{color}', 0, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
 					csr.execute(sql_cmd)
 					conn.commit()
-					logging.info(f'Done with type = {typ}, rating = {rating}, corr_flag = {tc_type}, color = {color}')
+					logging.info(f'Done with type = {typ}, rating = {rating}, timecontroltype = {tc_type}, color = {color}')
 			rating = rating + 100
 
 	conn.close()
