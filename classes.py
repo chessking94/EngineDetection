@@ -5,6 +5,15 @@ import pandas as pd
 
 import Queries as q
 
+NL = '\n'
+AGG_CHOICES = ['Evaluation', 'Event', 'Game']
+SRC_CHOICES = ['Control', 'Lichess']
+FLD_CHOICES = ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']
+TIMECONTROL_CHOICES = ['Rapid', 'Classical', 'Correspondence']
+RATING_CHOICES = [1200+100*i for i in range(22)]
+EVALGROUP_CHOICES = [i+1 for i in range(9)]
+COLOR_CHOICES = ['White', 'Black']
+
 
 class aggregator:
     def __init__(self, conn, agg, src, fld, timecontrol, rating, evalgroup, color):
@@ -23,6 +32,7 @@ class aggregator:
         else:
             N = fld[1:2]
             qry_text = q.eval_tx(self.src, tctype, rating, evalgroup, color, N)
+        logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
             data_arr = np.concatenate(data_np)
@@ -56,6 +66,7 @@ class aggregator:
         else:
             N = fld[1:2]
             qry_text = q.event_tx(tctype, rating, N)
+        logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
             data_arr = np.concatenate(data_np)
@@ -89,6 +100,7 @@ class aggregator:
         else:
             N = fld[1:2]
             qry_text = q.game_tx(self.src, tctype, rating, color, N)
+        logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
             data_arr = np.concatenate(data_np)
@@ -117,10 +129,40 @@ class aggregator:
 
         return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
 
+    def delete_stats(self):
+        sql_del = f"""
+DELETE FROM StatisticsSummary
+WHERE Source = '{self.src}'
+AND Aggregation = '{self.agg}'
+"""
+
+        if self.fld and len(self.fld) < len(FLD_CHOICES):
+            fld_list = ','.join(f"'{i}'" for i in self.fld)
+            sql_del = sql_del + f'AND Field IN ({fld_list})' + NL
+
+        if self.timecontrol and len(self.timecontrol) < len(TIMECONTROL_CHOICES):
+            timecontrol_list = ','.join(f"'{i}'" for i in self.timecontrol)
+            sql_del = sql_del + f'AND TimeControlType IN ({timecontrol_list})' + NL
+
+        if self.rating and len(self.rating) < len(RATING_CHOICES):
+            rating_list = ','.join(str(i) for i in self.rating)
+            sql_del = sql_del + f'AND Rating IN ({rating_list})' + NL
+
+        if self.evalgroup and len(self.evalgroup) < len(EVALGROUP_CHOICES):
+            evalgroup_list = ','.join(str(i) for i in self.evalgroup)
+            sql_del = sql_del + f'AND EvalGroup IN ({evalgroup_list})' + NL
+
+        if self.color and len(self.color) < len(COLOR_CHOICES):
+            color_list = ','.join(f"'{i}'" for i in self.color)
+            sql_del = sql_del + f'AND Color IN ({color_list})' + NL
+
+        logging.debug(f"Delete query|{sql_del.replace(NL, ' ')}")
+        return sql_del
+
     def evaluation(self):
         csr = self.conn.cursor()
 
-        sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{self.src}' AND Aggregation = '{self.agg}'"
+        sql_cmd = self.delete_stats()
         csr.execute(sql_cmd)
         self.conn.commit()
 
@@ -136,6 +178,7 @@ class aggregator:
                             sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', "
                             sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
                             sql_cmd = sql_cmd + f"{qt3}, {upper})"
+                            logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                             csr.execute(sql_cmd)
                             self.conn.commit()
                             logging.info(f'Done with {fld}|{rating}|{evalgroup}|{color}|{tctype}')
@@ -143,7 +186,7 @@ class aggregator:
     def event(self):
         csr = self.conn.cursor()
 
-        sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{self.src}' AND Aggregation = '{self.agg}'"
+        sql_cmd = self.delete_stats()
         csr.execute(sql_cmd)
         self.conn.commit()
 
@@ -155,6 +198,7 @@ class aggregator:
                     sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
                     sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', 'N/A', 0, "
                     sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+                    logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                     csr.execute(sql_cmd)
                     self.conn.commit()
                     logging.info(f'Done with Field = {fld}, Rating = {rating}, TimeControlType = {tctype}')
@@ -162,7 +206,7 @@ class aggregator:
     def game(self):
         csr = self.conn.cursor()
 
-        sql_cmd = f"DELETE FROM StatisticsSummary WHERE Source = '{self.src}' AND Aggregation = '{self.agg}'"
+        sql_cmd = self.delete_stats()
         csr.execute(sql_cmd)
         self.conn.commit()
 
@@ -177,6 +221,7 @@ class aggregator:
                         sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', 0, "
                         sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
                         sql_cmd = sql_cmd + f"{qt3}, {upper})"
+                        logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
                         self.conn.commit()
                         logging.info(f'Done with Field = {fld}, Rating = {rating}, TimeControlType = {tctype}, Color = {color}')

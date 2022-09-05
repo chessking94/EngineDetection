@@ -3,23 +3,12 @@ import logging
 
 import pyodbc as sql
 
-from classes import aggregator
+import classes as c
 import Queries as q
-
-# TODO: Move the deletes to their own (class?) function
-# TODO: Consider implementing case insensitivity for arguments
-
-AGG_CHOICES = ['Evaluation', 'Event', 'Game']
-SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']
-TIMECONTROL_CHOICES = ['Rapid', 'Classical', 'Correspondence']
-RATING_CHOICES = [1200+100*i for i in range(22)]
-EVALGROUP_CHOICES = [i+1 for i in range(9)]
-COLOR_CHOICES = ['White', 'Black']
 
 
 def validate_args(config):
-    if config['agg'] not in AGG_CHOICES:
+    if config['agg'] not in c.AGG_CHOICES:
         logging.critical(f"Invalid aggregation level|{config['agg']}")
         raise SystemExit
 
@@ -27,7 +16,7 @@ def validate_args(config):
     if config['agg'] == 'Evaluation':
         rmv_list = ['SDCPL', 'Score']
         config['fld'] = [e for e in config['fld'] if e not in rmv_list]
-        config['evalgroup'] = EVALGROUP_CHOICES if not config['evalgroup'] else config['evalgroup']
+        config['evalgroup'] = c.EVALGROUP_CHOICES if not config['evalgroup'] else config['evalgroup']
     elif config['agg'] == 'Event':
         if 'Lichess' in config['src']:
             logging.warning('Lichess requested for Event aggregation, removed as not developed')
@@ -75,48 +64,49 @@ def main():
     parser.add_argument(
         '-a', '--agg',
         default='Evaluation',
-        choices=AGG_CHOICES,
+        choices=c.AGG_CHOICES,
         help='Aggregation level'
     )
     parser.add_argument(
         '-s', '--src',
-        default=SRC_CHOICES,
-        choices=SRC_CHOICES,
+        default=c.SRC_CHOICES,
+        choices=c.SRC_CHOICES,
         help='Data source'
     )
     parser.add_argument(
         '-f', '--fld',
-        default=FLD_CHOICES,
-        choices=FLD_CHOICES,
+        default=c.FLD_CHOICES,
+        choices=c.FLD_CHOICES,
         help='Statistic field'
     )
     parser.add_argument(
         '-t', '--timecontrol',
-        default=TIMECONTROL_CHOICES,
-        choices=TIMECONTROL_CHOICES,
+        default=c.TIMECONTROL_CHOICES,
+        choices=c.TIMECONTROL_CHOICES,
         help='Time control'
     )
     parser.add_argument(
         '-r', '--rating',
-        default=[1200+100*i for i in range(22)],
-        choices=RATING_CHOICES,
+        default=c.RATING_CHOICES,
+        choices=c.RATING_CHOICES,
         help='Rating group to nearest hundred'
     )
     parser.add_argument(
         '-e', '--evalgroup',
-        choices=EVALGROUP_CHOICES,
+        choices=c.EVALGROUP_CHOICES,
         help='Evaluation group'
     )
     parser.add_argument(
         '-c', '--color',
-        default=COLOR_CHOICES,
-        choices=COLOR_CHOICES,
+        default=c.COLOR_CHOICES,
+        choices=c.COLOR_CHOICES,
         help='Color'
     )
 
     args = parser.parse_args()
     config = vars(args)
     data = validate_args(config)
+    logging.debug(f'Arguments|{data}')
 
     conn_str = q.get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
@@ -129,7 +119,7 @@ def main():
         evalgroup = data['evalgroup'][src]
         color = data['color'][src]
 
-        req = aggregator(conn, agg, src, fld, timecontrol, rating, evalgroup, color)
+        req = c.aggregator(conn, agg, src, fld, timecontrol, rating, evalgroup, color)
 
         if agg == 'Evaluation':
             req.evaluation()
