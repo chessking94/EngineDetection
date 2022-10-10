@@ -25,6 +25,7 @@ class aggregator:
         self.rating = rating
         self.evalgroup = evalgroup
         self.color = color
+        self.ci_min = 1
 
     def aggregate_evals(self, fld, tctype, rating, evalgroup, color):
         if fld == 'ACPL':
@@ -41,9 +42,8 @@ class aggregator:
             av = np.mean(data_arr)
             sd = np.std(data_arr)
 
-            ci_min = 1
-            ci_max = 100 - ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [ci_min, 25, 50, 75, ci_max])
+            ci_max = 100 - self.ci_min
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
         else:
             ct = 0
             av = 'NULL'
@@ -75,9 +75,8 @@ class aggregator:
             av = np.mean(data_arr)
             sd = np.std(data_arr)
 
-            ci_min = 1
-            ci_max = 100 - ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [ci_min, 25, 50, 75, ci_max])
+            ci_max = 100 - self.ci_min
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
         else:
             ct = 0
             av = 'NULL'
@@ -109,9 +108,8 @@ class aggregator:
             av = np.mean(data_arr)
             sd = np.std(data_arr)
 
-            ci_min = 1
-            ci_max = 100 - ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [ci_min, 25, 50, 75, ci_max])
+            ci_max = 100 - self.ci_min
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
             if fld == 'Score' and qtr3 > 100:
                 qtr3 = 100
