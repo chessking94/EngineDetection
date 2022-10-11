@@ -58,7 +58,8 @@ def event_games(rpt, conn, event):
             z_qry = qry.roi_calc(agg='Game', src='Control', tc='Classical', rating=rt)
             z_rs = pd.read_sql(z_qry, conn).values.tolist()
             z_score = (game['Score'] - z_rs[0][0])/z_rs[0][1]
-            roi = '{:.1f}'.format(50 + z_score*10)
+            roi = '{:.1f}'.format(50 + z_score*5)
+            roi = roi + '*' if (50 + z_score*5) >= 70 else roi
             rpt.write(roi.ljust(7, ' '))
 
             # moves
@@ -146,7 +147,8 @@ def event_playersummary(rpt, conn, event):
         z_qry = qry.roi_calc(agg='Game', src='Control', tc='Classical', rating=rt)
         z_rs = pd.read_sql(z_qry, conn).values.tolist()
         z_score = (player['Score'] - z_rs[0][0])/z_rs[0][1]
-        roi = '{:.1f}'.format(50 + z_score*10)
+        roi = '{:.1f}'.format(50 + z_score*5)
+        roi = roi + '*' if (50 + z_score*5) >= 70 else roi
         rpt.write(roi.ljust(roi_len, ' '))
 
         oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -165,7 +167,8 @@ def event_playersummary(rpt, conn, event):
         # z_qry = qry.roi_calc(agg='Game', src='Control', tc='Classical', rating=rt)
         # z_rs = pd.read_sql(z_qry, conn).values.tolist()
         # z_score = (player['OppScore'] - z_rs[0][0])/z_rs[0][1]
-        # opproi = '{:.1f}'.format(50 + z_score*10)
+        # opproi = '{:.1f}'.format(50 + z_score*5)
+        # opproi = opproi + '*' if (50 + z_score*5) >= 70 else opproi
         # rpt.write(opproi)
 
         rpt.write(NL)
@@ -180,6 +183,7 @@ def event_stats(rpt, conn, event):
     rpt.write('Average rating by game:'.ljust(EV_LEN, ' '))
     qry_text = qry.event_avgrating(event)
     rs = pd.read_sql(qry_text, conn).values.tolist()
+    rt = math.floor(int(rs[0][0])/100)*100
     rpt.write(str(int(rs[0][0])) + '; ')
     rpt.write('min ' + str(int(rs[0][1])) + ', ')
     rpt.write('max ' + str(int(rs[0][2])) + NL)
@@ -217,16 +221,19 @@ def event_stats(rpt, conn, event):
     rpt.write('{:.4f}'.format(rs[0][8]) + NL)
     rpt.write(NL)
 
-    qry_text = qry.event_playersummary(event)
-    rs = pd.read_sql(qry_text, conn)
-    m = rs['Score'].mean()
-    rpt.write('Average score by player:'.ljust(EV_LEN, ' '))
-    rpt.write('{:2.2f}'.format(m) + NL)
-
     qry_text = qry.event_totalscore(event)
     rs = pd.read_sql(qry_text, conn).values.tolist()
     rpt.write('Overall event score:'.ljust(EV_LEN, ' '))
     rpt.write('{:2.2f}'.format(rs[0][0]) + NL)
+
+    z_qry = qry.roi_calc(agg='Event', src='Control', tc='Classical', rating=rt)
+    z_rs = pd.read_sql(z_qry, conn).values.tolist()
+    z_score = (rs[0][0] - z_rs[0][0])/z_rs[0][1]
+    roi = '{:.1f}'.format(50 + z_score*5)
+    roi = roi + '*' if (50 + z_score*5) >= 70 else roi
+    rpt.write('Overall event ROI:'.ljust(EV_LEN, ' '))
+    rpt.write(roi + NL)
+
     rpt.write(NL)
     rpt.write(NL)
 
@@ -278,7 +285,8 @@ def player_key(rpt):
     rpt.write('Score:'.ljust(PK_LEN, ' '))
     rpt.write('Game Score; measurement of how accurately the game was played, ranges from 0 to 100' + NL)
     rpt.write('ROI:'.ljust(PK_LEN, ' '))
-    rpt.write('Raw Outlier Index; normalized Score value where 50 represents the mean and each increment of 10 is one standard deviation from the mean' + NL)
+    rpt.write('Raw Outlier Index; normalized Score value where 50 represents the mean and each increment of 5 is one standard deviation from the mean' + NL)
+    rpt.write(' '*PK_LEN + 'An asterisk (*) following an ROI value indicates a situation that deserves extra scrutiny' + NL)
     rpt.write(NL)
 
 

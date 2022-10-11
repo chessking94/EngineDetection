@@ -9,12 +9,11 @@ import sections
 
 RPT_CHOICES = ['Event', 'Game', 'Player']
 
-# TODO: Create slightly different reports for individual games and custom player datasets
-# TODO: Add CLI argument ability
 # TODO: Performance rating (or +/-) based on ROI
 # TODO: Scaled ACPL values a la Regan
 # TODO: More complete ROI that includes more than just the score value
-# TODO: Some kind of clear indicator if a performance is out of the ordinary, i.e. >= 80 ROI
+# TODO: Create slightly different reports for individual games and custom player datasets
+# TODO: Add CLI argument ability
 
 
 def main():
