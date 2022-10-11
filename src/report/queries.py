@@ -1,21 +1,3 @@
-def event_summary(event):
-    qry = f"""
-SELECT
-Tournament AS Event,
-CONVERT(varchar(10), MIN(GameDate), 101) + ' - ' + CONVERT(varchar(10), MAX(GameDate), 101) AS EventDate,
-MAX(CASE WHEN ISNUMERIC(RoundNum) = 0 THEN 0 ELSE FLOOR(CONVERT(decimal(5, 3), RoundNum)) END) AS Rounds,
-(COUNT(DISTINCT WhiteLast + WhiteFirst) + COUNT(DISTINCT BlackLast + BlackFirst))/2 AS Players
-
-FROM ControlGames
-
-WHERE Tournament = '{event}'
-
-GROUP BY
-Tournament
-"""
-    return qry
-
-
 def event_avgrating(event):
     qry = f"""
 SELECT
@@ -26,172 +8,6 @@ ROUND(MAX((WhiteElo + BlackElo)/2), 0) AS AvgGameRatingMax
 FROM ControlGames
 
 WHERE Tournament = '{event}'
-"""
-    return qry
-
-
-def event_scoredmoves(event):
-    qry = f"""
-SELECT
-ROUND(AVG(CASE WHEN m.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END), 0) AS AvgScoredRating,
-COUNT(m.MoveID) AS ScoredMoves,
-SUM(CASE WHEN m.Move_Rank <= 1 THEN 1 ELSE 0 END) AS T1,
-SUM(CASE WHEN m.Move_Rank <= 2 THEN 1 ELSE 0 END) AS T2,
-SUM(CASE WHEN m.Move_Rank <= 3 THEN 1 ELSE 0 END) AS T3,
-SUM(CASE WHEN m.Move_Rank <= 4 THEN 1 ELSE 0 END) AS T4,
-SUM(CASE WHEN m.Move_Rank <= 5 THEN 1 ELSE 0 END) AS T5,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-STDEV(CAST(m.CP_Loss AS decimal(5,2))) AS SDCPL
-
-FROM ControlMoves m
-JOIN ControlGames g ON m.GameID = g.GameID
-
-WHERE g.Tournament = '{event}'
-AND m.IsTheory = 0
-AND m.IsTablebase = 0
-AND ISNUMERIC(m.T1_Eval) = 1
-AND ISNUMERIC(m.Move_Eval) = 1
-AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
-"""
-    return qry
-
-
-def event_totalmoves(event):
-    qry = f"""
-SELECT
-COUNT(m.MoveID) AS TotalMoves
-
-FROM ControlMoves m
-JOIN ControlGames g ON m.GameID = g.GameID
-
-WHERE g.Tournament = '{event}'
-"""
-    return qry
-
-
-def event_totalscore(event):
-    qry = f"""
-SELECT
-CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score
-
-FROM vwControlMoveScores v
-JOIN ControlGames g ON v.GameID = g.GameID
-
-WHERE g.Tournament = '{event}'
-"""
-    return qry
-
-
-def event_playersummary(event):
-    qry = f"""
-SELECT
-CASE
-    WHEN NULLIF(TRIM(CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END), '') IS NULL
-        THEN (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
-    ELSE (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) + ' ' + (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
-END AS Name,
-AVG(CASE WHEN m.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) Rating,
-e.Record,
-e.GamesPlayed,
-e.Perf,
-SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS EVM,
-COUNT(v.MoveID) AS ScoredMoves,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-STDEV(CAST(m.CP_Loss AS decimal(5,2))) AS SDCPL,
-CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score,
-opp.OppEVM,
-opp.OppScoredMoves,
-opp.OppACPL,
-opp.OppSDCPL,
-opp.OppScore
-
-FROM vwControlMoveScores v
-JOIN ControlMoves m ON v.MoveID = m.MoveID
-JOIN ControlGames g ON m.GameID = g.GameID
-JOIN (
-    SELECT
-    e.Tournament,
-    e.LastName,
-    e.FirstName,
-    SUM(e.ColorResult) AS Record,
-    COUNT(e.GameID) AS GamesPlayed,
-    dbo.fn_CalcPerfRating(AVG(e.OppElo), SUM(e.ColorResult)/COUNT(e.GameID)) - AVG(e.Elo) AS Perf
-    FROM vwControlEventBreakdown e
-    GROUP BY
-    e.Tournament,
-    e.LastName,
-    e.FirstName
-) e ON
-    (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) = e.FirstName AND
-    (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END) = e.LastName AND
-    g.Tournament = e.Tournament
-JOIN (
-    SELECT
-    CASE WHEN m.Color = 'White' THEN g.BlackFirst ELSE g.WhiteFirst END AS FirstName,
-    CASE WHEN m.Color = 'White' THEN g.BlackLast ELSE g.WhiteLast END AS LastName,
-    g.Tournament,
-    SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS OppEVM,
-    COUNT(v.MoveID) AS OppScoredMoves,
-    AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
-    STDEV(CAST(m.CP_Loss AS decimal(5,2))) AS OppSDCPL,
-    CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS OppScore
-    FROM vwControlMoveScores v
-    JOIN ControlMoves m ON v.MoveID = m.MoveID
-    JOIN ControlGames g ON m.GameID = g.GameID
-    WHERE m.IsTheory = 0
-    AND m.IsTablebase = 0
-    AND ISNUMERIC(m.T1_Eval) = 1
-    AND ISNUMERIC(m.Move_Eval) = 1
-    AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
-    GROUP BY
-    CASE WHEN m.Color = 'White' THEN g.BlackFirst ELSE g.WhiteFirst END,
-    CASE WHEN m.Color = 'White' THEN g.BlackLast ELSE g.WhiteLast END,
-    g.Tournament
-) opp ON
-    (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) = opp.FirstName AND
-    (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END) = opp.LastName AND
-    g.Tournament = opp.Tournament
-
-WHERE g.Tournament = '{event}'
-AND m.IsTheory = 0
-AND m.IsTablebase = 0
-AND ISNUMERIC(m.T1_Eval) = 1
-AND ISNUMERIC(m.Move_Eval) = 1
-AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
-
-GROUP BY
-CASE
-    WHEN NULLIF(TRIM(CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END), '') IS NULL
-        THEN (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
-    ELSE (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) + ' ' + (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
-END,
-e.Record,
-e.GamesPlayed,
-e.Perf,
-opp.OppEVM,
-opp.OppScoredMoves,
-opp.OppACPL,
-opp.OppSDCPL,
-opp.OppScore
-
-ORDER BY 1
-"""
-    return qry
-
-
-def roi_calc(agg):
-    qry = f"""
-SELECT
-Average,
-StandardDeviation
-
-FROM StatisticsSummary
-
-WHERE Aggregation = '{agg}'
-AND Field = 'Score'
-AND Source = 'Control'
-AND TimeControlType = 'Classical'
-AND Rating = 2700
 """
     return qry
 
@@ -252,7 +68,7 @@ AVG(CASE WHEN (CASE WHEN NULLIF(g.WhiteFirst, '') IS NULL THEN '' ELSE g.WhiteFi
 SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0 END) AS EVM,
 COUNT(v.MoveID) AS ScoredMoves,
 AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-STDEV(CAST(m.CP_Loss AS decimal(5,2))) AS SDCPL,
+ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
 CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score
 
 FROM vwControlMoveScores v
@@ -296,6 +112,173 @@ ORDER BY 2
     return qry
 
 
+def event_playersummary(event):
+    qry = f"""
+SELECT
+CASE
+    WHEN NULLIF(TRIM(CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END), '') IS NULL
+        THEN (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
+    ELSE (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) + ' ' + (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
+END AS Name,
+AVG(CASE WHEN m.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) Rating,
+e.Record,
+e.GamesPlayed,
+e.Perf,
+SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS EVM,
+COUNT(v.MoveID) AS ScoredMoves,
+AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score,
+opp.OppEVM,
+opp.OppScoredMoves,
+opp.OppACPL,
+opp.OppSDCPL,
+opp.OppScore
+
+FROM vwControlMoveScores v
+JOIN ControlMoves m ON v.MoveID = m.MoveID
+JOIN ControlGames g ON m.GameID = g.GameID
+JOIN (
+    SELECT
+    e.Tournament,
+    e.LastName,
+    e.FirstName,
+    SUM(e.ColorResult) AS Record,
+    COUNT(e.GameID) AS GamesPlayed,
+    dbo.fn_CalcPerfRating(AVG(e.OppElo), SUM(e.ColorResult)/COUNT(e.GameID)) - AVG(e.Elo) AS Perf
+    FROM vwControlEventBreakdown e
+    GROUP BY
+    e.Tournament,
+    e.LastName,
+    e.FirstName
+) e ON
+    (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) = e.FirstName AND
+    (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END) = e.LastName AND
+    g.Tournament = e.Tournament
+JOIN (
+    SELECT
+    CASE WHEN m.Color = 'White' THEN g.BlackFirst ELSE g.WhiteFirst END AS FirstName,
+    CASE WHEN m.Color = 'White' THEN g.BlackLast ELSE g.WhiteLast END AS LastName,
+    g.Tournament,
+    SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS OppEVM,
+    COUNT(v.MoveID) AS OppScoredMoves,
+    AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
+    ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS OppSDCPL,
+    CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS OppScore
+    FROM vwControlMoveScores v
+    JOIN ControlMoves m ON v.MoveID = m.MoveID
+    JOIN ControlGames g ON m.GameID = g.GameID
+    WHERE m.IsTheory = 0
+    AND m.IsTablebase = 0
+    AND ISNUMERIC(m.T1_Eval) = 1
+    AND ISNUMERIC(m.Move_Eval) = 1
+    AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
+    GROUP BY
+    CASE WHEN m.Color = 'White' THEN g.BlackFirst ELSE g.WhiteFirst END,
+    CASE WHEN m.Color = 'White' THEN g.BlackLast ELSE g.WhiteLast END,
+    g.Tournament
+) opp ON
+    (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) = opp.FirstName AND
+    (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END) = opp.LastName AND
+    g.Tournament = opp.Tournament
+
+WHERE g.Tournament = '{event}'
+AND m.IsTheory = 0
+AND m.IsTablebase = 0
+AND ISNUMERIC(m.T1_Eval) = 1
+AND ISNUMERIC(m.Move_Eval) = 1
+AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
+
+GROUP BY
+CASE
+    WHEN NULLIF(TRIM(CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END), '') IS NULL
+        THEN (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
+    ELSE (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) + ' ' + (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END)
+END,
+e.Record,
+e.GamesPlayed,
+e.Perf,
+opp.OppEVM,
+opp.OppScoredMoves,
+opp.OppACPL,
+opp.OppSDCPL,
+opp.OppScore
+
+ORDER BY 1
+"""
+    return qry
+
+
+def event_scoredmoves(event):
+    qry = f"""
+SELECT
+ROUND(AVG(CASE WHEN m.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END), 0) AS AvgScoredRating,
+COUNT(m.MoveID) AS ScoredMoves,
+SUM(CASE WHEN m.Move_Rank <= 1 THEN 1 ELSE 0 END) AS T1,
+SUM(CASE WHEN m.Move_Rank <= 2 THEN 1 ELSE 0 END) AS T2,
+SUM(CASE WHEN m.Move_Rank <= 3 THEN 1 ELSE 0 END) AS T3,
+SUM(CASE WHEN m.Move_Rank <= 4 THEN 1 ELSE 0 END) AS T4,
+SUM(CASE WHEN m.Move_Rank <= 5 THEN 1 ELSE 0 END) AS T5,
+AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL
+
+FROM ControlMoves m
+JOIN ControlGames g ON m.GameID = g.GameID
+
+WHERE g.Tournament = '{event}'
+AND m.IsTheory = 0
+AND m.IsTablebase = 0
+AND ISNUMERIC(m.T1_Eval) = 1
+AND ISNUMERIC(m.Move_Eval) = 1
+AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3) AS float)
+"""
+    return qry
+
+
+def event_summary(event):
+    qry = f"""
+SELECT
+Tournament AS Event,
+CONVERT(varchar(10), MIN(GameDate), 101) + ' - ' + CONVERT(varchar(10), MAX(GameDate), 101) AS EventDate,
+MAX(CASE WHEN ISNUMERIC(RoundNum) = 0 THEN 0 ELSE FLOOR(CONVERT(decimal(5, 3), RoundNum)) END) AS Rounds,
+(COUNT(DISTINCT WhiteLast + WhiteFirst) + COUNT(DISTINCT BlackLast + BlackFirst))/2 AS Players
+
+FROM ControlGames
+
+WHERE Tournament = '{event}'
+
+GROUP BY
+Tournament
+"""
+    return qry
+
+
+def event_totalmoves(event):
+    qry = f"""
+SELECT
+COUNT(m.MoveID) AS TotalMoves
+
+FROM ControlMoves m
+JOIN ControlGames g ON m.GameID = g.GameID
+
+WHERE g.Tournament = '{event}'
+"""
+    return qry
+
+
+def event_totalscore(event):
+    qry = f"""
+SELECT
+CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score
+
+FROM vwControlMoveScores v
+JOIN ControlGames g ON v.GameID = g.GameID
+
+WHERE g.Tournament = '{event}'
+"""
+    return qry
+
+
 def game_trace(gameid, color):
     qry = f"""
 SELECT
@@ -328,5 +311,22 @@ CAST(SettingValue AS decimal(5,2))*100 AS Max_Eval
 FROM DynamicSettings
 
 WHERE SettingID = 3
+"""
+    return qry
+
+
+def roi_calc(agg, src, tc, rating):
+    qry = f"""
+SELECT
+Average,
+StandardDeviation
+
+FROM StatisticsSummary
+
+WHERE Aggregation = '{agg}'
+AND Field = 'Score'
+AND Source = '{src}'
+AND TimeControlType = '{tc}'
+AND Rating = {rating}
 """
     return qry

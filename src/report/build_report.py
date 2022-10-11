@@ -9,9 +9,12 @@ import sections
 
 RPT_CHOICES = ['Event', 'Game', 'Player']
 
-# TODO: Add rating parameter for ROI calculations
 # TODO: Create slightly different reports for individual games and custom player datasets
 # TODO: Add CLI argument ability
+# TODO: Performance rating (or +/-) based on ROI
+# TODO: Scaled ACPL values a la Regan
+# TODO: More complete ROI that includes more than just the score value
+# TODO: Some kind of clear indicator if a performance is out of the ordinary, i.e. >= 80 ROI
 
 
 def main():
@@ -49,29 +52,30 @@ def main():
 
     rpt = get_config(config_path, 'reportType')
 
-    report_path = get_config(config_path, 'reportPath')
-    report_name = 'report_test.txt'
-    report_full = os.path.join(report_path, report_name)
-
     db = get_config(config_path, 'useDatabase')
     if db:
-        pgn_name = 'N/A'
-        engine_name = 'N/A'
-        depth = 'N/A'
+        pgn_name = None
+        # engine_name = 'N/A'
+        # depth = 'N/A'
+        engine_name = get_config(config_path, 'engineName')
+        depth = get_config(config_path, 'depth')
     else:
         pgn_name = get_config(config_path, 'pgnName')
         engine_name = get_config(config_path, 'engineName')
         depth = get_config(config_path, 'depth')
 
-    ev = '81st Tata Steel GpA'
+    ev = 'Thursday Knighter I 2020 PREMIER'
+    report_path = get_config(config_path, 'reportPath')
+    report_name = f'{ev}_report.txt'
+    report_full = os.path.join(report_path, report_name)
 
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
 
     # headers
     with open(report_full, 'w') as rf:
-        sections.type_header(rf, rpt, conn, ev)
-        sections.info_header(rf, pgn_name, engine_name, depth)
+        sections.header_type(rf, rpt, conn, ev)
+        sections.header_info(rf, pgn_name, engine_name, depth)
         sections.scoring_desc(rf, conn)
 
         if rpt == 'Event':
