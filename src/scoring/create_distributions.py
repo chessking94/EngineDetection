@@ -55,13 +55,13 @@ def main():
     logging.debug(f'Arguments|{config}')
 
     lc = {
-        'Classical': {'Mean': 0, 'StDev': 4},
-        'Rapid': {'Mean': 0, 'StDev': 4.5}
+        'Classical': {'Mean': 0.15, 'StDev': 3.88},
+        'Rapid': {'Mean': 0.19, 'StDev': 4.47}
     }
 
     ctrl = {
-        'Classical': {'Mean': 0, 'StDev': 2.4},
-        'Correspondence': {'Mean': 0, 'StDev': np.exp(1)}
+        'Classical': {'Mean': 0.35, 'StDev': 1.85},
+        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
     }
 
     dist_dict = {'Lichess': lc, 'Control': ctrl}
