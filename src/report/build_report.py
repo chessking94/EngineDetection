@@ -30,17 +30,19 @@ def main():
     db = get_config(config_path, 'useDatabase')
     if db:
         pgn_name = None
-        # TODO: Get engine and depth values from DB somewhere?
-        engine_name = get_config(config_path, 'engineName')
-        depth = get_config(config_path, 'depth')
     else:
         pgn_name = get_config(config_path, 'pgnName')
-        engine_name = get_config(config_path, 'engineName')
-        depth = get_config(config_path, 'depth')
+
+    engine_name = get_config(config_path, 'engineName')
+    depth = get_config(config_path, 'depth')
 
     if rpt == 'Event':
         ev = get_config(config_path, 'eventName')
+        full_name = ['', '']
+        start_date = ''
+        end_date = ''
     elif rpt == 'Player':
+        ev = ''
         first_name = get_config(config_path, 'firstName')
         last_name = get_config(config_path, 'lastName')
         full_name = [first_name, last_name]
@@ -61,24 +63,18 @@ def main():
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
 
-    # headers
     with open(report_full, 'w') as rf:
-        sections.header_type(rf, rpt, conn, ev, full_name, start_date, end_date)
-        sections.header_info(rf, pgn_name, engine_name, depth)
-        sections.scoring_desc(rf, conn)
+        g = sections.general(rf)
+        r = sections.report(rf, rpt, conn, ev, full_name, start_date, end_date)
 
-        if rpt == 'Event':
-            sections.key_stats(rf, conn, ev, None, None, None)
-            sections.player_key(rf)
-            sections.player_summary(rf, conn, ev, None, None, None)
-            sections.game_key(rf)
-            sections.game_traces(rf, conn, ev, None, None, None)
-        elif rpt == 'Player':
-            sections.key_stats(rf, conn, None, full_name, start_date, end_date)
-            sections.player_key(rf)
-            sections.player_summary(rf, conn, None, full_name, start_date, end_date)
-            sections.game_key(rf)
-            sections.game_traces(rf, conn, None, full_name, start_date, end_date)
+        g.header_type(rpt, conn, ev, full_name, start_date, end_date)
+        g.header_info(pgn_name, engine_name, depth)
+        g.scoring_desc(conn)
+        r.key_stats()
+        g.player_key()
+        r.player_summary()
+        g.game_key()
+        r.game_traces()
 
     conn.close()
 

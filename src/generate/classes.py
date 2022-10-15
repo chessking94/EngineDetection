@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-import Queries as q
+import queries as q
 
 NL = '\n'
 AGG_CHOICES = ['Evaluation', 'Event', 'Game']
