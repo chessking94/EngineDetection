@@ -615,7 +615,8 @@ def roi_calc(agg, src, tc, rating):
     qry = f"""
 SELECT
 Average,
-StandardDeviation
+StandardDeviation,
+MaxValue
 
 FROM StatisticsSummary
 

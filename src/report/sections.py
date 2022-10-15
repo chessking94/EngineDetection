@@ -3,6 +3,7 @@ import math
 
 import pandas as pd
 
+import func
 import queries as qry
 
 NL = '\n'
@@ -61,11 +62,10 @@ def game_traces(rpt, conn, event, name, startdate, enddate):
             score = '{:.2f}'.format(game['Score'])
             rpt.write(score.ljust(7, ' '))
 
-            z_qry = qry.roi_calc(agg='Game', src='Control', tc='Classical', rating=rt)
+            agg_typ = 'Game'
+            z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
             z_rs = pd.read_sql(z_qry, conn).values.tolist()
-            z_score = (game['Score'] - z_rs[0][0])/z_rs[0][1]
-            roi = '{:.1f}'.format(50 + z_score*5)
-            roi = roi + '*' if (50 + z_score*5) >= 70 else roi
+            roi = func.calc_roi(agg_typ, game['Score'], z_rs)
             rpt.write(roi.ljust(7, ' '))
 
             # moves
@@ -161,11 +161,10 @@ def key_stats(rpt, conn, event, name, startdate, enddate):
         rpt.write('Overall player score:'.ljust(EV_LEN, ' '))
     rpt.write('{:2.2f}'.format(rs[0][0]) + NL)
 
-    z_qry = qry.roi_calc(agg='Event', src='Control', tc='Classical', rating=rt)
+    agg_typ = 'Event'
+    z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
     z_rs = pd.read_sql(z_qry, conn).values.tolist()
-    z_score = (rs[0][0] - z_rs[0][0])/z_rs[0][1]
-    roi = '{:.1f}'.format(50 + z_score*5)
-    roi = roi + '*' if (50 + z_score*5) >= 70 else roi
+    roi = func.calc_roi(agg_typ, rs[0][0], z_rs)
 
     if event:
         rpt.write('Overall event ROI:'.ljust(EV_LEN, ' '))
@@ -297,11 +296,10 @@ def player_summary(rpt, conn, event, name, startdate, enddate):
         score = '{:.2f}'.format(player['Score'])
         rpt.write(score.ljust(score_len, ' '))
 
-        z_qry = qry.roi_calc(agg='Event', src='Control', tc='Classical', rating=rt)
+        agg_typ = 'Event'
+        z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
         z_rs = pd.read_sql(z_qry, conn).values.tolist()
-        z_score = (player['Score'] - z_rs[0][0])/z_rs[0][1]
-        roi = '{:.1f}'.format(50 + z_score*5)
-        roi = roi + '*' if (50 + z_score*5) >= 70 else roi
+        roi = func.calc_roi(agg_typ, player['Score'], z_rs)
         rpt.write(roi.ljust(roi_len, ' '))
 
         oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -317,11 +315,9 @@ def player_summary(rpt, conn, event, name, startdate, enddate):
         oppscore = '{:.2f}'.format(player['OppScore'])
         rpt.write(oppscore.ljust(score_len, ' '))
 
-        # z_qry = qry.roi_calc(agg='Event', src='Control', tc='Classical', rating=rt)
+        # z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
         # z_rs = pd.read_sql(z_qry, conn).values.tolist()
-        # z_score = (player['OppScore'] - z_rs[0][0])/z_rs[0][1]
-        # opproi = '{:.1f}'.format(50 + z_score*5)
-        # opproi = opproi + '*' if (50 + z_score*5) >= 70 else opproi
+        # opproi = func.calc_roi(agg_typ, player['OppScore'], z_rs)
         # rpt.write(opproi)
 
         rpt.write(NL)
