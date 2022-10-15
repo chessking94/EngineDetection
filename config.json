@@ -1,6 +1,11 @@
 {
-	"reportPath": "C:/Users/eehunt/Repository/EngineDetection",
+	"reportPath": "C:/Users/eehunt/Repository/EngineDetection/output",
 	"reportType": "Event",
+	"eventName": "81st Tata Steel GpA",
+	"firstName": "M.",
+	"lastName": "Carlsen",
+	"startDate": "",
+	"endDate": "",
 	"useDatabase": true,
 	"pgnName": "EEH_Online_202209.pgn",
 	"enginePath": "C:/Users/eehunt/Documents/Chess/ENGINES",
