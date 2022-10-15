@@ -326,10 +326,12 @@ def player_avgrating(name, startdate, enddate):
 SELECT
 AVG(r.OppElo) AS AvgOppRating,
 MIN(r.OppElo) AS MinOppRating,
-MAX(r.OppElo) AS MaxOppRating
+MAX(r.OppElo) AS MaxOppRating,
+AVG(r.Elo) AS Elo
 
 FROM (
     SELECT
+    NULLIF(NULLIF(WhiteElo, ''), 0) AS Elo,
     NULLIF(NULLIF(BlackElo, ''), 0) AS OppElo
 
     FROM ControlGames
@@ -341,6 +343,7 @@ FROM (
     UNION ALL
 
     SELECT
+    NULLIF(NULLIF(BlackElo, ''), 0) AS Elo,
     NULLIF(NULLIF(WhiteElo, ''), 0) AS OppElo
 
     FROM ControlGames
