@@ -131,7 +131,7 @@ WHERE TimeControlType = '{tctype}'
 AND RatingGroup = {rating}
 AND GroupID = {evalgroup}
 AND Color = '{color}'
-AND ACPL > 0"
+AND ACPL > 0
 """
     return qry
 

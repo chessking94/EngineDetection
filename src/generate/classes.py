@@ -41,6 +41,8 @@ class aggregator:
             ct = len(data_arr)
             av = np.mean(data_arr)
             sd = np.std(data_arr)
+            mn = min(data_arr)
+            mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
@@ -53,8 +55,10 @@ class aggregator:
             qtr2 = 'NULL'
             qtr3 = 'NULL'
             upper_pcnt = 'NULL'
+            mn = 'NULL'
+            mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
+        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def aggregate_event(self, fld, tctype, rating):
         if fld == 'ACPL':
@@ -74,6 +78,8 @@ class aggregator:
             ct = len(data_arr)
             av = np.mean(data_arr)
             sd = np.std(data_arr)
+            mn = min(data_arr)
+            mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
@@ -86,8 +92,10 @@ class aggregator:
             qtr2 = 'NULL'
             qtr3 = 'NULL'
             upper_pcnt = 'NULL'
+            mn = 'NULL'
+            mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
+        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def aggregate_game(self, fld, tctype, rating, color):
         if fld == 'ACPL':
@@ -107,6 +115,8 @@ class aggregator:
             ct = len(data_arr)
             av = np.mean(data_arr)
             sd = np.std(data_arr)
+            mn = min(data_arr)
+            mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
@@ -124,8 +134,10 @@ class aggregator:
             qtr2 = 'NULL'
             qtr3 = 'NULL'
             upper_pcnt = 'NULL'
+            mn = 'NULL'
+            mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt]
+        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def delete_stats(self):
         sql_del = f"""
@@ -169,13 +181,13 @@ AND Aggregation = '{self.agg}'
                 for tctype in self.timecontrol:
                     for color in self.color:
                         for evalgroup in self.evalgroup:
-                            ct, av, sd, lower, qt1, qt2, qt3, upper = self.aggregate_evals(fld, tctype, rating, evalgroup, color)
+                            ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_evals(fld, tctype, rating, evalgroup, color)
                             sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, '
                             sql_cmd = sql_cmd + 'EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, '
-                            sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt) '
+                            sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MinValue, MaxValue) '
                             sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', "
                             sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
-                            sql_cmd = sql_cmd + f"{qt3}, {upper})"
+                            sql_cmd = sql_cmd + f"{qt3}, {upper}, {mn}, {mx})"
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                             csr.execute(sql_cmd)
                             self.conn.commit()
@@ -191,15 +203,15 @@ AND Aggregation = '{self.agg}'
         for fld in self.fld:
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    ct, av, sd, lower, qt1, qt2, qt3, upper = self.aggregate_event(fld, tctype, rating)
+                    ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_event(fld, tctype, rating)
                     sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, '
-                    sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt) '
+                    sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MinValue, MaxValue) '
                     sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', 'N/A', 0, "
-                    sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper})"
+                    sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mn}, {mx})"
                     logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                     csr.execute(sql_cmd)
                     self.conn.commit()
-                    logging.info(f'Done with Field = {fld}, Rating = {rating}, TimeControlType = {tctype}')
+                    logging.info(f'Done with {fld}|{rating}|{tctype}')
 
     def game(self):
         csr = self.conn.cursor()
@@ -212,14 +224,14 @@ AND Aggregation = '{self.agg}'
             for rating in self.rating:
                 for tctype in self.timecontrol:
                     for color in self.color:
-                        ct, av, sd, lower, qt1, qt2, qt3, upper = self.aggregate_game(fld, tctype, rating, color)
+                        ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_game(fld, tctype, rating, color)
                         sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, '
                         sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, '
-                        sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt) '
+                        sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MinValue, MaxValue) '
                         sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', 0, "
                         sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
-                        sql_cmd = sql_cmd + f"{qt3}, {upper})"
+                        sql_cmd = sql_cmd + f"{qt3}, {upper}, {mn}, {mx})"
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
                         self.conn.commit()
-                        logging.info(f'Done with Field = {fld}, Rating = {rating}, TimeControlType = {tctype}, Color = {color}')
+                        logging.info(f'Done with {fld}|{rating}|{tctype}|{color}')
