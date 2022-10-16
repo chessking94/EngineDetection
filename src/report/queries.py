@@ -614,7 +614,7 @@ AND ABS(CONVERT(float, m.T1_Eval)) < CAST((SELECT SettingValue FROM DynamicSetti
     return qry
 
 
-def roi_calc(agg, src, tc, rating):
+def roi_calc(agg, src, tc, rating, color=None):
     qry = f"""
 SELECT
 Average,
@@ -629,4 +629,46 @@ AND Source = '{src}'
 AND TimeControlType = '{tc}'
 AND Rating = {rating}
 """
+    if color:
+        qry = qry + f"AND Color = '{color}'"
+    return qry
+
+
+def cpl_outlier(agg, stat, rating, color=None):
+    qry = f"""
+SELECT
+Average,
+StandardDeviation,
+MinValue
+
+FROM StatisticsSummary
+
+WHERE Source = 'Control'
+AND TimeControlType = 'Classical'
+AND Aggregation = '{agg}'
+AND Field = '{stat}'
+AND Rating = {rating}
+"""
+    if color:
+        qry = qry + f"AND Color = '{color}'"
+    return qry
+
+
+def evm_outlier(agg, rating, color=None):
+    qry = f"""
+SELECT
+100*Average AS Average,
+100*StandardDevIation AS StandardDeviation,
+100*MaxValue AS MaxValue
+
+FROM StatisticsSummary
+
+WHERE Source = 'Control'
+AND TimeControlType = 'Classical'
+AND Field = 'T1'
+AND Aggregation = '{agg}'
+AND Rating = {rating}
+"""
+    if color:
+        qry = qry + f"AND Color = '{color}'"
     return qry

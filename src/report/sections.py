@@ -3,7 +3,7 @@ import math
 
 import pandas as pd
 
-import func
+import outliers
 import queries as qry
 
 NL = '\n'
@@ -82,9 +82,11 @@ class report:
         self.rpt.write('Total T5:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][6])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][6])/int(rs[0][1])) + '%' + NL)
         self.rpt.write('Total ACPL:'.ljust(EV_LEN, ' '))
-        self.rpt.write('{:.4f}'.format(rs[0][7]) + NL)
+        acpl = outliers.format_cpl('Event', 'ACPL', rt, rs[0][7], self.conn)
+        self.rpt.write(acpl + NL)
         self.rpt.write('Total SDCPL:'.ljust(EV_LEN, ' '))
-        self.rpt.write('{:.4f}'.format(rs[0][8]) + NL)
+        sdcpl = outliers.format_cpl('Event', 'SDCPL', rt, rs[0][8], self.conn)
+        self.rpt.write(sdcpl + NL)
         self.rpt.write(NL)
 
         if self.typ == 'Event':
@@ -102,7 +104,7 @@ class report:
         agg_typ = 'Event'
         z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
         z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-        roi = func.calc_roi(agg_typ, rs[0][0], z_rs)
+        roi = outliers.calc_roi(agg_typ, rs[0][0], z_rs)
 
         if self.typ == 'Event':
             self.rpt.write('Overall event ROI:'.ljust(EV_LEN, ' '))
@@ -165,27 +167,28 @@ class report:
             perf = '+' + perf if perf[0] != '-' else perf
             self.rpt.write(perf.ljust(perf_len, ' '))
 
+            agg_typ = 'Event'
             evm = str(player['EVM']) .ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
-            evm = evm + '{:2.1f}'.format(100*player['EVM']/player['ScoredMoves']) + '%'
+            evmpcnt = outliers.format_evm(agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.conn)
+            evm = evm + evmpcnt
             self.rpt.write(evm.ljust(evm_len, ' '))
 
-            acpl = '{:.4f}'.format(player['ACPL'])
+            acpl = outliers.format_cpl(agg_typ, 'ACPL', rt, player['ACPL'], self.conn)
             self.rpt.write(acpl.ljust(acpl_len, ' '))
 
-            sdcpl = '{:.4f}'.format(player['SDCPL'])
+            sdcpl = outliers.format_cpl(agg_typ, 'SDCPL', rt, player['SDCPL'], self.conn)
             self.rpt.write(sdcpl.ljust(sdcpl_len, ' '))
 
             score = '{:.2f}'.format(player['Score'])
             self.rpt.write(score.ljust(score_len, ' '))
 
-            agg_typ = 'Event'
             z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
             z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-            roi = func.calc_roi(agg_typ, player['Score'], z_rs)
+            roi = outliers.calc_roi(agg_typ, player['Score'], z_rs)
             self.rpt.write(roi.ljust(roi_len, ' '))
 
             oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
-            oppevm = oppevm + '{:2.1f}'.format(100*player['OppEVM']/player['OppScoredMoves']) + '%'
+            oppevm = oppevm + '{:3.1f}'.format(100*player['OppEVM']/player['OppScoredMoves']) + '%'
             self.rpt.write(oppevm.ljust(evm_len, ' '))
 
             oppacpl = '{:.4f}'.format(player['OppACPL'])
@@ -199,7 +202,7 @@ class report:
 
             # z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
             # z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-            # opproi = func.calc_roi(agg_typ, player['OppScore'], z_rs)
+            # opproi = outliers.calc_roi(agg_typ, player['OppScore'], z_rs)
             # self.rpt.write(opproi)
 
             self.rpt.write(NL)
@@ -244,27 +247,28 @@ class report:
                 self.rpt.write(game['OppName'][0:21].ljust(20, ' '))
                 self.rpt.write(str(game['OppRating']) + ':  ')
 
+                agg_typ = 'Game'
                 evm = str(game['EVM']).ljust(3, ' ') + ' / ' + str(game['ScoredMoves']).ljust(3, ' ') + ' = '
-                evm = evm + '{:3.0f}'.format(100*game['EVM']/game['ScoredMoves']) + '%'
-                self.rpt.write(evm + '  ')
+                evmpcnt = outliers.format_evm(agg_typ, rt, 100*game['EVM']/game['ScoredMoves'], 0, self.conn)
+                evm = evm + evmpcnt
+                self.rpt.write(evm.ljust(18, ' '))
 
-                acpl = '{:.4f}'.format(game['ACPL'])
+                c = 'White' if game['Color'] == 'w' else 'Black'
+                acpl = outliers.format_cpl(agg_typ, 'ACPL', rt, game['ACPL'], self.conn, c)
                 self.rpt.write(acpl.ljust(8, ' '))
 
-                sdcpl = '{:.4f}'.format(game['SDCPL'])
+                sdcpl = outliers.format_cpl(agg_typ, 'SDCPL', rt, game['SDCPL'], self.conn, c)
                 self.rpt.write(sdcpl.ljust(8, ' '))
 
                 score = '{:.2f}'.format(game['Score'])
                 self.rpt.write(score.ljust(7, ' '))
 
-                agg_typ = 'Game'
-                z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
+                z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt, color=c)
                 z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-                roi = func.calc_roi(agg_typ, game['Score'], z_rs)
+                roi = outliers.calc_roi(agg_typ, game['Score'], z_rs)
                 self.rpt.write(roi.ljust(7, ' '))
 
                 # moves
-                c = 'White' if game['Color'] == 'w' else 'Black'
                 qry_text = qry.game_trace(g_id, c)
                 moves_rs = pd.read_sql(qry_text, self.conn)
                 ctr = 0
