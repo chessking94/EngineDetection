@@ -10,52 +10,10 @@ def get_conf(key):
 
 
 # game level
-def game_acpl(src, tctype, rating, color):
+def game_qry(fld, src, tctype, rating, color):
     qry = f"""
 SELECT
-ACPL
-
-FROM vw{src}GameSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND Color = '{color}'
-"""
-    return qry
-
-
-def game_sdcpl(src, tctype, rating, color):
-    qry = f"""
-SELECT
-SDCPL
-
-FROM vw{src}GameSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND Color = '{color}'
-"""
-    return qry
-
-
-def game_tx(src, tctype, rating, color, N):
-    qry = f"""
-SELECT
-T{N}
-
-FROM vw{src}GameSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND Color = '{color}'
-"""
-    return qry
-
-
-def game_score(src, tctype, rating, color):
-    qry = f"""
-SELECT
-Score
+{fld}
 
 FROM vw{src}GameSummary
 
@@ -67,49 +25,10 @@ AND Color = '{color}'
 
 
 # event level
-def event_acpl(tctype, rating):
+def event_qry(fld, tctype, rating):
     qry = f"""
 SELECT
-ACPL
-
-FROM vwControlEventSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-"""
-    return qry
-
-
-def event_sdcpl(tctype, rating):
-    qry = f"""
-SELECT
-SDCPL
-
-FROM vwControlEventSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-"""
-    return qry
-
-
-def event_tx(tctype, rating, N):
-    qry = f"""
-SELECT
-T{N}
-
-FROM vwControlEventSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-"""
-    return qry
-
-
-def event_score(tctype, rating):
-    qry = f"""
-SELECT
-Score
+{fld}
 
 FROM vwControlEventSummary
 
@@ -120,10 +39,10 @@ AND RatingGroup = {rating}
 
 
 # eval level
-def eval_acpl(src, tctype, rating, evalgroup, color):
+def eval_qry(fld, src, tctype, rating, evalgroup, color):
     qry = f"""
 SELECT
-ACPL
+{fld}
 
 FROM vw{src}EvalSummary
 
@@ -132,21 +51,6 @@ AND RatingGroup = {rating}
 AND GroupID = {evalgroup}
 AND Color = '{color}'
 AND ACPL > 0
-"""
-    return qry
-
-
-def eval_tx(src, tctype, rating, evalgroup, color, N):
-    qry = f"""
-SELECT
-T{N}
-
-FROM vw{src}EvalSummary
-
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND GroupID = {evalgroup}
-AND Color = '{color}'
 """
     return qry
 

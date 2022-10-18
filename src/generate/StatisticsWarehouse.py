@@ -4,7 +4,7 @@ import logging
 import pyodbc as sql
 
 import classes as c
-import Queries as q
+import queries as q
 
 
 def validate_args(config):
@@ -14,7 +14,7 @@ def validate_args(config):
 
     # modifiers
     if config['agg'] == 'Evaluation':
-        rmv_list = ['SDCPL', 'Score']
+        rmv_list = ['Scaled_SDCPL', 'SDCPL', 'Score']
         config['fld'] = [e for e in config['fld'] if e not in rmv_list]
         config['evalgroup'] = c.EVALGROUP_CHOICES if not config['evalgroup'] else config['evalgroup']
     elif config['agg'] == 'Event':

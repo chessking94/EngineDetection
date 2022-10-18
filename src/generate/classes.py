@@ -8,7 +8,7 @@ import queries as q
 NL = '\n'
 AGG_CHOICES = ['Evaluation', 'Event', 'Game']
 SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5', 'Score']
+FLD_CHOICES = ['Scaled_ACPL', 'Scaled_SDCPL',  'Score', 'ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5']
 TIMECONTROL_CHOICES = ['Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [1200+100*i for i in range(22)]
 EVALGROUP_CHOICES = [i+1 for i in range(9)]
@@ -28,11 +28,7 @@ class aggregator:
         self.ci_min = 1
 
     def aggregate_evals(self, fld, tctype, rating, evalgroup, color):
-        if fld == 'ACPL':
-            qry_text = q.eval_acpl(self.src, tctype, rating, evalgroup, color)
-        else:
-            N = fld[1:2]
-            qry_text = q.eval_tx(self.src, tctype, rating, evalgroup, color, N)
+        qry_text = q.eval_qry(fld, self.src, tctype, rating, evalgroup, color)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
@@ -61,15 +57,7 @@ class aggregator:
         return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def aggregate_event(self, fld, tctype, rating):
-        if fld == 'ACPL':
-            qry_text = q.event_acpl(tctype, rating)
-        elif fld == 'SDCPL':
-            qry_text = q.event_sdcpl(tctype, rating)
-        elif fld == 'Score':
-            qry_text = q.event_score(tctype, rating)
-        else:
-            N = fld[1:2]
-            qry_text = q.event_tx(tctype, rating, N)
+        qry_text = q.event_qry(fld, tctype, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
@@ -98,15 +86,7 @@ class aggregator:
         return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def aggregate_game(self, fld, tctype, rating, color):
-        if fld == 'ACPL':
-            qry_text = q.game_acpl(self.src, tctype, rating, color)
-        elif fld == 'SDCPL':
-            qry_text = q.game_sdcpl(self.src, tctype, rating, color)
-        elif fld == 'Score':
-            qry_text = q.game_score(self.src, tctype, rating, color)
-        else:
-            N = fld[1:2]
-            qry_text = q.game_tx(self.src, tctype, rating, color, N)
+        qry_text = q.game_qry(fld, self.src, tctype, rating, color)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
