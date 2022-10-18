@@ -67,13 +67,16 @@ END AS OppName,
 AVG(CASE WHEN (CASE WHEN NULLIF(g.WhiteFirst, '') IS NULL THEN '' ELSE g.WhiteFirst + ' ' END) + g.WhiteLast = '{player}' THEN g.BlackElo ELSE g.WhiteElo END) AS OppRating,
 SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0 END) AS EVM,
 COUNT(v.MoveID) AS ScoredMoves,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL,
 CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score
 
 FROM vwControlMoveScores v
 JOIN ControlMoves m ON v.MoveID = m.MoveID
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 
 WHERE g.Tournament = '{event}'
 AND ((CASE WHEN NULLIF(g.WhiteFirst, '') IS NULL THEN '' ELSE g.WhiteFirst + ' ' END) + g.WhiteLast = '{player}'
@@ -126,8 +129,10 @@ e.GamesPlayed,
 e.Perf,
 SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS EVM,
 COUNT(v.MoveID) AS ScoredMoves,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL,
 CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score,
 opp.OppEVM,
 opp.OppScoredMoves,
@@ -138,6 +143,7 @@ opp.OppScore
 FROM vwControlMoveScores v
 JOIN ControlMoves m ON v.MoveID = m.MoveID
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 JOIN (
     SELECT
     e.Tournament,
@@ -162,12 +168,15 @@ JOIN (
     g.Tournament,
     SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS OppEVM,
     COUNT(v.MoveID) AS OppScoredMoves,
-    AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
-    ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS OppSDCPL,
+    --AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
+    --ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS OppSDCPL,
+    AVG(s.Scaled_CPLoss) AS OppACPL,
+    ISNULL(STDEV(s.Scaled_CPLoss), 0) AS OppSDCPL,
     CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS OppScore
     FROM vwControlMoveScores v
     JOIN ControlMoves m ON v.MoveID = m.MoveID
     JOIN ControlGames g ON m.GameID = g.GameID
+    JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
     WHERE m.IsTheory = 0
     AND m.IsTablebase = 0
     AND ISNUMERIC(m.T1_Eval) = 1
@@ -219,11 +228,14 @@ SUM(CASE WHEN m.Move_Rank <= 2 THEN 1 ELSE 0 END) AS T2,
 SUM(CASE WHEN m.Move_Rank <= 3 THEN 1 ELSE 0 END) AS T3,
 SUM(CASE WHEN m.Move_Rank <= 4 THEN 1 ELSE 0 END) AS T4,
 SUM(CASE WHEN m.Move_Rank <= 5 THEN 1 ELSE 0 END) AS T5,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL
 
 FROM ControlMoves m
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 
 WHERE g.Tournament = '{event}'
 AND m.IsTheory = 0
@@ -412,13 +424,16 @@ END AS OppName,
 AVG(CASE WHEN (CASE WHEN NULLIF(g.WhiteFirst, '') IS NULL THEN '' ELSE g.WhiteFirst + ' ' END) + g.WhiteLast = '{player}' THEN g.BlackElo ELSE g.WhiteElo END) AS OppRating,
 SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0 END) AS EVM,
 COUNT(v.MoveID) AS ScoredMoves,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL,
 CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score
 
 FROM vwControlMoveScores v
 JOIN ControlMoves m ON v.MoveID = m.MoveID
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 
 WHERE g.GameDate BETWEEN '{startdate}' AND '{enddate}'
 AND ((CASE WHEN NULLIF(g.WhiteFirst, '') IS NULL THEN '' ELSE g.WhiteFirst + ' ' END) + g.WhiteLast = '{player}'
@@ -467,8 +482,10 @@ e.GamesPlayed,
 e.Perf,
 SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS EVM,
 COUNT(v.MoveID) AS ScoredMoves,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL,
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL,
 CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS Score,
 opp.OppEVM,
 opp.OppScoredMoves,
@@ -479,6 +496,7 @@ opp.OppScore
 FROM vwControlMoveScores v
 JOIN ControlMoves m ON v.MoveID = m.MoveID
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 JOIN (
     SELECT
     CASE WHEN WhiteFirst = '{name[0]}' AND WhiteLast = '{name[1]}' THEN WhiteLast ELSE BlackLast END AS LastName,
@@ -504,12 +522,15 @@ JOIN (
     CASE WHEN m.Color = 'White' THEN g.BlackLast ELSE g.WhiteLast END AS LastName,
     SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0	END) AS OppEVM,
     COUNT(v.MoveID) AS OppScoredMoves,
-    AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
-    ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS OppSDCPL,
+    --AVG(CAST(m.CP_Loss AS decimal(5,2))) AS OppACPL,
+    --ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS OppSDCPL,
+    AVG(s.Scaled_CPLoss) AS OppACPL,
+    ISNULL(STDEV(s.Scaled_CPLoss), 0) AS OppSDCPL,
     CASE WHEN ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(v.Score)/NULLIF(SUM(v.MaxScore), 0), 100) END AS OppScore
     FROM vwControlMoveScores v
     JOIN ControlMoves m ON v.MoveID = m.MoveID
     JOIN ControlGames g ON m.GameID = g.GameID
+    JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
     WHERE (
         (g.WhiteFirst = '{name[0]}' AND g.WhiteLast = '{name[1]}' AND m.Color = 'Black') OR
         (g.BlackFirst = '{name[0]}' AND g.BlackLast = '{name[1]}' AND m.Color = 'White')
@@ -560,11 +581,14 @@ SUM(CASE WHEN m.Move_Rank <= 2 THEN 1 ELSE 0 END) AS T2,
 SUM(CASE WHEN m.Move_Rank <= 3 THEN 1 ELSE 0 END) AS T3,
 SUM(CASE WHEN m.Move_Rank <= 4 THEN 1 ELSE 0 END) AS T4,
 SUM(CASE WHEN m.Move_Rank <= 5 THEN 1 ELSE 0 END) AS T5,
-AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
-ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL
+--AVG(CAST(m.CP_Loss AS decimal(5,2))) AS ACPL,
+--ISNULL(STDEV(CAST(m.CP_Loss AS decimal(5,2))), 0) AS SDCPL
+AVG(s.Scaled_CPLoss) AS ACPL,
+ISNULL(STDEV(s.Scaled_CPLoss), 0) AS SDCPL
 
 FROM ControlMoves m
 JOIN ControlGames g ON m.GameID = g.GameID
+JOIN vwControlScaledCPLoss s ON m.MoveID = s.MoveID
 
 WHERE (CASE WHEN m.Color = 'White' THEN g.WhiteFirst ELSE g.BlackFirst END) = '{name[0]}'
 AND (CASE WHEN m.Color = 'White' THEN g.WhiteLast ELSE g.BlackLast END) = '{name[1]}'

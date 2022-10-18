@@ -7,7 +7,7 @@ Players:            14
 
 Engine Name:        stockfish_14.1_x64.exe
 Depth:              11
-Report Date:        10/15/2022
+Report Date:        10/17/2022
 
 
 MOVE SCORING
@@ -32,8 +32,8 @@ Total T2:                          3663 / 5338 = 68.62%
 Total T3:                          4166 / 5338 = 78.04%
 Total T4:                          4460 / 5338 = 83.55%
 Total T5:                          4678 / 5338 = 87.64%
-Total ACPL:                        0.1909
-Total SDCPL:                       0.4135
+Total ScACPL:                      0.1099
+Total ScSDCPL:                     0.2129
 
 Overall event score:               89.05
 Overall event ROI:                 49.9
@@ -42,273 +42,273 @@ Overall event ROI:                 49.9
 PLAYER KEY
 ----------------------------------------------------------------------------------------------------
 EVM:      Equal Value Match; moves with an evaluation that matches the best engine evaluation
-ACPL:     Average Centipawn Loss; sum of total centipawn loss divided by the number of moves
-SDCPL:    Standard Deviation Centipawn Loss; standard deviation of centipawn loss values from each move played
+ScACPL:   Scaled Average Centipawn Loss; sum of total centipawn loss divided by the number of moves, scaled by position evaluation
+ScSDCPL:  Scaled Standard Deviation Centipawn Loss; standard deviation of centipawn loss values from each move played, scaled by position evaluation
 Score:    Game Score; measurement of how accurately the game was played, ranges from 0 to 100
 ROI:      Raw Outlier Index; normalized Score value where 50 represents the mean and each increment of 5 is one standard deviation from the mean
           An asterisk (*) following an ROI value indicates a situation that deserves extra scrutiny
 
-Player Name                   Elo    Record          Perf    EVM / Turns = Pcnt      ACPL      SDCPL     Score     ROI     Opp EVM / Turns = Pcnt  OppACPL   OppSDCPL  OppScore  
+Player Name                   Elo    Record          Perf    EVM / Turns = Pcnt      ScACPL    ScSDCPL   Score     ROI     Opp EVM / Turns = Pcnt  OppScACPL OppScSDCPLOppScore  
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-A. Giri                       2783   8.5  / 13       +72     159  / 297  = 53.5%     0.1468    0.2369    90.60     55.9    152  / 306  = 49.7%     0.2108    0.3613    88.78     
-Ding Liren                    2813   7.5  / 13       -14     174  / 331  = 52.6%     0.1566    0.3116    90.03     51.3    166  / 332  = 50.0%     0.1711    0.3044    89.40     
-I. Nepomniachtchi             2763   7.5  / 13       +40     148  / 324  = 45.7%     0.2463    0.4893    86.62     40.4    154  / 311  = 49.5%     0.2163    0.5133    87.79     
-J. Duda                       2738   5.5  / 13       -47     200  / 396  = 50.5%     0.1978    0.3801    89.55     51.8    196  / 401  = 48.9%     0.2103    0.4170    88.67     
-Jorden Van Foreest            2612   4.5  / 13       +36     163  / 353  = 46.2%     0.2418    0.4341    86.73     45.2    203  / 358  = 56.7%     0.2258    0.5500    89.34     
-M. Carlsen                    2835   9.0  / 13       +47     227  / 472  = 48.1%     0.1578    0.3416    89.73     50.0    233  / 479  = 48.6%     0.1719    0.3178    90.01     
-R. Rapport                    2731   6.5  / 13       +18     207  / 386  = 53.6%     0.1660    0.3081    89.50     51.6    188  / 385  = 48.8%     0.1814    0.3161    88.81     
-S. Mamedyarov                 2817   5.0  / 13       -162    157  / 317  = 49.5%     0.1809    0.3588    89.81     50.3    164  / 313  = 52.4%     0.1531    0.2759    89.37     
-S. Shankland                  2725   6.5  / 13       +24     218  / 420  = 51.9%     0.1766    0.3089    89.56     51.8    203  / 420  = 48.3%     0.2064    0.7089    89.02     
-S. Vidit                      2695   7.0  / 13       +85     227  / 403  = 56.3%     0.1536    0.3409    90.89     58.6    194  / 402  = 48.3%     0.1884    0.3791    88.83     
-T. Radjabov                   2757   6.5  / 13       -10     176  / 314  = 56.1%     0.1509    0.2769    90.34     54.9    173  / 314  = 55.1%     0.1521    0.3133    90.48     
-V. Anand                      2700   7.5  / 13       +108    159  / 330  = 48.2%     0.1639    0.2851    89.04     49.8    153  / 332  = 46.1%     0.2039    0.3397    87.45     
-V. Kramnik                    2777   4.5  / 13       -142    227  / 495  = 45.9%     0.2931    0.7842    86.46     39.8    267  / 494  = 54.0%     0.1982    0.3791    88.59     
-Vl3 Fedoseev                  2724   5.0  / 13       -62     263  / 500  = 52.6%     0.2034    0.3994    88.29     46.9    259  / 491  = 52.7%     0.1822    0.3564    89.70     
+A. Giri                       2783   8.5  / 13       +72     159  / 297  = 53.5%     0.0810    0.1323    90.60     55.9    152  / 306  = 49.7%     0.1180    0.1935    88.78     
+Ding Liren                    2813   7.5  / 13       -14     174  / 331  = 52.6%     0.0945    0.1483    90.03     51.3    166  / 332  = 50.0%     0.1187    0.2038    89.40     
+I. Nepomniachtchi             2763   7.5  / 13       +40     148  / 324  = 45.7%     0.1169    0.1949    86.62     40.4    154  / 311  = 49.5%     0.1347    0.3068    87.79     
+J. Duda                       2738   5.5  / 13       -47     200  / 396  = 50.5%     0.1052    0.1872    89.55     51.8    196  / 401  = 48.9%     0.1054    0.1915    88.67     
+Jorden Van Foreest            2612   4.5  / 13       +36     163  / 353  = 46.2%     0.1383    0.2756    86.73     45.2    203  / 358  = 56.7%     0.1145    0.2374    89.34     
+M. Carlsen                    2835   9.0  / 13       +47     227  / 472  = 48.1%     0.0928    0.2202    89.73     50.0    233  / 479  = 48.6%     0.1045    0.1848    90.01     
+R. Rapport                    2731   6.5  / 13       +18     207  / 386  = 53.6%     0.1054    0.1733    89.50     51.6    188  / 385  = 48.8%     0.0976    0.1627    88.81     
+S. Mamedyarov                 2817   5.0  / 13       -162    157  / 317  = 49.5%     0.1152    0.2126    89.81     50.3    164  / 313  = 52.4%     0.1028    0.2126    89.37     
+S. Shankland                  2725   6.5  / 13       +24     218  / 420  = 51.9%     0.0956    0.1517    89.56     51.8    203  / 420  = 48.3%     0.1172    0.2492    89.02     
+S. Vidit                      2695   7.0  / 13       +85     227  / 403  = 56.3%     0.0941    0.2369    90.89     58.6    194  / 402  = 48.3%     0.1106    0.1940    88.83     
+T. Radjabov                   2757   6.5  / 13       -10     176  / 314  = 56.1%     0.0871    0.1482    90.34     54.9    173  / 314  = 55.1%     0.1087    0.2597    90.48     
+V. Anand                      2700   7.5  / 13       +108    159  / 330  = 48.2%     0.1003    0.1512    89.04     49.8    153  / 332  = 46.1%     0.1185    0.1780    87.45     
+V. Kramnik                    2777   4.5  / 13       -142    227  / 495  = 45.9%     0.1574    0.2977    86.46     39.8    267  / 494  = 54.0%     0.1060    0.2360    88.59     
+Vl3 Fedoseev                  2724   5.0  / 13       -62     263  / 500  = 52.6%     0.1307    0.2648    88.29     46.9    259  / 491  = 52.7%     0.0947    0.1529    89.70     
 
 
 GAME KEY
 ----------------------------------------------------------------------------------------------------
 (Player Name) (Elo) (Scored Moves)
- (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ACPL) (SDCPL) (Score) (ROI) (game trace)
+ (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (game trace)
 Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead, t = Tablebase hit
 
 -------------------------
 A. Giri 2783 297
- 1w L I. Nepomniachtchi   2763:  7   / 18  =  39%  0.2767  0.3133  82.29  40.4   bbbbbbbb00 00MMM0000M 0M0M0M
- 2b W V. Kramnik          2777:  14  / 29  =  48%  0.1938  0.2407  86.96  46.9   bbbbbbbbbb 0000M0000M M0MMMM0M0M M0M0MMM00e ee
- 3w D S. Mamedyarov       2817:  11  / 16  =  69%  0.1100  0.2802  92.45  54.5   bbbbbbbbbb bbbbbMMMMM MMMM0000M0 M
- 4b W R. Rapport          2731:  11  / 28  =  39%  0.1625  0.2156  90.14  51.3   bbbbbbb000 000MMMMM0M 000MM0000M 00M0eeMeee 
- 5w D V. Anand            2700:  6   / 14  =  43%  0.2186  0.3033  84.92  44.1   bbbbbbbb00 000M00MMM0 MM
- 6b W J. Duda             2738:  19  / 36  =  53%  0.1297  0.2211  93.26  55.6   bbbbbM00M0 MM0M0M00MM MMM0Me00M0 0000MMMM00 MMee
- 7w D Ding Liren          2813:  8   / 13  =  62%  0.0762  0.1481  94.11  56.8   bbbbbbbbbb bbbbbbMM0M 00MM00MMM
- 8b D S. Vidit            2695:  14  / 23  =  61%  0.0509  0.0820  95.87  59.2   bbbbbbbbbb bbb00MMMM0 M00M000MMM 0MMMMM
- 9w D Jorden Van Foreest  2612:  9   / 21  =  43%  0.1595  0.2853  89.15  49.9   bbbbbbbbb0 0000M0M0M0 MM0M0M0M0M 
-10b W Vl3 Fedoseev        2724:  17  / 29  =  59%  0.1372  0.2177  90.71  52.1   bbbbbbbbbM 00M0MMMMM0 00MM0M000M 0MMMMM0Mee e
-11w W S. Shankland        2725:  21  / 36  =  58%  0.1067  0.2161  92.63  54.7   bbbbbb00M0 00000MMM0M 0MMM0MMMMM MMMM0M0M00 MMttt
-12b D T. Radjabov         2757:  13  / 19  =  68%  0.1442  0.2340  91.88  53.7   bbbbbbbbbb bbMM0MMMMM M0MM000MMM 0
-13w D M. Carlsen          2835:  9   / 15  =  60%  0.1920  0.2856  86.06  45.6   bbbbbbbbbb bbbbb0M0M0 MM00M0MMMM 
+ 1w L I. Nepomniachtchi   2763:  7   / 18  =  39%  0.1331  0.1636  82.29  41.4   bbbbbbbb00 00MMM0000M 0M0M0M
+ 2b W V. Kramnik          2777:  14  / 29  =  48%  0.1003  0.1365  86.96  46.9   bbbbbbbbbb 0000M0000M M0MMMM0M0M M0M0MMM00e ee
+ 3w D S. Mamedyarov       2817:  11  / 16  =  69%  0.0667  0.1475  92.45  55.0   bbbbbbbbbb bbbbbMMMMM MMMM0000M0 M
+ 4b W R. Rapport          2731:  11  / 28  =  39%  0.0757  0.0938  90.14  51.3   bbbbbbb000 000MMMMM0M 000MM0000M 00M0eeMeee 
+ 5w D V. Anand            2700:  6   / 14  =  43%  0.1359  0.1772  84.92  44.9   bbbbbbbb00 000M00MMM0 MM
+ 6b W J. Duda             2738:  19  / 36  =  53%  0.0485  0.0937  93.26  55.6   bbbbbM00M0 MM0M0M00MM MMM0Me00M0 0000MMMM00 MMee
+ 7w D Ding Liren          2813:  8   / 13  =  62%  0.0528  0.1027  94.11  57.2   bbbbbbbbbb bbbbbbMM0M 00MM00MMM
+ 8b D S. Vidit            2695:  14  / 23  =  61%  0.0429  0.0672  95.87  59.2   bbbbbbbbbb bbb00MMMM0 M00M000MMM 0MMMMM
+ 9w D Jorden Van Foreest  2612:  9   / 21  =  43%  0.0868  0.1586  89.15  50.6   bbbbbbbbb0 0000M0M0M0 MM0M0M0M0M 
+10b W Vl3 Fedoseev        2724:  17  / 29  =  59%  0.0906  0.1399  90.71  52.1   bbbbbbbbbM 00M0MMMMM0 00MM0M000M 0MMMMM0Mee e
+11w W S. Shankland        2725:  21  / 36  =  58%  0.0559  0.1059  92.63  55.2   bbbbbb00M0 00000MMM0M 0MMM0MMMMM MMMM0M0M00 MMttt
+12b D T. Radjabov         2757:  13  / 19  =  68%  0.0847  0.1336  91.88  53.7   bbbbbbbbbb bbMM0MMMMM M0MM000MMM 0
+13w D M. Carlsen          2835:  9   / 15  =  60%  0.1457  0.2163  86.06  46.4   bbbbbbbbbb bbbbb0M0M0 MM00M0MMMM 
 -------------------------
 Ding Liren 2813 331
- 1w D M. Carlsen          2835:  9   / 28  =  32%  0.2371  0.2744  83.50  42.0   bbbb000000 0M0M000000 0M000MMM0M MM
- 2w D S. Vidit            2695:  11  / 24  =  46%  0.1633  0.2076  87.89  47.6   bbbbbbbbbM 0M00M0M00M MM0M00MM00 0M0
- 3b W Jorden Van Foreest  2612:  24  / 31  =  77%  0.1932  0.6137  92.89  54.0   bbbbbbbbbb bbbM00M0M0 MMMMMMMe0M M0MMMM0MMM MMMMMttttt 
- 4w D Vl3 Fedoseev        2724:  11  / 33  =  33%  0.1391  0.1638  89.45  49.6   bbbbbbbbbb M000M00M00 000MM0MM00 MM0M00000M 000
- 5b W S. Shankland        2725:  9   / 16  =  56%  0.1781  0.3124  94.71  56.4   bbbbbbbbbb bbbbMMM00M MMM000MM00 eee
- 6w D T. Radjabov         2757:  41  / 61  =  67%  0.0679  0.1163  94.65  56.3   bbbbbbbbbb bbbbM0M0MM M00MMM00M0 M0MMM0M0M0 000MMMMMMM MMMMM0MM0M
+ 1w D M. Carlsen          2835:  9   / 28  =  32%  0.1794  0.1925  83.50  41.2   bbbb000000 0M0M000000 0M000MMM0M MM
+ 2w D S. Vidit            2695:  11  / 24  =  46%  0.1237  0.1656  87.89  47.6   bbbbbbbbbM 0M00M0M00M MM0M00MM00 0M0
+ 3b W Jorden Van Foreest  2612:  24  / 31  =  77%  0.0822  0.1886  92.89  54.0   bbbbbbbbbb bbbM00M0M0 MMMMMMMe0M M0MMMM0MMM MMMMMttttt 
+ 4w D Vl3 Fedoseev        2724:  11  / 33  =  33%  0.0787  0.0952  89.45  49.9   bbbbbbbbbb M000M00M00 000MM0MM00 MM0M00000M 000
+ 5b W S. Shankland        2725:  9   / 16  =  56%  0.0489  0.0779  94.71  56.4   bbbbbbbbbb bbbbMMM00M MMM000MM00 eee
+ 6w D T. Radjabov         2757:  41  / 61  =  67%  0.0509  0.0871  94.65  57.5   bbbbbbbbbb bbbbM0M0MM M00MMM00M0 M0MMM0M0M0 000MMMMMMM MMMMM0MM0M
                                                                                  MMM0MMM0MM 0MM0M
- 7b D A. Giri             2783:  9   / 13  =  69%  0.0954  0.1724  92.79  53.9   bbbbbbbbbb bbbbbb0M00 M0MMMMMMM
- 8w D I. Nepomniachtchi   2763:  0   / 1   =   0%  0.2300  0.0000  81.70  39.7   bbbbbbbbbb bbbbbb0
- 9b D V. Kramnik          2777:  16  / 35  =  46%  0.1860  0.2454  86.77  46.2   bbbbbbbbb0 0M0MM0M000 0M000000MM M0MMM0MM00 0MMM
-10w D S. Mamedyarov       2817:  17  / 36  =  47%  0.1314  0.1538  89.87  50.2   bbbbbbbbbb MM0M00M0M0 00MM00MMM0 MMMMM0000M 0M0000
-11b D R. Rapport          2731:  3   / 7   =  43%  0.1014  0.1415  92.17  53.1   bbbbbbbbbM 00MM00
-12w D V. Anand            2700:  18  / 29  =  62%  0.2807  0.5863  86.53  45.9   bbbbbbbbbb bM0000MM0M 0M0MMM0M0M 0M0MMMMMMM 
-13b D J. Duda             2738:  6   / 17  =  35%  0.1271  0.1347  90.25  50.7   bbbbbbbbbb bbbbbbbMM0 000M00000M 0M0M
+ 7b D A. Giri             2783:  9   / 13  =  69%  0.0724  0.1244  92.79  53.9   bbbbbbbbbb bbbbbb0M00 M0MMMMMMM
+ 8w D I. Nepomniachtchi   2763:  0   / 1   =   0%  0.1377  0.0000* 81.70  38.5   bbbbbbbbbb bbbbbb0
+ 9b D V. Kramnik          2777:  16  / 35  =  46%  0.1072  0.1540  86.77  46.2   bbbbbbbbb0 0M0MM0M000 0M000000MM M0MMM0MM00 0MMM
+10w D S. Mamedyarov       2817:  17  / 36  =  47%  0.0834  0.1022  89.87  50.5   bbbbbbbbbb MM0M00M0M0 00MM00MMM0 MMMMM0000M 0M0000
+11b D R. Rapport          2731:  3   / 7   =  43%  0.0900  0.1263  92.17  53.1   bbbbbbbbbM 00MM00
+12w D V. Anand            2700:  18  / 29  =  62%  0.1354  0.2385  86.53  45.6   bbbbbbbbbb bM0000MM0M 0M0MMM0M0M 0M0MMMMMMM 
+13b D J. Duda             2738:  6   / 17  =  35%  0.1097  0.1171  90.25  50.7   bbbbbbbbbb bbbbbbbMM0 000M00000M 0M0M
 -------------------------
 I. Nepomniachtchi 2763 324
- 1b W A. Giri             2783:  8   / 18  =  44%  0.3267  0.3929  78.57  35.3   bbbbbbb000 000M0MMMMM M000Me
- 2b D M. Carlsen          2835:  12  / 20  =  60%  0.1660  0.2953  88.91  49.6   bbbbbbbbbb b00MMMMMMM 00000MMM0M M
- 3w W V. Kramnik          2777:  12  / 22  =  55%  0.2445  0.4472  86.13  45.7   bbbbbbbbbb bbb000M0M0 M0MMM0MMMM 000MMe
- 4b D S. Mamedyarov       2817:  12  / 23  =  52%  0.1517  0.2111  88.74  49.4   bbbbbbbbbM 00MM0MM000 M0M0MM00MM M0
- 5w D R. Rapport          2731:  6   / 26  =  23%  0.2042  0.2023  85.18  44.4   bbbbbbbbbb bb0M000000 00000MM000 0M000MM0
- 6b D V. Anand            2700:  4   / 12  =  33%  0.2717  0.2516  80.02  37.3   bbbbbbbbbb 0MMMM00000 00
- 7w D J. Duda             2738:  16  / 56  =  29%  0.2946  0.3617  81.83  39.8   bbbbbbbbb0 0M0MMMM000 MM000000M0 000M0M0MM0 00000MMMM0 0000000000
+ 1b W A. Giri             2783:  8   / 18  =  44%  0.1947  0.2521  78.57  35.3   bbbbbbb000 000M0MMMMM M000Me
+ 2b D M. Carlsen          2835:  12  / 20  =  60%  0.1065  0.1681  88.91  49.6   bbbbbbbbbb b00MMMMMMM 00000MMM0M M
+ 3w W V. Kramnik          2777:  12  / 22  =  55%  0.1114  0.1824  86.13  46.5   bbbbbbbbbb bbb000M0M0 M0MMM0MMMM 000MMe
+ 4b D S. Mamedyarov       2817:  12  / 23  =  52%  0.1107  0.1549  88.74  49.4   bbbbbbbbbM 00MM0MM000 M0M0MM00MM M0
+ 5w D R. Rapport          2731:  6   / 26  =  23%  0.1171  0.1251  85.18  45.2   bbbbbbbbbb bb0M000000 00000MM000 0M000MM0
+ 6b D V. Anand            2700:  4   / 12  =  33%  0.1656  0.1458  80.02  37.3   bbbbbbbbbb 0MMMM00000 00
+ 7w D J. Duda             2738:  16  / 56  =  29%  0.1268  0.1457  81.83  40.7   bbbbbbbbb0 0M0MMMM000 MM000000M0 000M0M0MM0 00000MMMM0 0000000000
                                                                                  00000
- 8b D Ding Liren          2813:  1   / 1   = 100%  0.0000  0.0000  100.00 64.9*  bbbbbbbbbb bbbbbbM
- 9w W S. Vidit            2695:  17  / 30  =  57%  0.2060  0.5447  90.85  52.3   bbbbbbbMM0 M00M0M0M00 MM0M00MMMM MM00M0M
-10b L Jorden Van Foreest  2612:  21  / 37  =  57%  0.4276  1.0379  87.11  47.1   bbbbbbbbbb b0M0000M0M MM0M0MM0M0 eeeeeMMMM0 eeMMMM0Mee M0M0e0M0e
-11w W Vl3 Fedoseev        2724:  24  / 42  =  57%  0.1650  0.3062  89.48  50.4   bbbbbb00M0 0M0MMMM000 M00000MM00 MM0MMMMMMM M0M0MMMeMM 
-12b L S. Shankland        2725:  11  / 27  =  41%  0.2330  0.4391  92.34  54.3   bbbb000MMM M00000MMM0 M0M00M00M0 0eee
-13w D T. Radjabov         2757:  4   / 10  =  40%  0.1450  0.2048  89.53  50.4   bbbbbbbbbb bbb00000MM MM0
+ 8b D Ding Liren          2813:  1   / 1   = 100%* 0.0000* 0.0000* 100.00 64.9*  bbbbbbbbbb bbbbbbM
+ 9w W S. Vidit            2695:  17  / 30  =  57%  0.0963  0.1823  90.85  52.8   bbbbbbbMM0 M00M0M0M00 MM0M00MMMM MM00M0M
+10b L Jorden Van Foreest  2612:  21  / 37  =  57%  0.1642  0.3769  87.11  47.1   bbbbbbbbbb b0M0000M0M MM0M0MM0M0 eeeeeMMMM0 eeMMMM0Mee M0M0e0M0e
+11w W Vl3 Fedoseev        2724:  24  / 42  =  57%  0.0684  0.1170  89.48  51.0   bbbbbb00M0 0M0MMMM000 M00000MM00 MM0MMMMMMM M0M0MMMeMM 
+12b L S. Shankland        2725:  11  / 27  =  41%  0.0933  0.1409  92.34  54.3   bbbb000MMM M00000MMM0 M0M00M00M0 0eee
+13w D T. Radjabov         2757:  4   / 10  =  40%  0.0767  0.1000  89.53  51.1   bbbbbbbbbb bbb00000MM MM0
 -------------------------
 J. Duda 2738 396
- 1b D S. Vidit            2695:  23  / 40  =  58%  0.1150  0.2172  91.98  53.8   bbbbbbbbbb bbMM000MM0 MM0M0MMM0M 0000MMM0M0 MMMMMM000M 0Mtttttttt
+ 1b D S. Vidit            2695:  23  / 40  =  58%  0.0586  0.1015  91.98  53.8   bbbbbbbbbb bbMM000MM0 MM0M0MMM0M 0000MMM0M0 MMMMMM000M 0Mtttttttt
                                                                                  tttttttttt tttttttt
- 2w L Jorden Van Foreest  2612:  15  / 29  =  52%  0.3514  0.8252  85.75  45.2   bbbbbbbbbb bbM0MMM000 0M0000MM00 MMMMMM0MM0 0eeeeeeeee 
- 3b W Vl3 Fedoseev        2724:  10  / 25  =  40%  0.4128  0.5896  78.41  35.1   bbbbbbb00M M0MMMM000M 000000MM00 0Meee
- 4w D S. Shankland        2725:  13  / 16  =  81%  0.0762  0.2053  94.57  57.4   bbbbbbbbbb bbbbbM0MM0 0MMMMMMMMM M
- 5b D T. Radjabov         2757:  9   / 22  =  41%  0.2532  0.3363  85.78  45.3   bbbbbbbb00 MM0M000M00 MMM00MM000 
- 6w L A. Giri             2783:  18  / 38  =  47%  0.2934  0.4165  88.14  48.5   bbbbb0M00M M00MMMMM00 M0MM00M0M0 M00M00M00M M00e
- 7b D I. Nepomniachtchi   2763:  32  / 55  =  58%  0.1307  0.2168  91.13  52.7   bbbbbbbbb0 M00MM0MMMM 000000MMMM 0M0M00MM0M 00M0000M0M MM0MMMMMMM
+ 2w L Jorden Van Foreest  2612:  15  / 29  =  52%  0.2197  0.4082  85.75  46.0   bbbbbbbbbb bbM0MMM000 0M0000MM00 MMMMMM0MM0 0eeeeeeeee 
+ 3b W Vl3 Fedoseev        2724:  10  / 25  =  40%  0.1799  0.2000  78.41  35.1   bbbbbbb00M M0MMMM000M 000000MM00 0Meee
+ 4w D S. Shankland        2725:  13  / 16  =  81%  0.0556  0.1418  94.57  57.8   bbbbbbbbbb bbbbbM0MM0 0MMMMMMMMM M
+ 5b D T. Radjabov         2757:  9   / 22  =  41%  0.1494  0.2195  85.78  45.3   bbbbbbbb00 MM0M000M00 MMM00MM000 
+ 6w L A. Giri             2783:  18  / 38  =  47%  0.1310  0.2111  88.14  49.2   bbbbb0M00M M00MMMMM00 M0MM00M0M0 M00M00M00M M00e
+ 7b D I. Nepomniachtchi   2763:  32  / 55  =  58%  0.0968  0.1682  91.13  52.7   bbbbbbbbb0 M00MM0MMMM 000000MMMM 0M0M00MM0M 00M0000M0M MM0MMMMMMM
                                                                                  MMMM
- 8w W V. Kramnik          2777:  16  / 28  =  57%  0.2711  0.4517  90.79  52.2   bbbbbbbbbb bb0MMMMMM0 0M0MMMeeee M0M00M0000 M0MMe
- 9b D S. Mamedyarov       2817:  7   / 20  =  35%  0.1140  0.1882  91.47  53.1   bbbbbbbbbb MM0MM0000M 0000000MM0 
-10w L R. Rapport          2731:  15  / 28  =  54%  0.1432  0.2192  89.48  50.4   bbbbbbM00M 000M0MM0MM MM000M00M0 MMMMeeeeee e
-11b D V. Anand            2700:  8   / 17  =  47%  0.1665  0.2555  89.13  49.9   bbbbbbbbbb bbb00M000M MMMM000M0M 
-12b L M. Carlsen          2835:  28  / 60  =  47%  0.1522  0.2343  93.33  55.7   bbbbbbbbbM MMM000M0MM 0MMMMM0M0M 0M0M0000MM 0MM0000000 M000MMMM0M
+ 8w W V. Kramnik          2777:  16  / 28  =  57%  0.0776  0.1218  90.79  52.8   bbbbbbbbbb bb0MMMMMM0 0M0MMMeeee M0M00M0000 M0MMe
+ 9b D S. Mamedyarov       2817:  7   / 20  =  35%  0.0919  0.1264  91.47  53.1   bbbbbbbbbb MM0MM0000M 0000000MM0 
+10w L R. Rapport          2731:  15  / 28  =  54%  0.0926  0.1321  89.48  51.0   bbbbbbM00M 000M0MM0MM MM000M00M0 MMMMeeeeee e
+11b D V. Anand            2700:  8   / 17  =  47%  0.1245  0.1940  89.13  49.9   bbbbbbbbbb bbb00M000M MMMM000M0M 
+12b L M. Carlsen          2835:  28  / 60  =  47%  0.0624  0.0925  93.33  55.7   bbbbbbbbbM MMM000M0MM 0MMMMM0M0M 0M0M0000MM 0MM0000000 M000MMMM0M
                                                                                  M000000M0t 
-13w D Ding Liren          2813:  6   / 18  =  33%  0.1239  0.1639  90.49  51.8   bbbbbbbbbb bbbbbbb000 0MMM00M0MM 00000
+13w D Ding Liren          2813:  6   / 18  =  33%  0.0834  0.0978  90.49  52.4   bbbbbbbbbb bbbbbbb000 0MMM00M0MM 00000
 -------------------------
 Jorden Van Foreest 2612 353
- 1w L V. Anand            2700:  8   / 19  =  42%  0.2995  0.4230  82.30  42.7   bbbbbb00MM 00MM0M0000 0MMM0eee
- 2b W J. Duda             2738:  13  / 28  =  46%  0.2271  0.3960  87.22  48.7   bbbbbbbbbb bb00M0M00M 0MM00MM0M0 M00MM00M0M eeeeeeeeee 
- 3w L Ding Liren          2813:  13  / 32  =  41%  0.3169  0.4490  80.59  40.6   bbbbbbbbbb bbb0MMM000 00MMM0000M 0MMM000000 00MMMttttt 
- 4b L S. Vidit            2695:  9   / 28  =  32%  0.1704  0.2957  90.45  52.7   bbbbbbbbbb bbbbbbb00M 0M0M00M0MM 0000000M00 M0M00ttttt 
- 5w L M. Carlsen          2835:  8   / 21  =  38%  0.3890  0.5869  83.64  44.3   bbbbbbbbbb bb0M00M0M0 M0M00M00M0 M00
- 6w W Vl3 Fedoseev        2724:  26  / 40  =  65%  0.2270  0.4385  89.44  51.5   bbbbbM0MM0 00MMMMM00M 000MMMMMMM MMMMMMMMM0 0M000e
- 7b L S. Shankland        2725:  16  / 43  =  37%  0.2058  0.3012  84.88  45.9   bbbbbb0M00 00000M00MM M0M0M00000 MMM0000000 0M0MMMMM0t t
- 8w D T. Radjabov         2757:  1   / 3   =  33%  0.3067  0.3002  78.59  38.1   bbbbbbbbbb bbbbM00
- 9b D A. Giri             2783:  11  / 21  =  52%  0.1038  0.1654  92.55  55.3   bbbbbbbb00 0MMMM0MM00 MM0M0M0M0
-10w W I. Nepomniachtchi   2763:  10  / 25  =  40%  0.2344  0.2963  84.35  45.2   bbbbbbbbbb bb00M00000 0M00MM0eMM eeeeeMM0Me eeeM0e00ee eeeeeeeeee
+ 1w L V. Anand            2700:  8   / 19  =  42%  0.1865  0.2879  82.30  43.0   bbbbbb00MM 00MM0M0000 0MMM0eee
+ 2b W J. Duda             2738:  13  / 28  =  46%  0.1072  0.1600  87.22  48.7   bbbbbbbbbb bb00M0M00M 0MM00MM0M0 M00MM00M0M eeeeeeeeee 
+ 3w L Ding Liren          2813:  13  / 32  =  41%  0.2254  0.3866  80.59  40.9   bbbbbbbbbb bbb0MMM000 00MMM0000M 0MMM000000 00MMMttttt 
+ 4b L S. Vidit            2695:  9   / 28  =  32%  0.1066  0.1545  90.45  52.7   bbbbbbbbbb bbbbbbb00M 0M0M00M0MM 0000000M00 M0M00ttttt 
+ 5w L M. Carlsen          2835:  8   / 21  =  38%  0.1861  0.2088  83.64  44.7   bbbbbbbbbb bb0M00M0M0 M0M00M00M0 M00
+ 6w W Vl3 Fedoseev        2724:  26  / 40  =  65%  0.0873  0.1587  89.44  51.8   bbbbbM0MM0 00MMMMM00M 000MMMMMMM MMMMMMMMM0 0M000e
+ 7b L S. Shankland        2725:  16  / 43  =  37%  0.1319  0.2297  84.88  45.9   bbbbbb0M00 00000M00MM M0M0M00000 MMM0000000 0M0MMMMM0t t
+ 8w D T. Radjabov         2757:  1   / 3   =  33%  0.1524  0.1377  78.59  38.4   bbbbbbbbbb bbbbM00
+ 9b D A. Giri             2783:  11  / 21  =  52%  0.0880  0.1425  92.55  55.3   bbbbbbbb00 0MMMM0MM00 MM0M0M0M0
+10w W I. Nepomniachtchi   2763:  10  / 25  =  40%  0.0806  0.1044  84.35  45.5   bbbbbbbbbb bb00M00000 0M00MM0eMM eeeeeMM0Me eeeM0e00ee eeeeeeeeee
                                                                                  
-11b L V. Kramnik          2777:  27  / 53  =  51%  0.2243  0.4663  88.98  50.9   bbbbb0000M 000M000000 M0MMMMMMM0 MM000MMMM0 M0M0MMMM0M M0000eMMMe
+11b L V. Kramnik          2777:  27  / 53  =  51%  0.1287  0.2917  88.98  50.9   bbbbb0000M 000M000000 M0MMMMMMM0 MM000MMMM0 M0M0MMMM0M M0000eMMMe
                                                                                  eeeee
-12w D S. Mamedyarov       2817:  17  / 32  =  53%  0.2247  0.5175  87.13  48.6   bbbbbbbb00 M000M0000M 0MMMMM00M0 M0MMMMM0MM 
-13b L R. Rapport          2731:  4   / 8   =  50%  0.5300  1.0430  84.87  45.9   bbbbbbbbbb b0M0M0MM0e 
+12w D S. Mamedyarov       2817:  17  / 32  =  53%  0.1824  0.5078  87.13  49.0   bbbbbbbb00 M000M0000M 0MMMMM00M0 M0MMMMM0MM 
+13b L R. Rapport          2731:  4   / 8   =  50%  0.2528  0.4259  84.87  45.9   bbbbbbbbbb b0M0M0MM0e 
 -------------------------
 M. Carlsen 2835 472
- 1b D Ding Liren          2813:  17  / 27  =  63%  0.1244  0.2527  91.43  52.2   bbbb000M00 MM0M0M0MMM MMM0M0MMMM M
- 2w D I. Nepomniachtchi   2763:  10  / 21  =  48%  0.5071  1.2000  79.68  37.1   bbbbbbbbbb b000M00MM0 M00MM00MMM M0
- 3b D S. Vidit            2695:  28  / 80  =  35%  0.1742  0.2474  87.86  47.6   bbbbbbbbbb 0M00MMM0M0 000MM0M0MM M00M0MMM00 00M0M00000 MM0000M00M
+ 1b D Ding Liren          2813:  17  / 27  =  63%  0.0701  0.1464  91.43  52.2   bbbb000M00 MM0M0M0MMM MMM0M0MMMM M
+ 2w D I. Nepomniachtchi   2763:  10  / 21  =  48%  0.3218  0.8007  79.68  35.6   bbbbbbbbbb b000M00MM0 M00MM00MMM M0
+ 3b D S. Vidit            2695:  28  / 80  =  35%  0.1104  0.1803  87.86  47.6   bbbbbbbbbb 0M00MMM0M0 000MM0M0MM M00M0MMM00 00M0M00000 MM0000M00M
                                                                                  0M00M00M00 000M0000M0 000M00000M tttttttttt tttttttttt tttttttttt tttttttttt 
- 4w D V. Kramnik          2777:  22  / 46  =  48%  0.1335  0.2192  90.22  50.6   bbbbbbbbbb 0000000000 0MMM0000M0 M0M00M0MMM M000MMMMMM MM0MMM
- 5b W Jorden Van Foreest  2612:  10  / 20  =  50%  0.2015  0.2686  86.77  46.2   bbbbbbbbbb bb0M000MMM M000MM00MM M0e
- 6w W S. Mamedyarov       2817:  22  / 34  =  65%  0.0912  0.1569  92.43  53.4   bbbbbbbbbb bbbbM00000 0M000M0MMM MMMMMMMM0M 0MMMMMMMee e
- 7b D Vl3 Fedoseev        2724:  22  / 35  =  63%  0.1237  0.2776  91.57  52.3   bbbbbbbbbb M000MM0MMM M00MM0M0MM 0MMMM0M00M MMMM0ttttt tttttttttt
+ 4w D V. Kramnik          2777:  22  / 46  =  48%  0.0874  0.1326  90.22  51.0   bbbbbbbbbb 0000000000 0MMM0000M0 M0M00M0MMM M000MMMMMM MM0MMM
+ 5b W Jorden Van Foreest  2612:  10  / 20  =  50%  0.1167  0.1849  86.77  46.2   bbbbbbbbbb bb0M000MMM M000MM00MM M0e
+ 6w W S. Mamedyarov       2817:  22  / 34  =  65%  0.0562  0.0960  92.43  54.3   bbbbbbbbbb bbbbM00000 0M000M0MMM MMMMMMMM0M 0MMMMMMMee e
+ 7b D Vl3 Fedoseev        2724:  22  / 35  =  63%  0.0909  0.2088  91.57  52.3   bbbbbbbbbb M000MM0MMM M00MM0M0MM 0MMMM0M00M MMMM0ttttt tttttttttt
                                                                                  tttttttttt ttt
- 8w W R. Rapport          2731:  12  / 25  =  48%  0.1948  0.3694  90.88  51.5   bbbbbbbbbb b000M0M00M 0MMM0MMM0M 0Me00M0eee 
- 9b D S. Shankland        2725:  13  / 31  =  42%  0.0981  0.1111  92.32  53.3   bbbbbbbbb0 00000000MM M0MM00M00M 0MM000MMMM 
-10w W V. Anand            2700:  31  / 67  =  46%  0.1088  0.1598  92.06  53.0   bbbbbbb000 00MM0M0M00 00M00MMMMM 0MMM0M00MM 0000M00MM0 0MM0000M0M
+ 8w W R. Rapport          2731:  12  / 25  =  48%  0.0633  0.1020  90.88  52.0   bbbbbbbbbb b000M0M00M 0MMM0MMM0M 0Me00M0eee 
+ 9b D S. Shankland        2725:  13  / 31  =  42%  0.0858  0.0958  92.32  53.3   bbbbbbbbb0 00000000MM M0MM00M00M 0MM000MMMM 
+10w W V. Anand            2700:  31  / 67  =  46%  0.0553  0.0798  92.06  53.7   bbbbbbb000 00MM0M0M00 00M00MMMMM 0MMM0M00MM 0000M00MM0 0MM0000M0M
                                                                                  0MMMM00M00 0MMMet
-11b D T. Radjabov         2757:  1   / 10  =  10%  0.3460  0.2395  74.93  31.0   bbbbbbbbbb bbbb0000M0 0000
-12w W J. Duda             2738:  34  / 61  =  56%  0.1293  0.1872  92.05  53.0   bbbbbbbbb0 00MMM0MMMM 0MMMMMM000 M00M00MMMM 0MMM0000MM 00MMMMMMMM
+11b D T. Radjabov         2757:  1   / 10  =  10%  0.2560  0.1790  74.93  31.0   bbbbbbbbbb bbbb0000M0 0000
+12w W J. Duda             2738:  34  / 61  =  56%  0.0528  0.0963  92.05  53.7   bbbbbbbbb0 00MMM0MMMM 0MMMMMM000 M00M00MMMM 0MMM0000MM 00MMMMMMMM
                                                                                  000MM00000 t
-13b D A. Giri             2783:  5   / 15  =  33%  0.1600  0.2879  89.76  50.0   bbbbbbbbbb bbbbM0M00M 000000MM0
+13b D A. Giri             2783:  5   / 15  =  33%  0.0754  0.1148  89.76  50.0   bbbbbbbbbb bbbbM0M00M 000000MM0
 -------------------------
 R. Rapport 2731 386
- 1b D Vl3 Fedoseev        2724:  15  / 27  =  56%  0.1070  0.1772  92.51  54.6   bbbbbbbbbb b00000M0MM 0MM0M00M0M MM0MMMMM
- 2w D S. Shankland        2725:  31  / 61  =  51%  0.1657  0.2709  88.43  48.9   bbbbbbbbbb 000000MM00 MMM0000MMM 0MM0MMM000 M0M0M0MMMM MMM0M00M00
+ 1b D Vl3 Fedoseev        2724:  15  / 27  =  56%  0.0826  0.1426  92.51  54.6   bbbbbbbbbb b00000M0MM 0MM0M00M0M MM0MMMMM
+ 2w D S. Shankland        2725:  31  / 61  =  51%  0.1095  0.1795  88.43  49.6   bbbbbbbbbb 000000MM00 MMM0000MMM 0MM0MMM000 M0M0M0MMMM MMM0M00M00
                                                                                  0MMM0M0MM0 0ttttttttt tttttttttt tttt
- 3b D T. Radjabov         2757:  13  / 21  =  62%  0.1010  0.1710  92.41  54.4   bbbbbbbbbb 00MM0000M0 MMMMMM0MMM M
- 4w L A. Giri             2783:  16  / 30  =  53%  0.2133  0.4142  89.39  50.2   bbbbbbbbMM MM0M000M00 MM0MM0000M 00MM0eMMMe 
- 5b D I. Nepomniachtchi   2763:  10  / 26  =  38%  0.2196  0.2230  84.15  43.0   bbbbbbbbbb b00M0M000M M00000MM00 M000MMM
- 6w D V. Kramnik          2777:  30  / 57  =  53%  0.1682  0.2831  88.99  49.7   bbbbbbb0MM 000MM000M0 MMM0MM0MMM 000MMM0M00 00M0MMMMM0 M00MM00M0M
+ 3b D T. Radjabov         2757:  13  / 21  =  62%  0.0693  0.1098  92.41  54.4   bbbbbbbbbb 00MM0000M0 MMMMMM0MMM M
+ 4w L A. Giri             2783:  16  / 30  =  53%  0.1131  0.1826  89.39  50.9   bbbbbbbbMM MM0M000M00 MM0MM0000M 00MM0eMMMe 
+ 5b D I. Nepomniachtchi   2763:  10  / 26  =  38%  0.1850  0.1939  84.15  43.0   bbbbbbbbbb b00M0M000M M00000MM00 M000MMM
+ 6w D V. Kramnik          2777:  30  / 57  =  53%  0.0964  0.1509  88.99  50.4   bbbbbbb0MM 000MM000M0 MMM0MM0MMM 000MMM0M00 00M0MMMMM0 M00MM00M0M
                                                                                  0MM0tttttt tttttttttt tttttttttt tttt
- 7b D S. Mamedyarov       2817:  15  / 29  =  52%  0.1745  0.2867  88.46  49.0   bbbbbbbbbb 0M00MM000M 0M00MMM00M MMM0MM00M
- 8b L M. Carlsen          2835:  11  / 27  =  41%  0.2581  0.3521  86.96  46.9   bbbbbbbbbb b000M0M000 0M0MMM000M 0MMM000Me
- 9w D V. Anand            2700:  18  / 31  =  58%  0.1145  0.1724  91.36  53.0   bbbbbbbbbb bMMMMM0000 0M0MM0MMMM 0MMM0M000M M0
-10b W J. Duda             2738:  15  / 29  =  52%  0.1297  0.1928  90.08  51.2   bbbbb0MMM0 0000MM0MM0 M00M0M0M00 MMMMeeeeee e
-11w D Ding Liren          2813:  5   / 6   =  83%  0.1050  0.2572  92.61  54.7   bbbbbbbbbb 0MMMMM
-12b D S. Vidit            2695:  23  / 35  =  66%  0.1994  0.5782  90.58  51.9   bbbbbb0000 0M0MM0000M M0MMMMMMMM MMMMM0MMMM M
-13w W Jorden Van Foreest  2612:  5   / 7   =  71%  0.0414  0.0861  96.59  60.2   bbbbbbbbbb bbMM00MMMe e
+ 7b D S. Mamedyarov       2817:  15  / 29  =  52%  0.1285  0.2112  88.46  49.0   bbbbbbbbbb 0M00MM000M 0M00MMM00M MMM0MM00M
+ 8b L M. Carlsen          2835:  11  / 27  =  41%  0.1325  0.1736  86.96  46.9   bbbbbbbbbb b000M0M000 0M0MMM000M 0MMM000Me
+ 9w D V. Anand            2700:  18  / 31  =  58%  0.0722  0.1044  91.36  53.5   bbbbbbbbbb bMMMMM0000 0M0MM0MMMM 0MMM0M000M M0
+10b W J. Duda             2738:  15  / 29  =  52%  0.0993  0.1345  90.08  51.2   bbbbb0MMM0 0000MM0MM0 M00M0M0M00 MMMMeeeeee e
+11w D Ding Liren          2813:  5   / 6   =  83%  0.0644  0.1578  92.61  55.2   bbbbbbbbbb 0MMMMM
+12b D S. Vidit            2695:  23  / 35  =  66%  0.1050  0.2621  90.58  51.9   bbbbbb0000 0M0MM0000M M0MMMMMMMM MMMMM0MMMM M
+13w W Jorden Van Foreest  2612:  5   / 7   =  71%  0.0173  0.0343  96.59  60.6   bbbbbbbbbb bbMM00MMMe e
 -------------------------
 S. Mamedyarov 2817 317
- 1b D S. Shankland        2725:  17  / 45  =  38%  0.1973  0.2599  86.73  46.1   bbbbbbbbb0 M0M0MMM000 0000M0M000 00000M00M0 MMMM0M0000 M0MM
- 2w D T. Radjabov         2757:  7   / 14  =  50%  0.1064  0.1384  91.88  52.7   bbbbbbbbbb bbbbbbbbM0 0M0MMM0000 MM
- 3b D A. Giri             2783:  13  / 17  =  76%  0.0635  0.1493  95.33  57.2   bbbbbbbbbb bbbb00MMMM MMMMM0MMM0 M
- 4w D I. Nepomniachtchi   2763:  10  / 22  =  45%  0.1395  0.1888  89.38  49.5   bbbbbbbbbb 000M00M00M 0M0MM0MM00 MM
- 5b D V. Kramnik          2777:  8   / 15  =  53%  0.1480  0.3332  90.55  51.0   bbbbbbbbbb bbbbbM0000 0MMMM0MMM0 
- 6b L M. Carlsen          2835:  15  / 36  =  42%  0.3314  0.5973  85.78  44.9   bbbbbbbbbb bbb0MMM000 0MM0000M00 0M0M00M0M0 MMM000MM0e 
- 7w D R. Rapport          2731:  17  / 30  =  57%  0.2090  0.3496  87.41  47.0   bbbbbbbbbb 0MM0MMM0M0 M0M00MM0MM M0000MMM0M 
- 8b L V. Anand            2700:  7   / 17  =  41%  0.2859  0.5105  87.97  47.7   bbbbbbbbbb M00M0M0000 MMM0M00e
- 9w D J. Duda             2738:  11  / 21  =  52%  0.0819  0.1465  93.82  55.2   bbbbbbbbbb 0M0MM0M000 0M0MMM0M0M M
-10b D Ding Liren          2813:  12  / 36  =  33%  0.1089  0.1314  91.69  52.5   bbbbbbbbb0 MMM0000MM0 M0M00000M0 0M0M000000 000MM
-11w L S. Vidit            2695:  9   / 20  =  45%  0.3605  0.6717  86.06  45.3   bbbbbbbbbb 0MM0M000MM 0MMM000M00 
-12b D Jorden Van Foreest  2612:  24  / 32  =  75%  0.1022  0.2534  94.42  56.0   bbbbbbbb00 MM00M0MMMM MMMMMMMM0M M0MMMMM0MM 
-13w D Vl3 Fedoseev        2724:  7   / 12  =  58%  0.1183  0.1669  91.14  51.8   bbbbbbb0M0 000MMMMMM
+ 1b D S. Shankland        2725:  17  / 45  =  38%  0.1568  0.2048  86.73  46.1   bbbbbbbbb0 M0M0MMM000 0000M0M000 00000M00M0 MMMM0M0000 M0MM
+ 2w D T. Radjabov         2757:  7   / 14  =  50%  0.0638  0.0798  91.88  53.5   bbbbbbbbbb bbbbbbbbM0 0M0MMM0000 MM
+ 3b D A. Giri             2783:  13  / 17  =  76%  0.0469  0.1083  95.33  57.2   bbbbbbbbbb bbbb00MMMM MMMMM0MMM0 M
+ 4w D I. Nepomniachtchi   2763:  10  / 22  =  45%  0.0914  0.1162  89.38  49.8   bbbbbbbbbb 000M00M00M 0M0MM0MM00 MM
+ 5b D V. Kramnik          2777:  8   / 15  =  53%  0.1232  0.2837  90.55  51.0   bbbbbbbbbb bbbbbM0000 0MMMM0MMM0 
+ 6b L M. Carlsen          2835:  15  / 36  =  42%  0.2109  0.4045  85.78  44.9   bbbbbbbbbb bbb0MMM000 0MM0000M00 0M0M00M0M0 MMM000MM0e 
+ 7w D R. Rapport          2731:  17  / 30  =  57%  0.0901  0.1401  87.41  46.9   bbbbbbbbbb 0MM0MMM0M0 M0M00MM0MM M0000MMM0M 
+ 8b L V. Anand            2700:  7   / 17  =  41%  0.1506  0.2273  87.97  47.7   bbbbbbbbbb M00M0M0000 MMM0M00e
+ 9w D J. Duda             2738:  11  / 21  =  52%  0.0560  0.0866  93.82  56.3   bbbbbbbbbb 0M0MM0M000 0M0MMM0M0M M
+10b D Ding Liren          2813:  12  / 36  =  33%  0.0857  0.1074  91.69  52.5   bbbbbbbbb0 MMM0000MM0 M0M00000M0 0M0M000000 000MM
+11w L S. Vidit            2695:  9   / 20  =  45%  0.1846  0.2770  86.06  44.9   bbbbbbbbbb 0MM0M000MM 0MMM000M00 
+12b D Jorden Van Foreest  2612:  24  / 32  =  75%  0.0666  0.1418  94.42  56.0   bbbbbbbb00 MM00M0MMMM MMMMMMMM0M M0MMMMM0MM 
+13w D Vl3 Fedoseev        2724:  7   / 12  =  58%  0.0803  0.1056  91.14  52.4   bbbbbbb0M0 000MMMMMM
 -------------------------
 S. Shankland 2725 420
- 1w D S. Mamedyarov       2817:  19  / 45  =  42%  0.2002  0.2585  86.11  45.7   bbbbbbbbb0 00MM00MM0M M00M0M0M0M 0000000MMM 0M00M0M0M0 00MM
- 2b D R. Rapport          2731:  37  / 61  =  61%  0.1344  0.2536  91.55  53.2   bbbbbbbbb0 MM000M000M M0M0MM0MM0 00MMMM0MMM 0MMMM0MeM0 000MMMMMM0
+ 1w D S. Mamedyarov       2817:  19  / 45  =  42%  0.1128  0.1273  86.11  46.5   bbbbbbbbb0 00MM00MM0M M00M0M0M0M 0000000MMM 0M00M0M0M0 00MM
+ 2b D R. Rapport          2731:  37  / 61  =  61%  0.0593  0.1064  91.55  53.2   bbbbbbbbb0 MM000M000M M0M0MM0MM0 00MMMM0MMM 0MMMM0MeM0 000MMMMMM0
                                                                                  MMM0M00MMM Mttttttttt tttttttttt tttt
- 3w D V. Anand            2700:  14  / 26  =  54%  0.2308  0.3164  85.32  44.6   bbbbbbbbb0 00MMM000M0 0MMM0M00MM 0MMMM
- 4b D J. Duda             2738:  15  / 16  =  94%  0.0019  0.0075  99.84  64.7   bbbbbbbbbb bbbbb0MMMM MMMMMMMMMM M
- 5w L Ding Liren          2813:  6   / 18  =  33%  0.5289  0.6894  80.44  37.9   bbbbbbbbbb bbbb0M00MM 00M00000MM 00e
- 6b D S. Vidit            2695:  2   / 10  =  20%  0.1890  0.1850  85.53  44.9   bbbbbbbb0M 00M00000
- 7w W Jorden Van Foreest  2612:  22  / 42  =  52%  0.1583  0.2360  90.25  51.4   bbbbbbb000 0000MM00M0 MM0MM00MMM MMMMM0M00M M00MM00MMt tt
- 8b L Vl3 Fedoseev        2724:  11  / 36  =  31%  0.2819  0.3650  84.50  43.5   bbbb000000 00M0M000M0 0000M0M0M0 M00MM0MM0e 0eeeeeeeee e
- 9w D M. Carlsen          2835:  12  / 30  =  40%  0.1380  0.1766  89.51  50.4   bbbbbbbbbb MM000000MM 0000MM000M M0M0M00M0M 
-10w D T. Radjabov         2757:  13  / 17  =  76%  0.0335  0.0805  97.34  61.3   bbbbbbbbbb bbbbM0MMMM 0MMMM0M0MM M
-11b L A. Giri             2783:  15  / 37  =  41%  0.1489  0.2095  89.76  50.8   bbbbb00MM0 0M0000M000 MM000MM0M0 0M0MM0000M MMtt
-12w W I. Nepomniachtchi   2763:  17  / 26  =  65%  0.0700  0.1375  95.92  59.3   bbbbb0MMMM M0MMM0M00M MM00MMM00M Meeee
-13b W V. Kramnik          2777:  35  / 56  =  62%  0.1907  0.3861  90.11  51.3   bbbbb00M00 0MM0MMMMM0 MM0M00MMM0 M00MMMM0MM 0MM0M0MMM0 MMM0M00MMM
+ 3w D V. Anand            2700:  14  / 26  =  54%  0.1118  0.1510  85.32  45.4   bbbbbbbbb0 00MMM000M0 0MMM0M00MM 0MMMM
+ 4b D J. Duda             2738:  15  / 16  =  94%  0.0015  0.0060  99.84  64.7   bbbbbbbbbb bbbbb0MMMM MMMMMMMMMM M
+ 5w L Ding Liren          2813:  6   / 18  =  33%  0.2510  0.2971  80.44  38.9   bbbbbbbbbb bbbb0M00MM 00M00000MM 00e
+ 6b D S. Vidit            2695:  2   / 10  =  20%  0.1416  0.1305  85.53  44.9   bbbbbbbb0M 00M00000
+ 7w W Jorden Van Foreest  2612:  22  / 42  =  52%  0.0823  0.1271  90.25  52.0   bbbbbbb000 0000MM00M0 MM0MM00MMM MMMMM0M00M M00MM00MMt tt
+ 8b L Vl3 Fedoseev        2724:  11  / 36  =  31%  0.1816  0.1798  84.50  43.5   bbbb000000 00M0M000M0 0000M0M0M0 M00MM0MM0e 0eeeeeeeee e
+ 9w D M. Carlsen          2835:  12  / 30  =  40%  0.0854  0.1048  89.51  51.0   bbbbbbbbbb MM000000MM 0000MM000M M0M0M00M0M 
+10w D T. Radjabov         2757:  13  / 17  =  76%  0.0206  0.0475  97.34  61.6   bbbbbbbbbb bbbbM0MMMM 0MMMM0M0MM M
+11b L A. Giri             2783:  15  / 37  =  41%  0.1075  0.1373  89.76  50.8   bbbbb00MM0 0M0000M000 MM000MM0M0 0M0MM0000M MMtt
+12w W I. Nepomniachtchi   2763:  17  / 26  =  65%  0.0241  0.0458  95.92  59.7   bbbbb0MMMM M0MMM0M00M MM00MMM00M Meeee
+13b W V. Kramnik          2777:  35  / 56  =  62%  0.0909  0.1877  90.11  51.3   bbbbb00M00 0MM0MMMMM0 MM0M00MMM0 M00MMMM0MM 0MM0M0MMM0 MMM0M00MMM
                                                                                  Meeeee
 -------------------------
 S. Vidit 2695 403
- 1w D J. Duda             2738:  23  / 40  =  58%  0.1212  0.2154  91.49  54.0   bbbbbbbbbb bb0000MMMM 0M0M00MMMM MMM000M00M MM00MMMM00 MMtttttttt
+ 1w D J. Duda             2738:  23  / 40  =  58%  0.0921  0.1830  91.49  54.3   bbbbbbbbbb bb0000MMMM 0M0M00MMMM MMM000M00M MM00MMMM00 MMtttttttt
                                                                                  tttttttttt tttttttt
- 2b D Ding Liren          2813:  15  / 25  =  60%  0.1328  0.2612  91.04  53.4   bbbbbbbb0M M00M0MMM0M 0MMMMMMM0M 000
- 3w D M. Carlsen          2835:  41  / 80  =  51%  0.0988  0.1690  93.18  56.1   bbbbbbbbbb 00MM000M00 0MMMMMMMMM 00MMM0000M 00MM0MMM00 00MMM00M00
+ 2b D Ding Liren          2813:  15  / 25  =  60%  0.0923  0.1615  91.04  53.4   bbbbbbbb0M M00M0MMM0M 0MMMMMMM0M 000
+ 3w D M. Carlsen          2835:  41  / 80  =  51%  0.0674  0.1157  93.18  56.4   bbbbbbbbbb 00MM000M00 0MMMMMMMMM 00MMM0000M 00MM0MMM00 00MMM00M00
                                                                                  0M00M0M0MM 0MMM000MMM 00MM0MM00M tttttttttt tttttttttt tttttttttt tttttttttt t
- 4w W Jorden Van Foreest  2612:  15  / 27  =  56%  0.1874  0.4783  91.88  54.5   bbbbbbbbbb bbbbbbbb00 M00MMMMMMM 0M0000M00M MMMM0ttttt t
- 5b D Vl3 Fedoseev        2724:  32  / 65  =  49%  0.1538  0.3252  91.36  53.8   bbbbbbbbb0 M000MM0000 0000000M00 MMMMMMMM0M 0M0M0M0M00 MM0M0MM0MM
+ 4w W Jorden Van Foreest  2612:  15  / 27  =  56%  0.0709  0.1286  91.88  54.8   bbbbbbbbbb bbbbbbbb00 M00MMMMMMM 0M0000M00M MMMM0ttttt t
+ 5b D Vl3 Fedoseev        2724:  32  / 65  =  49%  0.0813  0.1219  91.36  53.8   bbbbbbbbb0 M000MM0000 0000000M00 MMMMMMMM0M 0M0M0M0M00 MM0M0MM0MM
                                                                                  0MMM00M000 MMMM
- 6w D S. Shankland        2725:  4   / 10  =  40%  0.1220  0.2454  91.29  53.7   bbbbbbbb00 00MMM00M
- 7b L T. Radjabov         2757:  10  / 16  =  62%  0.4456  0.9284  80.62  40.6   bbbbbbbbM0 MM00M00M0e eMMMMMeeee eeeee
- 8w D A. Giri             2783:  20  / 23  =  87%  0.0270  0.0793  97.85  61.8   bbbbbbbbbb bbbMMMMM0M 00MMMMMMMM MMMMMM
- 9b L I. Nepomniachtchi   2763:  19  / 30  =  63%  0.1670  0.3219  90.52  52.8   bbbbbb0MMM M00MMM0M0M MMM0M0MMMM MM0000
-10w W V. Kramnik          2777:  13  / 17  =  76%  0.0959  0.1995  93.18  56.1   bbbbbbbbbb bMMMMMMM00 0MMM0MMMe
-11b W S. Mamedyarov       2817:  10  / 19  =  53%  0.1705  0.3039  87.71  49.3   bbbbbbbbbb 000000M0MM MMM0MM0MMe 
-12w D R. Rapport          2731:  20  / 34  =  59%  0.1794  0.3379  89.55  51.6   bbbbbbbM00 00M0MMMM0M 00MM0MMMMM 00MMM00MMM 0
-13b D V. Anand            2700:  5   / 17  =  29%  0.3424  0.4232  78.60  38.1   bbbbbbbbbb bbbM00M0M0 0000MM0000 
+ 6w D S. Shankland        2725:  4   / 10  =  40%  0.0901  0.1715  91.29  54.1   bbbbbbbb00 00MMM00M
+ 7b L T. Radjabov         2757:  10  / 16  =  62%  0.3990  0.9065  80.62  40.6   bbbbbbbbM0 MM00M00M0e eMMMMMeeee eeeee
+ 8w D A. Giri             2783:  20  / 23  =  87%  0.0203  0.0577  97.85  62.2   bbbbbbbbbb bbbMMMMM0M 00MMMMMMMM MMMMMM
+ 9b L I. Nepomniachtchi   2763:  19  / 30  =  63%  0.1084  0.2389  90.52  52.8   bbbbbb0MMM M00MMM0M0M MMM0M0MMMM MM0000
+10w W V. Kramnik          2777:  13  / 17  =  76%  0.0395  0.0817  93.18  56.4   bbbbbbbbbb bMMMMMMM00 0MMM0MMMe
+11b W S. Mamedyarov       2817:  10  / 19  =  53%  0.1024  0.1792  87.71  49.3   bbbbbbbbbb 000000M0MM MMM0MM0MMe 
+12w D R. Rapport          2731:  20  / 34  =  59%  0.0702  0.1233  89.55  51.9   bbbbbbbM00 00M0MMMM0M 00MM0MMMMM 00MMM00MMM 0
+13b D V. Anand            2700:  5   / 17  =  29%  0.1956  0.2152  78.60  38.1   bbbbbbbbbb bbbM00M0M0 0000MM0000 
 -------------------------
 T. Radjabov 2757 314
- 1w D V. Kramnik          2777:  17  / 30  =  57%  0.2357  0.4128  86.04  45.6   bbbbbbbbbb bbb0000M00 MMMMMM000M 0MMMM0MMM0 0MM
- 2b D S. Mamedyarov       2817:  8   / 14  =  57%  0.1743  0.3678  89.57  50.5   bbbbbbbbbb bbbbbbbb00 M00MMMMM00 MM
- 3w D R. Rapport          2731:  12  / 22  =  55%  0.1541  0.2720  89.16  49.9   bbbbbbbbbb M00M0MM000 00MMMMMM0M M0
- 4b D V. Anand            2700:  7   / 17  =  41%  0.1588  0.2116  88.26  48.7   bbbbbbbbbb bbb00MM000 00M0MMMM00 
- 5w D J. Duda             2738:  9   / 21  =  43%  0.2076  0.3083  89.64  50.6   bbbbbbbbbM 0MMM0000MM 00M0000M0M 
- 6b D Ding Liren          2813:  42  / 61  =  69%  0.0802  0.1728  94.11  56.8   bbbbbbbbbb bbb00MMMM0 0MMM0M0000 00MM00MMMM MMMM0M0M0M M00MMM0MMM
+ 1w D V. Kramnik          2777:  17  / 30  =  57%  0.0986  0.1665  86.04  46.4   bbbbbbbbbb bbb0000M00 MMMMMM000M 0MMMM0MMM0 0MM
+ 2b D S. Mamedyarov       2817:  8   / 14  =  57%  0.1157  0.2409  89.57  50.5   bbbbbbbbbb bbbbbbbb00 M00MMMMM00 MM
+ 3w D R. Rapport          2731:  12  / 22  =  55%  0.1093  0.1852  89.16  50.6   bbbbbbbbbb M00M0MM000 00MMMMMM0M M0
+ 4b D V. Anand            2700:  7   / 17  =  41%  0.1288  0.1695  88.26  48.7   bbbbbbbbbb bbb00MM000 00M0MMMM00 
+ 5w D J. Duda             2738:  9   / 21  =  43%  0.0725  0.0941  89.64  51.2   bbbbbbbbbM 0MMM0000MM 00M0000M0M 
+ 6b D Ding Liren          2813:  42  / 61  =  69%  0.0561  0.1121  94.11  56.8   bbbbbbbbbb bbb00MMMM0 0MMM0M0000 00MM00MMMM MMMM0M0M0M M00MMM0MMM
                                                                                  MMMMMMMMMM MMMM
- 7w W S. Vidit            2695:  7   / 13  =  54%  0.1946  0.3314  85.96  45.5   bbbbbbbb0M 0M00M0MMMe e0eMeeeeee eeeeee
- 8b D Jorden Van Foreest  2612:  2   / 3   =  67%  0.0967  0.1674  92.72  54.9   bbbbbbbbbb bbb0MM
- 9w L Vl3 Fedoseev        2724:  40  / 76  =  53%  0.1721  0.3184  89.60  50.5   bbbbbbbb00 00MM0MM000 M00000MM00 000MM00M0M 00M0M00M00 0MMMMMMMMM
+ 7w W S. Vidit            2695:  7   / 13  =  54%  0.0916  0.1616  85.96  46.3   bbbbbbbb0M 0M00M0MMMe e0eMeeeeee eeeeee
+ 8b D Jorden Van Foreest  2612:  2   / 3   =  67%  0.0799  0.1384  92.72  54.9   bbbbbbbbbb bbb0MM
+ 9w L Vl3 Fedoseev        2724:  40  / 76  =  53%  0.0964  0.1614  89.60  51.2   bbbbbbbb00 00MM0MM000 M00000MM00 000MM00M0M 00M0M00M00 0MMMMMMMMM
                                                                                  0MMMMM0MM0 MMMM0MMMMM 000M
-10b D S. Shankland        2725:  11  / 17  =  65%  0.0929  0.1525  92.86  55.1   bbbbbbbbbb bbb00MM0M0 00MMMMMMMM 
-11w D M. Carlsen          2835:  3   / 11  =  27%  0.2491  0.2441  81.83  39.8   bbbbbbbbbb bbbbMM00M0 00000
-12w D A. Giri             2783:  11  / 20  =  55%  0.1015  0.1317  92.55  54.6   bbbbbbbbbb bbM0M0M00M 0MMMM0M0M0 M0
-13b D I. Nepomniachtchi   2763:  7   / 9   =  78%  0.0300  0.0863  97.70  61.8   bbbbbbbbbb bbb0MM0MMM MM
+10b D S. Shankland        2725:  11  / 17  =  65%  0.0820  0.1361  92.86  55.1   bbbbbbbbbb bbb00MM0M0 00MMMMMMMM 
+11w D M. Carlsen          2835:  3   / 11  =  27%  0.1628  0.1399  81.83  40.7   bbbbbbbbbb bbbbMM00M0 00000
+12w D A. Giri             2783:  11  / 20  =  55%  0.0519  0.0734  92.55  55.1   bbbbbbbbbb bbM0M0M00M 0MMMM0M0M0 M0
+13b D I. Nepomniachtchi   2763:  7   / 9   =  78%  0.0291  0.0838  97.70  61.8   bbbbbbbbbb bbb0MM0MMM MM
 -------------------------
 V. Anand 2700 330
- 1b W Jorden Van Foreest  2612:  6   / 19  =  32%  0.1621  0.1540  86.76  46.6   bbbbb0000M M00000000M MMM0eeee
- 2w D Vl3 Fedoseev        2724:  9   / 17  =  53%  0.0882  0.1312  93.14  55.4   bbbbbbbbbb bbbbbbb000 0MM0M00M0M MMMM
- 3b D S. Shankland        2725:  14  / 25  =  56%  0.1608  0.2371  88.59  49.1   bbbbbbbbb0 MM0MM00M00 M0M0M00MMM MM0M
- 4w D T. Radjabov         2757:  5   / 17  =  29%  0.1888  0.2309  86.31  46.0   bbbbbbbbbb bbb0MM0MM0 00000M0000 
- 5b D A. Giri             2783:  6   / 14  =  43%  0.1979  0.2977  86.07  45.7   bbbbbbb00M 0MM000MM00 M
- 6w D I. Nepomniachtchi   2763:  2   / 11  =  18%  0.2164  0.2580  83.94  42.7   bbbbbbbbbb bMM0000000 00
- 7b W V. Kramnik          2777:  23  / 48  =  48%  0.2260  0.4082  86.08  45.7   bbbbbbb00M M0M0M0000M MMMMM00000 0M00M0M000 00MM000MMM MMMMMee
- 8w W S. Mamedyarov       2817:  12  / 17  =  71%  0.1159  0.2038  92.28  54.2   bbbbbbbbbb M00MMMMM0M MM0M0MMee
- 9b D R. Rapport          2731:  14  / 31  =  45%  0.1465  0.1781  89.20  50.0   bbbbbbbbbb 00000M0M0M 00MMMM000M 00MM00MMM0 M
-10b L M. Carlsen          2835:  36  / 68  =  53%  0.1225  0.3262  93.57  56.0   bbbbbb000M 0M000000MM MMMMM0M0MM MMMMM00M0M M0M00MMM00 00M0MM000M
+ 1b W Jorden Van Foreest  2612:  6   / 19  =  32%  0.1071  0.1068  86.76  46.6   bbbbb0000M M00000000M MMM0eeee
+ 2w D Vl3 Fedoseev        2724:  9   / 17  =  53%  0.0549  0.0765  93.14  55.9   bbbbbbbbbb bbbbbbb000 0MM0M00M0M MMMM
+ 3b D S. Shankland        2725:  14  / 25  =  56%  0.1313  0.1956  88.59  49.1   bbbbbbbbb0 MM0MM00M00 M0M0M00MMM MM0M
+ 4w D T. Radjabov         2757:  5   / 17  =  29%  0.1046  0.1209  86.31  46.8   bbbbbbbbbb bbb0MM0MM0 00000M0000 
+ 5b D A. Giri             2783:  6   / 14  =  43%  0.1385  0.2001  86.07  45.7   bbbbbbb00M 0MM000MM00 M
+ 6w D I. Nepomniachtchi   2763:  2   / 11  =  18%  0.1250  0.1456  83.94  43.6   bbbbbbbbbb bMM0000000 00
+ 7b W V. Kramnik          2777:  23  / 48  =  48%  0.1016  0.1562  86.08  45.7   bbbbbbb00M M0M0M0000M MMMMM00000 0M00M0M000 00MM000MMM MMMMMee
+ 8w W S. Mamedyarov       2817:  12  / 17  =  71%  0.0642  0.1114  92.28  54.8   bbbbbbbbbb M00MMMMM0M MM0M0MMee
+ 9b D R. Rapport          2731:  14  / 31  =  45%  0.1274  0.1613  89.20  50.0   bbbbbbbbbb 00000M0M0M 00MMMM000M 00MM00MMM0 M
+10b L M. Carlsen          2835:  36  / 68  =  53%  0.0729  0.1506  93.57  56.0   bbbbbb000M 0M000000MM MMMMM0M0MM MMMMM00M0M M0M00MMM00 00M0MM000M
                                                                                  M000MMMMM0 MM00t
-11w D J. Duda             2738:  7   / 17  =  41%  0.1824  0.2363  86.58  46.4   bbbbbbbbbb bbbb0M0M0M 0M0MMM0000 0
-12b D Ding Liren          2813:  19  / 29  =  66%  0.1186  0.2459  91.50  53.2   bbbbbbbbbb 0M000MMMMM 0000MM0MMM MMM0MMMMM
-13w D S. Vidit            2695:  6   / 17  =  35%  0.2876  0.3547  81.94  39.9   bbbbbbbbbb bbb0000M00 0M000MMM0M 
+11w D J. Duda             2738:  7   / 17  =  41%  0.1027  0.1337  86.58  47.1   bbbbbbbbbb bbbb0M0M0M 0M0MMM0000 0
+12b D Ding Liren          2813:  19  / 29  =  66%  0.0908  0.1672  91.50  53.2   bbbbbbbbbb 0M000MMMMM 0000MM0MMM MMM0MMMMM
+13w D S. Vidit            2695:  6   / 17  =  35%  0.1471  0.1589  81.94  40.9   bbbbbbbbbb bbb0000M00 0M000MMM0M 
 -------------------------
 V. Kramnik 2777 495
- 1b D T. Radjabov         2757:  16  / 30  =  53%  0.2320  0.4156  87.28  47.3   bbbbbbbbbb bbMM0000M0 M0000MMM00 MM000MMMMM MM
- 2w L A. Giri             2783:  6   / 30  =  20%  0.4997  0.5705  74.08  29.1   bbbbbbbbbb 00M0000M00 M0M0000000 00000MM000 ee
- 3b L I. Nepomniachtchi   2763:  10  / 23  =  43%  0.4304  1.1435  87.40  47.5   bbbbbbbbbb bbM0MMM000 00M0MM0M00 M00M0
- 4b D M. Carlsen          2835:  27  / 47  =  57%  0.1196  0.2077  91.52  53.2   bbbbbbbbb0 0000000MMM M0MMM00M00 M0MMM000MM MMM0MM0MMM MM0MMM
- 5w D S. Mamedyarov       2817:  4   / 16  =  25%  0.1494  0.1329  88.42  48.9   bbbbbbbbbb bbbbb0000M M00000M00M 0
- 6b D R. Rapport          2731:  22  / 57  =  39%  0.2226  0.3385  86.12  45.7   bbbbbb0000 000M0MM0MM 00000MM00M M00M00000M M0M00M0M0M M00M0M0MM0
+ 1b D T. Radjabov         2757:  16  / 30  =  53%  0.1442  0.2355  87.28  47.3   bbbbbbbbbb bbMM0000M0 M0000MMM00 MM000MMMMM MM
+ 2w L A. Giri             2783:  6   / 30  =  20%  0.2553  0.3002  74.08  30.3   bbbbbbbbbb 00M0000M00 M0M0000000 00000MM000 ee
+ 3b L I. Nepomniachtchi   2763:  10  / 23  =  43%  0.2356  0.4793  87.40  47.5   bbbbbbbbbb bbM0MMM000 00M0MM0M00 M00M0
+ 4b D M. Carlsen          2835:  27  / 47  =  57%  0.1004  0.1836  91.52  53.2   bbbbbbbbb0 0000000MMM M0MMM00M00 M0MMM000MM MMM0MM0MMM MM0MMM
+ 5w D S. Mamedyarov       2817:  4   / 16  =  25%  0.1082  0.0920  88.42  49.6   bbbbbbbbbb bbbbb0000M M00000M00M 0
+ 6b D R. Rapport          2731:  22  / 57  =  39%  0.1464  0.2413  86.12  45.7   bbbbbb0000 000M0MM0MM 00000MM00M M00M00000M M0M00M0M0M M00M0M0MM0
                                                                                  M00ttttttt tttttttttt tttttttttt ttt
- 7w L V. Anand            2700:  18  / 48  =  38%  0.2527  0.3904  85.65  45.1   bbbbbbb000 0MM000M00M 00M00M00M0 00M000M00M M0MMMM000M 0MM00ee
- 8b L J. Duda             2738:  16  / 31  =  52%  0.5461  0.9731  79.57  36.7   bbbbbbbbbb bb0MMM0000 MM0MM0eMMM M0MM000M00 M0M0
- 9w D Ding Liren          2813:  15  / 34  =  44%  0.2409  0.2801  84.03  42.8   bbbbbbbbbb MMM0MMMM00 00000MM000 000MM0000M 0MMM
-10b L S. Vidit            2695:  10  / 17  =  59%  0.2153  0.3229  83.81  42.5   bbbbbbbbbb b00M0MM0M0 0MM0MMMM
-11w W Jorden Van Foreest  2612:  27  / 51  =  53%  0.2229  0.4397  88.69  49.3   bbbbb0MMM0 000M0MM00M 0MM00M00MM MM0M00M0M0 00MMMMM00M 00MMMMeeee
+ 7w L V. Anand            2700:  18  / 48  =  38%  0.1406  0.1959  85.65  45.9   bbbbbbb000 0MM000M00M 00M00M00M0 00M000M00M M0MMMM000M 0MM00ee
+ 8b L J. Duda             2738:  16  / 31  =  52%  0.2580  0.4369  79.57  36.7   bbbbbbbbbb bb0MMM0000 MM0MM0eMMM M0MM000M00 M0M0
+ 9w D Ding Liren          2813:  15  / 34  =  44%  0.1938  0.2413  84.03  43.7   bbbbbbbbbb MMM0MMMM00 00000MM000 000MM0000M 0MMM
+10b L S. Vidit            2695:  10  / 17  =  59%  0.1684  0.2575  83.81  42.5   bbbbbbbbbb b00M0MM0M0 0MM0MMMM
+11w W Jorden Van Foreest  2612:  27  / 51  =  53%  0.1046  0.1481  88.69  49.9   bbbbb0MMM0 000M0MM00M 0MM00M00MM MM0M00M0M0 00MMMMM00M 00MMMMeeee
                                                                                  eeeeee
-12b W Vl3 Fedoseev        2724:  35  / 54  =  65%  0.2076  0.5295  92.29  54.3   bbbbbbbbbb b00M00M0M0 MMMMMMMMe0 MMMMM00000 MMMMMeMMeM MMMMMMM000
+12b W Vl3 Fedoseev        2724:  35  / 54  =  65%  0.0731  0.1553  92.29  54.3   bbbbbbbbbb b00M00M0M0 MMMMMMMMe0 MMMMM00000 MMMMMeMMeM MMMMMMM000
                                                                                  M000MMM0t
-13w L S. Shankland        2725:  21  / 57  =  37%  0.5095  1.7834  84.51  43.5   bbbbbb00MM 0000000M0M 0000M0MM00 M0MMM00MMM 000000MMM0 0000000MMM
+13w L S. Shankland        2725:  21  / 57  =  37%  0.2146  0.5171  84.51  44.3   bbbbbb00MM 0000000M0M 0000M0MM00 M0MMM00MMM 000000MMM0 0000000MMM
                                                                                  0Me0ee
 -------------------------
 Vl3 Fedoseev 2724 500
- 1w D R. Rapport          2731:  15  / 28  =  54%  0.1768  0.2917  89.01  49.7   bbbbbbbbbb bM000MM0M0 M0000000MM MMMMMMMM0
- 2b D V. Anand            2700:  9   / 18  =  50%  0.1317  0.1616  90.11  51.2   bbbbbbbbbb bbbbbb0M00 00000MMM0M MMMM
- 3w L J. Duda             2738:  12  / 28  =  43%  0.4286  0.6664  82.32  40.5   bbbbbbb00M M0M0M00M00 M00000MMMM MM000e
- 4b D Ding Liren          2813:  7   / 32  =  22%  0.1928  0.1904  86.28  45.9   bbbbbbbbbb 0000M0MMM0 0000M0M000 0000000000 0M
- 5w D S. Vidit            2695:  35  / 65  =  54%  0.2152  0.4346  88.27  48.7   bbbbbbbbbM MMM000M000 0M0M00MMM0 00M0MMMMM0 0MM0000000 00M0MMM0M0
+ 1w D R. Rapport          2731:  15  / 28  =  54%  0.0785  0.1223  89.01  50.4   bbbbbbbbbb bM000MM0M0 M0000000MM MMMMMMMM0
+ 2b D V. Anand            2700:  9   / 18  =  50%  0.1213  0.1529  90.11  51.2   bbbbbbbbbb bbbbbb0M00 00000MMM0M MMMM
+ 3w L J. Duda             2738:  12  / 28  =  43%  0.2248  0.2647  82.32  41.4   bbbbbbb00M M0M0M00M00 M00000MMMM MM000e
+ 4b D Ding Liren          2813:  7   / 32  =  22%  0.1616  0.1534  86.28  45.9   bbbbbbbbbb 0000M0MMM0 0000M0M000 0000000000 0M
+ 5w D S. Vidit            2695:  35  / 65  =  54%  0.1246  0.2376  88.27  49.4   bbbbbbbbbM MMM000M000 0M0M00MMM0 00M0MMMMM0 0MM0000000 00M0MMM0M0
                                                                                  0M0MMMMMMM MMMM
- 6b L Jorden Van Foreest  2612:  23  / 39  =  59%  0.2936  0.5632  85.13  44.4   bbbb000M0M M00MMMMM0M MM0MMMMee0 0000M0MMMM 0MMM0
- 7w D M. Carlsen          2835:  22  / 36  =  61%  0.1267  0.2119  90.80  52.2   bbbbbbbbbb M0000MMMM0 0M0MMMMMM0 00MMMMMMMM 0M000Mtttt tttttttttt
+ 6b L Jorden Van Foreest  2612:  23  / 39  =  59%  0.1693  0.3342  85.13  44.4   bbbb000M0M M00MMMMM0M MM0MMMMee0 0000M0MMMM 0MMM0
+ 7w D M. Carlsen          2835:  22  / 36  =  61%  0.0685  0.1155  90.80  52.8   bbbbbbbbbb M0000MMMM0 0M0MMMMMM0 00MMMMMMMM 0M000Mtttt tttttttttt
                                                                                  tttttttttt tttt
- 8w W S. Shankland        2725:  22  / 36  =  61%  0.1597  0.2983  87.73  47.9   bbbbMMMMM0 M000MM00M0 00M00000MM MMMMMMMMMM eeeeeeeeee ee
- 9b W T. Radjabov         2757:  40  / 74  =  54%  0.1081  0.1880  92.09  54.0   bbbbbbbbM0 MM0M0M00MM 000M00M000 0M0M0MMM00 00MM0M0MM0 M00MM00M0M
+ 8w W S. Shankland        2725:  22  / 36  =  61%  0.0871  0.1682  87.73  48.7   bbbbMMMMM0 M000MM00M0 00M00000MM MMMMMMMMMM eeeeeeeeee ee
+ 9b W T. Radjabov         2757:  40  / 74  =  54%  0.0969  0.1774  92.09  54.0   bbbbbbbbM0 MM0M0M00MM 000M00M000 0M0M0MMM00 00MM0M0MM0 M00MM00M0M
                                                                                  MMMMMM00MM M00M00MMMM MMee
-10w L A. Giri             2783:  14  / 30  =  47%  0.2747  0.4405  86.57  46.3   bbbbbbbbb0 M000M00MMM 00MM00M0MM MMM0M0000e e
-11b L I. Nepomniachtchi   2763:  20  / 44  =  45%  0.2320  0.4098  85.62  45.0   bbbbb00M00 0MM000000M 0M0MMMMM0M 0000MMMM00 00M00MMMM
-12w L V. Kramnik          2777:  34  / 58  =  59%  0.2195  0.5221  88.31  48.8   bbbbbbbbbb b00MM00000 00MMMM0MMM 00M0000M00 MMMMM0MMMM MMMMMM0MMM
+10w L A. Giri             2783:  14  / 30  =  47%  0.1480  0.2345  86.57  47.1   bbbbbbbbb0 M000M00MMM 00MM00M0MM MMM0M0000e e
+11b L I. Nepomniachtchi   2763:  20  / 44  =  45%  0.1703  0.3098  85.62  45.0   bbbbb00M00 0MM000000M 0M0MMMMM0M 0000MMMM00 00M00MMMM
+12w L V. Kramnik          2777:  34  / 58  =  59%  0.1604  0.4788  88.31  49.4   bbbbbbbbbb b00MM00000 00MMMM0MMM 00M0000M00 MMMMM0MMMM MMMMMM0MMM
                                                                                  M00MM00MM
-13b D S. Mamedyarov       2817:  10  / 12  =  83%  0.1058  0.2754  93.12  55.4   bbbbbbb0MM MMMMMMMM0
+13b D S. Mamedyarov       2817:  10  / 12  =  83%  0.0660  0.1581  93.12  55.4   bbbbbbb0MM MMMMMMMM0
 -------------------------

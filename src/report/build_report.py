@@ -8,11 +8,13 @@ import sections
 
 RPT_CHOICES = ['Event', 'Player']  # , 'Game']
 
-# TODO: Scaled ACPL values a la Regan? Maybe less important since I shifted the evaluation weight function so it's not symmetric about 0
-# TODO: More complete ROI that includes more than just the score value
+# TODO: More complete ROI that includes more than just the score value - look into multivariate normal distribution
+"""
+https://stackoverflow.com/questions/11615664/multivariate-normal-density-in-python
+https://datatofish.com/covariance-matrix-python/
+"""
 # TODO: Devise way to pass a PGN file and output the results
-# TODO: Generalize the queries so can pull data from whatever tables I want
-# TODO: Asterisks next to EVM, ACPL, SDCPL, and possibly score?
+# TODO: Generalize the queries so can pull data from whatever tables I want - maybe classes
 
 
 def main():
