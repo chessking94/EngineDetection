@@ -82,6 +82,8 @@ class report:
         self.rpt.write(str(int(rs[0][5])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][5])/int(rs[0][1])) + '%' + NL)
         self.rpt.write('Total T5:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][6])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][6])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write('Total Blunders:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(rs[0][9])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1])) + '%' + NL)
         self.rpt.write('Total ScACPL:'.ljust(EV_LEN, ' '))
         acpl = outliers.format_cpl('Event', 'Scaled_ACPL', rt, rs[0][7], self.conn)
         self.rpt.write(acpl + NL)
@@ -122,9 +124,10 @@ class report:
         rec_len = 16
         perf_len = 8
         evm_len = 24
-        acpl_len = 10
-        sdcpl_len = 10
-        score_len = 10
+        blun_len = 27
+        acpl_len = 11
+        sdcpl_len = 11
+        score_len = 11
         roi_len = 8
 
         self.rpt.write('Player Name'.ljust(player_len, ' '))
@@ -132,17 +135,19 @@ class report:
         self.rpt.write('Record'.ljust(rec_len, ' '))
         self.rpt.write('Perf'.ljust(perf_len, ' '))
         self.rpt.write('EVM / Turns = Pcnt'.ljust(evm_len, ' '))
+        self.rpt.write('Blund / Turns = Pcnt'.ljust(blun_len, ' '))
         self.rpt.write('ScACPL'.ljust(acpl_len, ' '))
         self.rpt.write('ScSDCPL'.ljust(sdcpl_len, ' '))
         self.rpt.write('Score'.ljust(score_len, ' '))
         self.rpt.write('ROI'.ljust(roi_len, ' '))
-        self.rpt.write('Opp EVM / Turns = Pcnt'.ljust(24, ' '))
+        self.rpt.write('Opp EVM / Turns = Pcnt'.ljust(evm_len, ' '))
+        self.rpt.write('Opp Blund / Turns = Pcnt'.ljust(blun_len, ' '))
         self.rpt.write('OppScACPL'.ljust(acpl_len, ' '))
         self.rpt.write('OppScSDCPL'.ljust(sdcpl_len, ' '))
         self.rpt.write('OppScore'.ljust(score_len, ' '))
         # self.rpt.write('OppROI'.ljust(roi_len, ' '))
         self.rpt.write(NL)
-        self.rpt.write('-'*184)
+        self.rpt.write('-'*234)
         self.rpt.write(NL)
 
         if self.event:
@@ -174,6 +179,11 @@ class report:
             evm = evm + evmpcnt
             self.rpt.write(evm.ljust(evm_len, ' '))
 
+            bl = str(player['Blunders']) .ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
+            blpcnt = '{:3.2f}'.format(100*player['Blunders']/player['ScoredMoves']) + '%'
+            bl = bl + blpcnt
+            self.rpt.write(bl.ljust(blun_len, ' '))
+
             acpl = outliers.format_cpl(agg_typ, 'Scaled_ACPL', rt, player['ACPL'], self.conn)
             self.rpt.write(acpl.ljust(acpl_len, ' '))
 
@@ -191,6 +201,11 @@ class report:
             oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
             oppevm = oppevm + '{:3.1f}'.format(100*player['OppEVM']/player['OppScoredMoves']) + '%'
             self.rpt.write(oppevm.ljust(evm_len, ' '))
+
+            oppbl = str(player['OppBlunders']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
+            oppblpcnt = '{:3.2f}'.format(100*player['OppBlunders']/player['OppScoredMoves']) + '%'
+            oppbl = oppbl + oppblpcnt
+            self.rpt.write(oppbl.ljust(blun_len, ' '))
 
             oppacpl = '{:.4f}'.format(player['OppACPL'])
             self.rpt.write(oppacpl.ljust(acpl_len, ' '))
@@ -336,6 +351,8 @@ class general:
         self.rpt.write('-'*100 + NL)
         self.rpt.write('EVM:'.ljust(PK_LEN, ' '))
         self.rpt.write('Equal Value Match; moves with an evaluation that matches the best engine evaluation' + NL)
+        self.rpt.write('Blund:'.ljust(PK_LEN, ' '))
+        self.rpt.write('Blunders; moves that lost 200 centipawns or more' + NL)
         self.rpt.write('ScACPL:'.ljust(PK_LEN, ' '))
         self.rpt.write('Scaled Average Centipawn Loss; sum of total centipawn loss divided by the number of moves, scaled by position evaluation' + NL)
         self.rpt.write('ScSDCPL:'.ljust(PK_LEN, ' '))
