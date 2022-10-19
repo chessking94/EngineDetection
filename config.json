@@ -10,5 +10,6 @@
 	"pgnName": "EEH_Online_202209.pgn",
 	"enginePath": "C:/Users/eehunt/Documents/Chess/ENGINES",
 	"engineName": "stockfish_14.1_x64.exe",
-	"depth": 11
+	"depth": 11,
+	"maxEval": 3
 }

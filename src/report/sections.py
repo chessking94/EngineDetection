@@ -1,4 +1,5 @@
 import datetime as dt
+import logging
 import math
 
 import pandas as pd
@@ -351,5 +352,30 @@ class general:
         self.rpt.write('-'*100 + NL)
         self.rpt.write('(Player Name) (Elo) (Scored Moves)' + NL)
         self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (game trace)' + NL)
-        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead, t = Tablebase hit' + NL)
+        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead, t = Tablebase hit' + NL)
+        # self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead,' + NL)
+        # self.rpt.write(' '*16 + 't = Tablebase hit, f = forced move, r = move included in a repetition' + NL)
         self.rpt.write(NL)
+
+
+def update_maxeval(conn, maxeval):
+    go = False
+    try:
+        float(maxeval)
+        go = True
+    except ValueError:
+        logging.warning(f'Non-numeric max eval|{maxeval}')
+
+    if go:
+        csr = conn.cursor()
+        sql_cmd = f"UPDATE DynamicSettings SET SettingValue = '{maxeval}' WHERE SettingID = 3"
+        logging.debug(f"Update query|{sql_cmd}")
+        csr.execute(sql_cmd)
+        conn.commit()
+        rtn = maxeval
+    else:
+        qry_text = 'SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3'
+        rs = pd.read_sql(qry_text, conn).values.tolist()
+        rtn = rs[0][0]
+
+    return rtn

@@ -6,7 +6,6 @@ import pyodbc as sql
 from func import get_conf, get_config
 import sections
 
-RPT_CHOICES = ['Event', 'Player']  # , 'Game']
 
 # TODO: More complete ROI that includes more than just the score value - look into multivariate normal distribution
 """
@@ -15,6 +14,8 @@ https://datatofish.com/covariance-matrix-python/
 """
 # TODO: Devise way to pass a PGN file and output the results
 # TODO: Generalize the queries so can pull data from whatever tables I want - maybe classes
+# TODO: Look into additions to whole-event/sample section; i.e. blunder rate
+# TODO: Additional move exclusions; forced moves (dynamic eval threshold?) and repetitions primarily
 
 
 def main():
@@ -30,26 +31,21 @@ def main():
     rpt = get_config(config_path, 'reportType')
 
     db = get_config(config_path, 'useDatabase')
-    if db:
-        pgn_name = None
-    else:
-        pgn_name = get_config(config_path, 'pgnName')
+    pgn_name = None if db else get_config(config_path, 'pgnName')
 
     engine_name = get_config(config_path, 'engineName')
     depth = get_config(config_path, 'depth')
 
+    max_eval = get_config(config_path, 'maxEval')
+
     if rpt == 'Event':
         ev = get_config(config_path, 'eventName')
-        full_name = ['', '']
-        start_date = ''
-        end_date = ''
+        full_name, start_date, end_date = ['', ''], '', ''
     elif rpt == 'Player':
         ev = ''
-        first_name = get_config(config_path, 'firstName')
-        last_name = get_config(config_path, 'lastName')
+        first_name, last_name = get_config(config_path, 'firstName'), get_config(config_path, 'lastName')
         full_name = [first_name, last_name]
-        start_date = get_config(config_path, 'startDate')
-        end_date = get_config(config_path, 'endDate')
+        start_date, end_date = get_config(config_path, 'startDate'), get_config(config_path, 'endDate')
 
     report_path = get_config(config_path, 'reportPath')
     if rpt == 'Event':
@@ -64,6 +60,8 @@ def main():
 
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
+
+    max_eval = sections.update_maxeval(conn, max_eval)
 
     with open(report_full, 'w') as rf:
         g = sections.general(rf)
