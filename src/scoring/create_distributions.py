@@ -4,6 +4,7 @@ import logging
 from statistics import NormalDist
 
 import numpy as np
+import pandas as pd
 import pyodbc as sql
 
 SRC_CHOICES = ['Control', 'Lichess']
@@ -37,13 +38,13 @@ def main():
     )
     parser.add_argument(
         '-s', '--source',
-        default='Lichess',
+        default='Control',
         choices=SRC_CHOICES,
         help='Data source'
     )
     parser.add_argument(
         '-t', '--timecontrol',
-        default='Rapid',
+        default='Classical',
         choices=TC_CHOICES,
         help='Time control'
     )
@@ -68,9 +69,21 @@ def main():
 
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
-    csr = conn.cursor()
 
-    sql_del = f"DELETE FROM EvalDistributions WHERE Source = '{src}' AND TimeControlType = '{tc}'"
+    qry_text = f"""
+SELECT
+SourceID,
+TimeControlID
+FROM ChessWarehouse.dim.Sources s
+CROSS APPLY ChessWarehouse.dim.TimeControls t
+WHERE s.SourceName = '{src}'
+AND t.TimeControlName = '{tc}'
+"""
+    logging.debug(f'Select query|{qry_text}')
+    srcid, tcid = pd.read_sql(qry_text, conn).values[0].tolist()
+
+    csr = conn.cursor()
+    sql_del = f'DELETE FROM ChessWarehouse.dbo.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
     logging.debug(f'Delete query|{sql_del}')
     csr.execute(sql_del)
     conn.commit()
@@ -84,9 +97,9 @@ def main():
         pdf_val = NormalDist(mu=m, sigma=sd).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
         cdf_val = NormalDist(mu=m, sigma=sd).cdf(x)
 
-        sql_cmd = 'INSERT INTO EvalDistributions (Source, TimeControlType, Eval, PDF, CDF) '
-        sql_cmd = sql_cmd + f"VALUES ('{src}', '{tc}', {x}, {pdf_val}, {cdf_val})"
-        logging.debug(f'Delete query|{sql_cmd}')
+        sql_cmd = 'INSERT INTO ChessWarehouse.dbo.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
+        sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {pdf_val}, {cdf_val})'
+        logging.debug(f'Insert query|{sql_cmd}')
         csr.execute(sql_cmd)
         conn.commit()
 
