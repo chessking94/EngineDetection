@@ -83,7 +83,7 @@ AND t.TimeControlName = '{tc}'
     srcid, tcid = pd.read_sql(qry_text, conn).values[0].tolist()
 
     csr = conn.cursor()
-    sql_del = f'DELETE FROM ChessWarehouse.dbo.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
+    sql_del = f'DELETE FROM ChessWarehouse.stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
     logging.debug(f'Delete query|{sql_del}')
     csr.execute(sql_del)
     conn.commit()
@@ -97,7 +97,7 @@ AND t.TimeControlName = '{tc}'
         pdf_val = NormalDist(mu=m, sigma=sd).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
         cdf_val = NormalDist(mu=m, sigma=sd).cdf(x)
 
-        sql_cmd = 'INSERT INTO ChessWarehouse.dbo.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
+        sql_cmd = 'INSERT INTO ChessWarehouse.stat.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
         sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {pdf_val}, {cdf_val})'
         logging.debug(f'Insert query|{sql_cmd}')
         csr.execute(sql_cmd)
