@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import pyodbc as sql
 
-SRC_CHOICES = ['Control', 'Lichess']
-TC_CHOICES = ['Rapid', 'Classical', 'Correspondence']
+SRC_CHOICES = ['Personal', 'PersonalOnline', 'Control', 'Lichess', 'Test']
+TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 
 
 def get_conf(key):
@@ -55,17 +55,52 @@ def main():
     tc = config['timecontrol']
     logging.debug(f'Arguments|{config}')
 
-    lc = {
-        'Classical': {'Mean': 0.15, 'StDev': 3.88},
-        'Rapid': {'Mean': 0.19, 'StDev': 4.47}
+    per = {
+        # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        "Rapid": {'Mean': 0.19, 'StDev': 4.47},
+        'Classical': {'Mean': 0.35, 'StDev': 1.85},
+        # 'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
     }
 
-    ctrl = {
+    perol = {
+        # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
+        "Bullet": {'Mean': 0.19, 'StDev': 4.47},
+        "Blitz": {'Mean': 0.19, 'StDev': 4.47},
+        "Rapid": {'Mean': 0.19, 'StDev': 4.47},
         'Classical': {'Mean': 0.35, 'StDev': 1.85},
         'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
     }
 
-    dist_dict = {'Lichess': lc, 'Control': ctrl}
+    ctrl = {
+        # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        # "Rapid": {'Mean': 0.00, 'StDev': 0.00},
+        'Classical': {'Mean': 0.35, 'StDev': 1.85},
+        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+    }
+
+    lc = {
+        # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        'Rapid': {'Mean': 0.19, 'StDev': 4.47},
+        'Classical': {'Mean': 0.15, 'StDev': 3.88},
+        # "Correspondence": {'Mean': 0.34, 'StDev': 2.55}
+    }
+
+    tst = {
+        # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
+        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        "Rapid": {'Mean': 0.35, 'StDev': 1.85},
+        'Classical': {'Mean': 0.35, 'StDev': 1.85},
+        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+    }
+
+    dist_dict = {'Personal': per, 'PersonalOnline': perol, 'Control': ctrl, 'Lichess': lc, 'Test': tst}
 
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
@@ -92,7 +127,7 @@ AND t.TimeControlName = '{tc}'
     sd = dist_dict[src][tc]['StDev']
     pdf_f = sd*np.sqrt(2*np.pi)
 
-    rng = np.linspace(start=-100, stop=100, num=20001)
+    rng = np.linspace(start=-15, stop=15, num=3001)
     for x in rng:
         pdf_val = NormalDist(mu=m, sigma=sd).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
         cdf_val = NormalDist(mu=m, sigma=sd).cdf(x)
