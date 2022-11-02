@@ -6,9 +6,9 @@ import pandas as pd
 import queries as q
 
 NL = '\n'
-AGG_CHOICES = ['Evaluation', 'Event', 'Game']
+AGG_CHOICES = ['Game', 'Event', 'Evalation']
 SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['Scaled_ACPL', 'Scaled_SDCPL',  'Score', 'ACPL', 'SDCPL', 'T1', 'T2', 'T3', 'T4', 'T5']
+FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'Score', 'ScACPL', 'ScSDCPL']
 TIMECONTROL_CHOICES = ['Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [1200+100*i for i in range(22)]
 EVALGROUP_CHOICES = [i+1 for i in range(9)]
@@ -18,8 +18,8 @@ COLOR_CHOICES = ['White', 'Black']
 class aggregator:
     def __init__(self, conn, agg, src, fld, timecontrol, rating, evalgroup, color):
         self.conn = conn
-        self.agg = agg
-        self.src = src
+        self.agg = q.get_aggid(conn, agg)
+        self.src = q.get_srcid(conn, src)
         self.fld = fld
         self.timecontrol = timecontrol
         self.rating = rating
@@ -57,7 +57,7 @@ class aggregator:
         return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
 
     def aggregate_event(self, fld, tctype, rating):
-        qry_text = q.event_qry(fld, tctype, rating)
+        qry_text = q.event_qry(self.src, fld, tctype, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:
@@ -75,15 +75,15 @@ class aggregator:
             ct = 0
             av = 'NULL'
             sd = 'NULL'
+            mn = 'NULL'
             lower_pcnt = 'NULL'
             qtr1 = 'NULL'
             qtr2 = 'NULL'
             qtr3 = 'NULL'
             upper_pcnt = 'NULL'
-            mn = 'NULL'
             mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
+        return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def aggregate_game(self, fld, tctype, rating, color):
         qry_text = q.game_qry(fld, self.src, tctype, rating, color)
@@ -109,42 +109,42 @@ class aggregator:
             ct = 0
             av = 'NULL'
             sd = 'NULL'
+            mn = 'NULL'
             lower_pcnt = 'NULL'
             qtr1 = 'NULL'
             qtr2 = 'NULL'
             qtr3 = 'NULL'
             upper_pcnt = 'NULL'
-            mn = 'NULL'
             mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
+        return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def delete_stats(self):
-        sql_del = f"""
-DELETE FROM StatisticsSummary
-WHERE Source = '{self.src}'
-AND Aggregation = '{self.agg}'
-"""
+        sql_del = f'''
+DELETE FROM ChessWarehouse.fact.StatisticsSummary
+WHERE SourceID = {self.src}
+AND AggregationID = {self.agg}
+'''
 
-        if self.fld and len(self.fld) < len(FLD_CHOICES):
-            fld_list = ','.join(f"'{i}'" for i in self.fld)
-            sql_del = sql_del + f'AND Field IN ({fld_list})' + NL
+        # if self.fld and len(self.fld) < len(FLD_CHOICES):
+        #     fld_list = ','.join(f"'{i}'" for i in self.fld)
+        #     sql_del = sql_del + f'AND Field IN ({fld_list})' + NL
 
-        if self.timecontrol and len(self.timecontrol) < len(TIMECONTROL_CHOICES):
-            timecontrol_list = ','.join(f"'{i}'" for i in self.timecontrol)
-            sql_del = sql_del + f'AND TimeControlType IN ({timecontrol_list})' + NL
+        # if self.timecontrol and len(self.timecontrol) < len(TIMECONTROL_CHOICES):
+        #     timecontrol_list = ','.join(f"'{i}'" for i in self.timecontrol)
+        #     sql_del = sql_del + f'AND TimeControlType IN ({timecontrol_list})' + NL
 
-        if self.rating and len(self.rating) < len(RATING_CHOICES):
-            rating_list = ','.join(str(i) for i in self.rating)
-            sql_del = sql_del + f'AND Rating IN ({rating_list})' + NL
+        # if self.rating and len(self.rating) < len(RATING_CHOICES):
+        #     rating_list = ','.join(str(i) for i in self.rating)
+        #     sql_del = sql_del + f'AND Rating IN ({rating_list})' + NL
 
-        if self.evalgroup and len(self.evalgroup) < len(EVALGROUP_CHOICES):
-            evalgroup_list = ','.join(str(i) for i in self.evalgroup)
-            sql_del = sql_del + f'AND EvalGroup IN ({evalgroup_list})' + NL
+        # if self.evalgroup and len(self.evalgroup) < len(EVALGROUP_CHOICES):
+        #     evalgroup_list = ','.join(str(i) for i in self.evalgroup)
+        #     sql_del = sql_del + f'AND EvalGroup IN ({evalgroup_list})' + NL
 
-        if self.color and len(self.color) < len(COLOR_CHOICES):
-            color_list = ','.join(f"'{i}'" for i in self.color)
-            sql_del = sql_del + f'AND Color IN ({color_list})' + NL
+        # if self.color and len(self.color) < len(COLOR_CHOICES):
+        #     color_list = ','.join(f"'{i}'" for i in self.color)
+        #     sql_del = sql_del + f'AND Color IN ({color_list})' + NL
 
         logging.debug(f"Delete query|{sql_del.replace(NL, ' ')}")
         return sql_del
@@ -157,17 +157,20 @@ AND Aggregation = '{self.agg}'
         self.conn.commit()
 
         for fld in self.fld:
+            fld = q.get_fldid(fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
+                    tctype = q.get_tcid(tctype)
                     for color in self.color:
+                        color = q.get_colorid(color)
                         for evalgroup in self.evalgroup:
                             ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_evals(fld, tctype, rating, evalgroup, color)
-                            sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, '
-                            sql_cmd = sql_cmd + 'EvalGroup, Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, '
-                            sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MinValue, MaxValue) '
-                            sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', "
-                            sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
-                            sql_cmd = sql_cmd + f"{qt3}, {upper}, {mn}, {mx})"
+                            sql_cmd = 'INSERT INTO ChessWarehouse.fact.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
+                            sql_cmd = sql_cmd + 'EvaluationGroupID, RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
+                            sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
+                            sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fld}, {rating}, {tctype}, {color}, "
+                            sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, "
+                            sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                             csr.execute(sql_cmd)
                             self.conn.commit()
@@ -181,13 +184,15 @@ AND Aggregation = '{self.agg}'
         self.conn.commit()
 
         for fld in self.fld:
+            fldid = q.get_fldid(self.conn, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_event(fld, tctype, rating)
-                    sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, '
-                    sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MinValue, MaxValue) '
-                    sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', 'N/A', 0, "
-                    sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mn}, {mx})"
+                    tcid = q.get_tcid(self.conn, tctype)
+                    ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_event(fld, tcid, rating)
+                    sql_cmd = 'INSERT INTO ChessWarehouse.fact.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
+                    sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MaxValue) '
+                    sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, 0, 0, "
+                    sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mx})"
                     logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                     csr.execute(sql_cmd)
                     self.conn.commit()
@@ -201,16 +206,19 @@ AND Aggregation = '{self.agg}'
         self.conn.commit()
 
         for fld in self.fld:
+            fldid = q.get_fldid(self.conn, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
+                    tcid = q.get_tcid(self.conn, tctype)
                     for color in self.color:
-                        ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_game(fld, tctype, rating, color)
-                        sql_cmd = 'INSERT INTO StatisticsSummary (Source, Aggregation, Field, Rating, TimeControlType, Color, EvalGroup, '
-                        sql_cmd = sql_cmd + 'Count, Average, StandardDeviation, LowerPcnt, LowerQuartile, Median, '
-                        sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MinValue, MaxValue) '
-                        sql_cmd = sql_cmd + f"VALUES ('{self.src}', '{self.agg}', '{fld}', {rating}, '{tctype}', '{color}', 0, "
-                        sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {lower}, {qt1}, {qt2}, "
-                        sql_cmd = sql_cmd + f"{qt3}, {upper}, {mn}, {mx})"
+                        colorid = q.get_colorid(self.conn, color)
+                        ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_game(fld, tcid, rating, colorid)
+                        sql_cmd = 'INSERT INTO ChessWarehouse.fact.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
+                        sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
+                        sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
+                        sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, 0, "
+                        sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, "
+                        sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
                         self.conn.commit()

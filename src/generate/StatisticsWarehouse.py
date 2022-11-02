@@ -6,6 +6,9 @@ import pyodbc as sql
 import classes as c
 import queries as q
 
+# TODO: Review delete process when customizing paramters
+# TODO: Complete Evaluation migration
+
 
 def validate_args(config):
     if config['agg'] not in c.AGG_CHOICES:
@@ -50,7 +53,7 @@ def main():
         level=logging.INFO
     )
 
-    vrs_num = '2.0'
+    vrs_num = '3.0'
     parser = argparse.ArgumentParser(
         description='Control Statistic Aggregator',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -63,7 +66,7 @@ def main():
     )
     parser.add_argument(
         '-a', '--agg',
-        default='Evaluation',
+        default='Event',
         choices=c.AGG_CHOICES,
         help='Aggregation level'
     )

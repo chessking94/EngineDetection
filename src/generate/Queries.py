@@ -1,5 +1,7 @@
 import json
 
+import pandas as pd
+
 
 def get_conf(key):
     fname = r'C:\Users\eehunt\Repository\confidential.json'
@@ -15,26 +17,30 @@ def game_qry(fld, src, tctype, rating, color):
 SELECT
 {fld}
 
-FROM vw{src}GameSummary
+FROM ChessWarehouse.fact.Game
 
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND Color = '{color}'
+WHERE SourceID = {src}
+AND TimeControlID = {tctype}
+AND RatingID = {rating}
+AND ColorID = {color}
+AND {fld} IS NOT NULL
 """
     return qry
 
 
 # event level
-def event_qry(fld, tctype, rating):
-    qry = f"""
+def event_qry(fld, src, tctype, rating):
+    qry = f'''
 SELECT
 {fld}
 
-FROM vwControlEventSummary
+FROM ChessWarehouse.fact.Event
 
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-"""
+WHERE SourceID = {src}
+AND TimeControlID = {tctype}
+AND RatingID = {rating}
+AND {fld} IS NOT NULL
+'''
     return qry
 
 
@@ -69,3 +75,68 @@ AND GroupID = {evalgroup}
 AND Color = '{color}'
 """
     return qry
+
+
+def get_aggid(conn, agg):
+    qry = f"""
+SELECT
+AggregationID
+
+FROM ChessWarehouse.dim.Aggregations
+
+WHERE AggregationName = '{agg}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
+def get_srcid(conn, src):
+    qry = f"""
+SELECT
+SourceID
+
+FROM ChessWarehouse.dim.Sources
+
+WHERE SourceName = '{src}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
+def get_fldid(conn, fld):
+    qry = f"""
+SELECT
+MeasurementID
+
+FROM ChessWarehouse.dim.Measurements
+
+WHERE MeasurementName = '{fld}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
+def get_tcid(conn, tc):
+    qry = f"""
+SELECT
+TimeControlID
+
+FROM ChessWarehouse.dim.TimeControls
+
+WHERE TimeControlName = '{tc}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
+def get_colorid(conn, color):
+    qry = f"""
+SELECT
+ColorID
+
+FROM ChessWarehouse.dim.Colors
+
+WHERE Color = '{color}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
