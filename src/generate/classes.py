@@ -6,7 +6,7 @@ import pandas as pd
 import queries as q
 
 NL = '\n'
-AGG_CHOICES = ['Game', 'Event', 'Evalation']
+AGG_CHOICES = ['Game', 'Event', 'Evaluation']
 SRC_CHOICES = ['Control', 'Lichess']
 FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'Score', 'ScACPL', 'ScSDCPL']
 TIMECONTROL_CHOICES = ['Rapid', 'Classical', 'Correspondence']
@@ -54,7 +54,7 @@ class aggregator:
             mn = 'NULL'
             mx = 'NULL'
 
-        return [ct, av, sd, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mn, mx]
+        return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def aggregate_event(self, fld, tctype, rating):
         qry_text = q.event_qry(self.src, fld, tctype, rating)
@@ -157,18 +157,18 @@ AND AggregationID = {self.agg}
         self.conn.commit()
 
         for fld in self.fld:
-            fld = q.get_fldid(fld)
+            fldid = q.get_fldid(self.conn, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    tctype = q.get_tcid(tctype)
+                    tcid = q.get_tcid(self.conn, tctype)
                     for color in self.color:
-                        color = q.get_colorid(color)
+                        colorid = q.get_colorid(self.conn, color)
                         for evalgroup in self.evalgroup:
-                            ct, av, sd, lower, qt1, qt2, qt3, upper, mn, mx = self.aggregate_evals(fld, tctype, rating, evalgroup, color)
+                            ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_evals(fld, tcid, rating, evalgroup, colorid)
                             sql_cmd = 'INSERT INTO ChessWarehouse.fact.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
                             sql_cmd = sql_cmd + 'EvaluationGroupID, RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
                             sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
-                            sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fld}, {rating}, {tctype}, {color}, "
+                            sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, "
                             sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, "
                             sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")

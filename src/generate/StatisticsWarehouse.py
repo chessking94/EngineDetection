@@ -7,7 +7,6 @@ import classes as c
 import queries as q
 
 # TODO: Review delete process when customizing paramters
-# TODO: Complete Evaluation migration
 
 
 def validate_args(config):
@@ -17,7 +16,7 @@ def validate_args(config):
 
     # modifiers
     if config['agg'] == 'Evaluation':
-        rmv_list = ['Scaled_SDCPL', 'SDCPL', 'Score']
+        rmv_list = ['T1', 'T2', 'T3', 'T4', 'T5', 'SDCPL', 'Score', 'ScSDCPL']
         config['fld'] = [e for e in config['fld'] if e not in rmv_list]
         config['evalgroup'] = c.EVALGROUP_CHOICES if not config['evalgroup'] else config['evalgroup']
     elif config['agg'] == 'Event':
@@ -66,7 +65,7 @@ def main():
     )
     parser.add_argument(
         '-a', '--agg',
-        default='Event',
+        default='Evaluation',
         choices=c.AGG_CHOICES,
         help='Aggregation level'
     )

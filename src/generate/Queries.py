@@ -50,12 +50,13 @@ def eval_qry(fld, src, tctype, rating, evalgroup, color):
 SELECT
 {fld}
 
-FROM vw{src}EvalSummary
+FROM ChessWarehouse.lake.vwEvaluationSummary
 
-WHERE TimeControlType = '{tctype}'
-AND RatingGroup = {rating}
-AND GroupID = {evalgroup}
-AND Color = '{color}'
+WHERE SourceID = {src}
+AND ColorID = {color}
+AND TimeControlID = {tctype}
+AND RatingID = {rating}
+AND EvaluationGroupID = {evalgroup}
 AND ACPL > 0
 """
     return qry
