@@ -5,6 +5,7 @@ import pyodbc as sql
 
 from func import get_conf, get_config
 import sections
+from queries import get_evid, get_plid, get_srcid
 
 
 # TODO: More complete ROI that includes more than just the score value - look into multivariate normal distribution
@@ -13,8 +14,6 @@ https://stackoverflow.com/questions/11615664/multivariate-normal-density-in-pyth
 https://datatofish.com/covariance-matrix-python/
 """
 # TODO: Devise way to pass a PGN file and output the results
-# TODO: Generalize the queries so can pull data from whatever tables I want - maybe classes
-# TODO: Look into additions to whole-event/sample section; i.e. blunder rate
 # TODO: Additional move exclusions; forced moves (dynamic eval threshold?) and repetitions primarily
 
 
@@ -28,6 +27,11 @@ def main():
     for _ in range(2):
         config_path = os.path.dirname(config_path)
 
+    conn_str = get_conf('SqlServerConnectionStringTrusted')
+    conn = sql.connect(conn_str)
+
+    src = get_config(config_path, 'reportSource')
+    srcid = get_srcid(conn, src)
     rpt = get_config(config_path, 'reportType')
 
     db = get_config(config_path, 'useDatabase')
@@ -40,11 +44,13 @@ def main():
 
     if rpt == 'Event':
         ev = get_config(config_path, 'eventName')
-        full_name, start_date, end_date = ['', ''], '', ''
+        evid = get_evid(conn, srcid, ev)
+        full_name, plid, start_date, end_date = ['', ''], '', '', ''
     elif rpt == 'Player':
-        ev = ''
+        ev, evid = '', ''
         first_name, last_name = get_config(config_path, 'firstName'), get_config(config_path, 'lastName')
         full_name = [first_name, last_name]
+        plid = get_plid(conn, srcid, last_name, first_name)
         start_date, end_date = get_config(config_path, 'startDate'), get_config(config_path, 'endDate')
 
     report_path = get_config(config_path, 'reportPath')
@@ -58,14 +64,11 @@ def main():
 
     report_full = os.path.join(report_path, report_name)
 
-    conn_str = get_conf('SqlServerConnectionStringTrusted')
-    conn = sql.connect(conn_str)
-
     max_eval = sections.update_maxeval(conn, max_eval)
 
     with open(report_full, 'w') as rf:
         g = sections.general(rf)
-        r = sections.report(rf, rpt, conn, ev, full_name, start_date, end_date)
+        r = sections.report(rf, rpt, conn, evid, plid, start_date, end_date)
 
         g.header_type(rpt, conn, ev, full_name, start_date, end_date)
         g.header_info(pgn_name, engine_name, depth)

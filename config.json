@@ -1,8 +1,9 @@
 {
 	"reportPath": "C:/Users/eehunt/Repository/EngineDetection/output",
-	"reportType": "Player",
+	"reportSource": "Control",
+	"reportType": "Event",
 	"eventName": "81st Tata Steel GpA",
-	"firstName": "M.",
+	"firstName": "Magnus",
 	"lastName": "Carlsen",
 	"startDate": "01/01/2019",
 	"endDate": "12/31/2019",

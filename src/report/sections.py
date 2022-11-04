@@ -14,12 +14,12 @@ PK_LEN = 10
 
 
 class report:
-    def __init__(self, rpt, typ, conn, event, name, startdate, enddate):
+    def __init__(self, rpt, typ, conn, eventid, playerid, startdate, enddate):
         self.rpt = rpt
         self.typ = typ
         self.conn = conn
-        self.event = event
-        self.name = name
+        self.eventid = eventid
+        self.playerid = playerid
         self.startdate = startdate
         self.enddate = enddate
 
@@ -33,10 +33,10 @@ class report:
 
         if self.typ == 'Event':
             self.rpt.write('Average rating by game:'.ljust(EV_LEN, ' '))
-            qry_text = qry.event_avgrating(self.event)
+            qry_text = qry.event_avgrating(self.eventid)
         else:
             self.rpt.write('Average opponent rating:'.ljust(EV_LEN, ' '))
-            qry_text = qry.player_avgrating(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_avgrating(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
         if self.typ == 'Event':
@@ -48,16 +48,16 @@ class report:
         self.rpt.write('max ' + str(int(rs[0][2])) + NL)
 
         if self.typ == 'Event':
-            qry_text = qry.event_totalmoves(self.event)
+            qry_text = qry.event_totalmoves(self.eventid)
         else:
-            qry_text = qry.player_totalmoves(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_totalmoves(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
         mvs = int(rs[0][0])
 
         if self.typ == 'Event':
-            qry_text = qry.event_scoredmoves(self.event)
+            qry_text = qry.event_scoredmoves(self.eventid)
         else:
-            qry_text = qry.player_scoredmoves(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_scoredmoves(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
         if self.typ == 'Event':
@@ -85,17 +85,17 @@ class report:
         self.rpt.write('Total Blunders:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][9])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1])) + '%' + NL)
         self.rpt.write('Total ScACPL:'.ljust(EV_LEN, ' '))
-        acpl = outliers.format_cpl('Event', 'Scaled_ACPL', rt, rs[0][7], self.conn)
+        acpl = outliers.format_cpl('Event', 'ScACPL', rt, rs[0][7], self.conn)
         self.rpt.write(acpl + NL)
         self.rpt.write('Total ScSDCPL:'.ljust(EV_LEN, ' '))
-        sdcpl = outliers.format_cpl('Event', 'Scaled_SDCPL', rt, rs[0][8], self.conn)
+        sdcpl = outliers.format_cpl('Event', 'ScSDCPL', rt, rs[0][8], self.conn)
         self.rpt.write(sdcpl + NL)
         self.rpt.write(NL)
 
         if self.typ == 'Event':
-            qry_text = qry.event_totalscore(self.event)
+            qry_text = qry.event_totalscore(self.eventid)
         else:
-            qry_text = qry.player_totalscore(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_totalscore(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
         if self.typ == 'Event':
@@ -150,10 +150,10 @@ class report:
         self.rpt.write('-'*234)
         self.rpt.write(NL)
 
-        if self.event:
-            qry_text = qry.event_playersummary(self.event)
+        if self.eventid:
+            qry_text = qry.event_playersummary(self.eventid)
         else:
-            qry_text = qry.player_playersummary(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_playersummary(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn)
         for idx, player in rs.iterrows():
             self.rpt.write(player['Name'][0:player_len].ljust(player_len, ' '))
@@ -184,10 +184,10 @@ class report:
             bl = bl + blpcnt
             self.rpt.write(bl.ljust(blun_len, ' '))
 
-            acpl = outliers.format_cpl(agg_typ, 'Scaled_ACPL', rt, player['ACPL'], self.conn)
+            acpl = outliers.format_cpl(agg_typ, 'ScACPL', rt, player['ACPL'], self.conn)
             self.rpt.write(acpl.ljust(acpl_len, ' '))
 
-            sdcpl = outliers.format_cpl(agg_typ, 'Scaled_SDCPL', rt, player['SDCPL'], self.conn)
+            sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.conn)
             self.rpt.write(sdcpl.ljust(sdcpl_len, ' '))
 
             score = '{:.2f}'.format(player['Score'])
@@ -230,10 +230,10 @@ class report:
         self.rpt.write('-'*25)
         self.rpt.write(NL)
 
-        if self.event:
-            qry_text = qry.event_playergames(self.event)
+        if self.eventid:
+            qry_text = qry.event_playergames(self.eventid)
         else:
-            qry_text = qry.player_playergames(self.name, self.startdate, self.enddate)
+            qry_text = qry.player_playergames(self.playerid, self.startdate, self.enddate)
         player_rs = pd.read_sql(qry_text, self.conn)
         for i, player in player_rs.iterrows():
             self.rpt.write(player['Name'])
@@ -242,10 +242,10 @@ class report:
             self.rpt.write(' ' + str(player['ScoredMoves']))
             self.rpt.write(NL)
 
-            if self.event:
-                qry_text = qry.event_playeropp(player['Name'], self.event)
+            if self.eventid:
+                qry_text = qry.event_playeropp(player['PlayerID'], self.eventid)
             else:
-                qry_text = qry.player_playeropp(player['Name'], self.startdate, self.enddate)
+                qry_text = qry.player_playeropp(player['PlayerID'], self.startdate, self.enddate)
             game_rs = pd.read_sql(qry_text, self.conn)
             for ii, game in game_rs.iterrows():
                 g_id = int(game['GameID'])
@@ -260,7 +260,7 @@ class report:
 
                 self.rpt.write(game['Color'] + ' ')
                 self.rpt.write(game['Result'] + ' ')
-                self.rpt.write(game['OppName'][0:21].ljust(20, ' '))
+                self.rpt.write(game['OppName'][0:25].ljust(25, ' '))
                 self.rpt.write(str(game['OppRating']) + ':  ')
 
                 agg_typ = 'Game'
@@ -270,10 +270,10 @@ class report:
                 self.rpt.write(evm.ljust(18, ' '))
 
                 c = 'White' if game['Color'] == 'w' else 'Black'
-                acpl = outliers.format_cpl(agg_typ, 'Scaled_ACPL', rt, game['ACPL'], self.conn, c)
+                acpl = outliers.format_cpl(agg_typ, 'ScACPL', rt, game['ACPL'], self.conn, c)
                 self.rpt.write(acpl.ljust(8, ' '))
 
-                sdcpl = outliers.format_cpl(agg_typ, 'Scaled_SDCPL', rt, game['SDCPL'], self.conn, c)
+                sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.conn, c)
                 self.rpt.write(sdcpl.ljust(8, ' '))
 
                 score = '{:.2f}'.format(game['Score'])
@@ -289,13 +289,14 @@ class report:
                 moves_rs = pd.read_sql(qry_text, self.conn)
                 ctr = 0
                 for iii, mv in moves_rs.iterrows():
-                    self.rpt.write(mv['MoveTrace'])
-                    ctr = ctr + 1
                     if ctr == 60:
                         self.rpt.write(NL)
-                        self.rpt.write(' '*81)
-                    elif ctr % 10 == 0:
+                        self.rpt.write(' '*86)
+                        ctr = 0
+                    elif ctr % 10 == 0 and ctr > 0:
                         self.rpt.write(' ')
+                    self.rpt.write(mv['MoveTrace'])
+                    ctr = ctr + 1
 
                 self.rpt.write(NL)
 
@@ -385,13 +386,13 @@ def update_maxeval(conn, maxeval):
 
     if go:
         csr = conn.cursor()
-        sql_cmd = f"UPDATE DynamicSettings SET SettingValue = '{maxeval}' WHERE SettingID = 3"
+        sql_cmd = f"UPDATE Settings SET Value = '{maxeval}' WHERE ID = 3"
         logging.debug(f"Update query|{sql_cmd}")
         csr.execute(sql_cmd)
         conn.commit()
         rtn = maxeval
     else:
-        qry_text = 'SELECT SettingValue FROM DynamicSettings WHERE SettingID = 3'
+        qry_text = 'SELECT Value FROM Settings WHERE ID = 3'
         rs = pd.read_sql(qry_text, conn).values.tolist()
         rtn = rs[0][0]
 
