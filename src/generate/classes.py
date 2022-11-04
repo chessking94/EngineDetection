@@ -57,7 +57,7 @@ class aggregator:
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def aggregate_event(self, fld, tctype, rating):
-        qry_text = q.event_qry(self.src, fld, tctype, rating)
+        qry_text = q.event_qry(fld, self.src, tctype, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data_np = pd.read_sql(qry_text, self.conn).to_numpy()
         if len(data_np) > 0:

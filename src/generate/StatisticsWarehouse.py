@@ -65,7 +65,7 @@ def main():
     )
     parser.add_argument(
         '-a', '--agg',
-        default='Evaluation',
+        default='Event',
         choices=c.AGG_CHOICES,
         help='Aggregation level'
     )
