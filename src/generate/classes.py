@@ -57,11 +57,11 @@ class aggregator:
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def aggregate_event(self, fld, tctype, rating):
-        qry_text = q.event_qry(fld, self.src, tctype, rating)
+        qry_text = q.event_qry(self.src, tctype, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
-        data_np = pd.read_sql(qry_text, self.conn).to_numpy()
-        if len(data_np) > 0:
-            data_arr = np.concatenate(data_np)
+        data = pd.read_sql(qry_text, self.conn)
+        if len(data) > 0:
+            data_arr = data[fld]
 
             ct = len(data_arr)
             av = np.mean(data_arr)
@@ -71,6 +71,8 @@ class aggregator:
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
+
+            # TODO: stat.Covariences insert
         else:
             ct = 0
             av = 'NULL'
@@ -86,11 +88,11 @@ class aggregator:
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
     def aggregate_game(self, fld, tctype, rating, color):
-        qry_text = q.game_qry(fld, self.src, tctype, rating, color)
+        qry_text = q.game_qry(self.src, tctype, rating, color)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
-        data_np = pd.read_sql(qry_text, self.conn).to_numpy()
-        if len(data_np) > 0:
-            data_arr = np.concatenate(data_np)
+        data = pd.read_sql(qry_text, self.conn)
+        if len(data) > 0:
+            data_arr = data[fld]
 
             ct = len(data_arr)
             av = np.mean(data_arr)
@@ -105,6 +107,8 @@ class aggregator:
                 qtr3 = 100
             if fld == 'Score' and upper_pcnt > 100:
                 upper_pcnt = 100
+
+            # TODO: stat.Covariences insert
         else:
             ct = 0
             av = 'NULL'
@@ -174,7 +178,7 @@ AND AggregationID = {self.agg}
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                             csr.execute(sql_cmd)
                             self.conn.commit()
-                            logging.info(f'Done with {fld}|{rating}|{evalgroup}|{color}|{tctype}')
+                            logging.info(f'Done with {self.src}|{fld}|{rating}|{evalgroup}|{color}|{tctype}')
 
     def event(self):
         csr = self.conn.cursor()
@@ -196,7 +200,7 @@ AND AggregationID = {self.agg}
                     logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                     csr.execute(sql_cmd)
                     self.conn.commit()
-                    logging.info(f'Done with {fld}|{rating}|{tctype}')
+                    logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}')
 
     def game(self):
         csr = self.conn.cursor()
@@ -222,4 +226,4 @@ AND AggregationID = {self.agg}
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
                         self.conn.commit()
-                        logging.info(f'Done with {fld}|{rating}|{tctype}|{color}')
+                        logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}|{color}')

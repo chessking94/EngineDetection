@@ -12,10 +12,13 @@ def get_conf(key):
 
 
 # game level
-def game_qry(fld, src, tctype, rating, color):
+def game_qry(src, tctype, rating, color):
     qry = f"""
 SELECT
-{fld}
+T1, T2, T3, T4, T5,
+ACPL, ScACPL,
+SDCPL, ScSDCPL,
+Score
 
 FROM fact.Game
 
@@ -23,23 +26,26 @@ WHERE SourceID = {src}
 AND TimeControlID = {tctype}
 AND RatingID = {rating}
 AND ColorID = {color}
-AND {fld} IS NOT NULL
+AND MovesAnalyzed > 0
 """
     return qry
 
 
 # event level
-def event_qry(fld, src, tctype, rating):
+def event_qry(src, tctype, rating):
     qry = f'''
 SELECT
-{fld}
+T1, T2, T3, T4, T5,
+ACPL, ScACPL,
+SDCPL, ScSDCPL,
+Score
 
 FROM fact.Event
 
 WHERE SourceID = {src}
 AND TimeControlID = {tctype}
 AND RatingID = {rating}
-AND {fld} IS NOT NULL
+AND MovesAnalyzed > 0
 '''
     return qry
 

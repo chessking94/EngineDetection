@@ -7,6 +7,7 @@ import classes as c
 import queries as q
 
 # TODO: Review delete process when customizing paramters
+# TODO: Look into adding covariance table write for Evaluation
 
 
 def validate_args(config):
@@ -54,7 +55,7 @@ def main():
 
     vrs_num = '3.0'
     parser = argparse.ArgumentParser(
-        description='Control Statistic Aggregator',
+        description='Statistics Aggregator',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         usage=argparse.SUPPRESS
     )
