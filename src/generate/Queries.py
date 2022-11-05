@@ -17,7 +17,7 @@ def game_qry(fld, src, tctype, rating, color):
 SELECT
 {fld}
 
-FROM ChessWarehouse.fact.Game
+FROM fact.Game
 
 WHERE SourceID = {src}
 AND TimeControlID = {tctype}
@@ -34,7 +34,7 @@ def event_qry(fld, src, tctype, rating):
 SELECT
 {fld}
 
-FROM ChessWarehouse.fact.Event
+FROM fact.Event
 
 WHERE SourceID = {src}
 AND TimeControlID = {tctype}
@@ -50,7 +50,7 @@ def eval_qry(fld, src, tctype, rating, evalgroup, color):
 SELECT
 {fld}
 
-FROM ChessWarehouse.lake.vwEvaluationSummary
+FROM lake.vwEvaluationSummary
 
 WHERE SourceID = {src}
 AND ColorID = {color}
@@ -83,7 +83,7 @@ def get_aggid(conn, agg):
 SELECT
 AggregationID
 
-FROM ChessWarehouse.dim.Aggregations
+FROM dim.Aggregations
 
 WHERE AggregationName = '{agg}'
 """
@@ -96,7 +96,7 @@ def get_srcid(conn, src):
 SELECT
 SourceID
 
-FROM ChessWarehouse.dim.Sources
+FROM dim.Sources
 
 WHERE SourceName = '{src}'
 """
@@ -109,7 +109,7 @@ def get_fldid(conn, fld):
 SELECT
 MeasurementID
 
-FROM ChessWarehouse.dim.Measurements
+FROM dim.Measurements
 
 WHERE MeasurementName = '{fld}'
 """
@@ -122,7 +122,7 @@ def get_tcid(conn, tc):
 SELECT
 TimeControlID
 
-FROM ChessWarehouse.dim.TimeControls
+FROM dim.TimeControls
 
 WHERE TimeControlName = '{tc}'
 """
@@ -135,7 +135,7 @@ def get_colorid(conn, color):
 SELECT
 ColorID
 
-FROM ChessWarehouse.dim.Colors
+FROM dim.Colors
 
 WHERE Color = '{color}'
 """
