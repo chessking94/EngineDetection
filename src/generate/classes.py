@@ -26,6 +26,7 @@ class aggregator:
         self.evalgroup = evalgroup
         self.color = color
         self.ci_min = 1
+        self.fld_dict = q.get_flddict(conn)
 
     def aggregate_evals(self, fld, tctype, rating, evalgroup, color):
         qry_text = q.eval_qry(fld, self.src, tctype, rating, evalgroup, color)
@@ -56,8 +57,8 @@ class aggregator:
 
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
-    def aggregate_event(self, fld, tctype, rating):
-        qry_text = q.event_qry(self.src, tctype, rating)
+    def aggregate_event(self, fld, tcid, rating):
+        qry_text = q.event_qry(self.src, tcid, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data = pd.read_sql(qry_text, self.conn)
         if len(data) > 0:
@@ -72,7 +73,22 @@ class aggregator:
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
-            # TODO: stat.Covariences insert
+            csr = self.conn.cursor()
+            dfcov = data.cov()
+            stats = dfcov.columns
+            for r in stats:
+                m1 = self.fld_dict[r]
+                for c in stats:
+                    cov = dfcov[r][c]
+                    cov = 0 if np.isnan(cov) else cov
+                    m2 = self.fld_dict[c]
+                    if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, 0, 0, m1, m2):
+                        sql_cmd = 'INSERT INTO stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
+                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
+                        sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, 0, 0, {m1}, {m2}, {cov})'
+                        logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
+                        csr.execute(sql_cmd)
+                        self.conn.commit()
         else:
             ct = 0
             av = 'NULL'
@@ -87,8 +103,8 @@ class aggregator:
 
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
 
-    def aggregate_game(self, fld, tctype, rating, color):
-        qry_text = q.game_qry(self.src, tctype, rating, color)
+    def aggregate_game(self, fld, tcid, rating, colorid):
+        qry_text = q.game_qry(self.src, tcid, rating, colorid)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
         data = pd.read_sql(qry_text, self.conn)
         if len(data) > 0:
@@ -108,7 +124,22 @@ class aggregator:
             if fld == 'Score' and upper_pcnt > 100:
                 upper_pcnt = 100
 
-            # TODO: stat.Covariences insert
+            csr = self.conn.cursor()
+            dfcov = data.cov()
+            stats = dfcov.columns
+            for r in stats:
+                m1 = self.fld_dict[r]
+                for c in stats:
+                    cov = dfcov[r][c]
+                    cov = 0 if np.isnan(cov) else cov
+                    m2 = self.fld_dict[c]
+                    if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, colorid, 0, m1, m2):
+                        sql_cmd = 'INSERT INTO stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
+                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
+                        sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, {colorid}, 0, {m1}, {m2}, {cov})'
+                        logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
+                        csr.execute(sql_cmd)
+                        self.conn.commit()
         else:
             ct = 0
             av = 'NULL'
@@ -122,6 +153,15 @@ class aggregator:
             mx = 'NULL'
 
         return [ct, av, sd, mn, lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt, mx]
+
+    def delete_cov(self):
+        sql_del = f'''
+DELETE FROM stat.Covariances
+WHERE SourceID = {self.src}
+AND AggregationID = {self.agg}
+'''
+        logging.debug(f"Delete query|{sql_del.replace(NL, ' ')}")
+        return sql_del
 
     def delete_stats(self):
         sql_del = f'''
@@ -187,6 +227,10 @@ AND AggregationID = {self.agg}
         csr.execute(sql_cmd)
         self.conn.commit()
 
+        sql_cmd = self.delete_cov()
+        csr.execute(sql_cmd)
+        self.conn.commit()
+
         for fld in self.fld:
             fldid = q.get_fldid(self.conn, fld)
             for rating in self.rating:
@@ -206,6 +250,10 @@ AND AggregationID = {self.agg}
         csr = self.conn.cursor()
 
         sql_cmd = self.delete_stats()
+        csr.execute(sql_cmd)
+        self.conn.commit()
+
+        sql_cmd = self.delete_cov()
         csr.execute(sql_cmd)
         self.conn.commit()
 

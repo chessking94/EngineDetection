@@ -147,3 +147,32 @@ WHERE Color = '{color}'
 """
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
+
+
+def get_flddict(conn):
+    qry = 'SELECT MeasurementID, MeasurementName FROM dim.Measurements'
+    rs = pd.read_sql(qry, conn)
+    return dict(zip(rs['MeasurementName'], rs['MeasurementID']))
+
+
+def check_cov(conn, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
+    rtn = False
+    qry = f'''
+SELECT
+Covariance
+
+FROM stat.Covariances
+
+WHERE SourceID = {srcid}
+AND AggregationID = {aggid}
+AND RatingID = {rating}
+AND TimeControlID = {tcid}
+AND ColorID = {colorid}
+AND EvaluationGroupID = {egid}
+AND MeasurementID1 = {mid1}
+AND MeasurementID2 = {mid2}
+'''
+    rs = pd.read_sql(qry, conn)
+    if len(rs) > 0:
+        rtn = True
+    return rtn
