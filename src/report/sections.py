@@ -369,6 +369,7 @@ class general:
         self.rpt.write('Is a tablebase hit' + NL)
         self.rpt.write(f'The best engine evaluation is greater than {mx_ev} centipawns or a mate in N' + NL)
         self.rpt.write('The engine evaluation of the move played is a mate in N' + NL)
+        self.rpt.write('Only one legal move exists or the difference in evaluation between the top 2 engine moves is greater than 200 centipawns' + NL)
         self.rpt.write(NL)
         self.rpt.write(NL)
 

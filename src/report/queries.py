@@ -351,6 +351,7 @@ CASE
     WHEN m.IsTheory = 1 THEN 'b'
     WHEN m.IsTablebase = 1 THEN 't'
     WHEN m.T1_Eval_POV IS NULL OR ABS(m.T1_Eval_POV) > CAST(s.Value AS decimal(5,2)) THEN 'e'
+    WHEN m.T2_Eval IS NULL OR ABS(CAST(m.T1_Eval AS decimal(5,2)) - (CASE WHEN LEFT(m.T2_Eval, 1) = '#' THEN 100 ELSE CAST(m.T2_Eval AS decimal(5,2)) END)) > 2.00 THEN 'f'
     WHEN m.Move_Rank = 1 THEN 'M'
     ELSE '0'
 END AS MoveTrace
@@ -361,7 +362,7 @@ JOIN dim.Colors c ON
 CROSS JOIN Settings s
 
 WHERE m.GameID = {gameid}
-AND c.ColorID = '{colorid}'
+AND c.ColorID = {colorid}
 AND s.ID = 3
 
 ORDER BY 1
