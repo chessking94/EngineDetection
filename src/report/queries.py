@@ -1,6 +1,19 @@
 import pandas as pd
 
 
+def get_aggid(conn, agg):
+    qry = f"""
+SELECT
+AggregationID
+
+FROM dim.Aggregations
+
+WHERE AggregationName = '{agg}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
 def get_evid(conn, srcid, event):
     qry = f"""
 SELECT
@@ -330,7 +343,7 @@ AND m.MoveScored = 1
     return qry
 
 
-def game_trace(gameid, color):
+def game_trace(gameid, colorid):
     qry = f"""
 SELECT
 m.MoveNumber,
@@ -348,7 +361,7 @@ JOIN dim.Colors c ON
 CROSS JOIN Settings s
 
 WHERE m.GameID = {gameid}
-AND c.Color = '{color}'
+AND c.ColorID = '{colorid}'
 AND s.ID = 3
 
 ORDER BY 1
@@ -657,14 +670,14 @@ AND m.MoveScored = 1
     return qry
 
 
-def roi_calc(agg, src, tc, rating, color=None):
+def roi_calc(agg, src, tc, rating, colorid=None):
     qry = f"""
 SELECT
 ss.Average,
 ss.StandardDeviation,
 ss.MaxValue
 
-FROM fact.StatisticsSummary ss
+FROM stat.StatisticsSummary ss
 JOIN dim.Sources s ON
     ss.SourceID = s.SourceID
 JOIN dim.Aggregations agg ON
@@ -682,19 +695,19 @@ AND s.SourceName = '{src}'
 AND tc.TimeControlName = '{tc}'
 AND ss.RatingID = {rating}
 """
-    if color:
-        qry = qry + f"AND c.Color = '{color}'"
+    if colorid:
+        qry = qry + f"AND c.ColorID = {colorid}"
     return qry
 
 
-def cpl_outlier(agg, stat, rating, color=None):
+def cpl_outlier(agg, stat, rating, colorid=None):
     qry = f"""
 SELECT
 ss.Average,
 ss.StandardDeviation,
 ss.MinValue
 
-FROM fact.StatisticsSummary ss
+FROM stat.StatisticsSummary ss
 JOIN dim.Sources s ON
     ss.SourceID = s.SourceID
 JOIN dim.Aggregations agg ON
@@ -712,19 +725,19 @@ AND agg.AggregationName = '{agg}'
 AND ms.MeasurementName = '{stat}'
 AND ss.RatingID = {rating}
 """
-    if color:
-        qry = qry + f"AND c.Color = '{color}'"
+    if colorid:
+        qry = qry + f"AND c.ColorID = {colorid}"
     return qry
 
 
-def evm_outlier(agg, rating, color=None):
+def evm_outlier(agg, rating, colorid=None):
     qry = f"""
 SELECT
 100*ss.Average AS Average,
 100*ss.StandardDevIation AS StandardDeviation,
 100*ss.MaxValue AS MaxValue
 
-FROM fact.StatisticsSummary ss
+FROM stat.StatisticsSummary ss
 JOIN dim.Sources s ON
     ss.SourceID = s.SourceID
 JOIN dim.Aggregations agg ON
@@ -742,6 +755,52 @@ AND ms.MeasurementName = 'T1'
 AND agg.AggregationName = '{agg}'
 AND ss.RatingID = {rating}
 """
-    if color:
-        qry = qry + f"AND c.Color = '{color}'"
+    if colorid:
+        qry = qry + f"AND c.ColorID = '{colorid}'"
     return qry
+
+
+def get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, typ):
+    qry = f"""
+SELECT
+ss.Average
+
+FROM stat.StatisticsSummary ss
+JOIN dim.Measurements m ON
+    ss.MeasurementID = m.MeasurementID
+
+WHERE ss.SourceID = {srcid}
+AND ss.AggregationID = {aggid}
+AND ss.RatingID = {rating}
+AND ss.TimeControlID = {tcid}
+AND ss.ColorID = {colorid}
+AND ss.EvaluationGroupID = {egid}
+AND m.MeasurementName = '{typ}'
+"""
+    val = pd.read_sql(qry, conn).values[0][0]
+    return val
+
+
+def get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, typ1, typ2):
+    qry = f"""
+SELECT
+cv.Covariance
+
+FROM stat.Covariances cv
+JOIN dim.Measurements m1 ON
+    cv.MeasurementID1 = m1.MeasurementID
+JOIN dim.Measurements m2 ON
+    cv.MeasurementID2 = m2.MeasurementID
+
+WHERE cv.SourceID = {srcid}
+AND cv.AggregationID = {aggid}
+AND cv.RatingID = {rating}
+AND cv.TimeControlID = {tcid}
+AND cv.ColorID = {colorid}
+AND cv.EvaluationGroupID = {egid}
+AND m1.MeasurementName = '{typ1}'
+AND m2.MeasurementName = '{typ2}'
+"""
+    # print(qry)
+    val = pd.read_sql(qry, conn).values[0][0]
+    return val
