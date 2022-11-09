@@ -8,13 +8,9 @@ import sections
 from queries import get_evid, get_plid, get_srcid
 
 
-# TODO: More complete ROI that includes more than just the score value - look into multivariate normal distribution
-"""
-https://stackoverflow.com/questions/11615664/multivariate-normal-density-in-python
-https://datatofish.com/covariance-matrix-python/
-"""
+# TODO: Add Mahalanobis p-value to the report alongside ROI
 # TODO: Devise way to pass a PGN file and output the results
-# TODO: Additional move exclusions; forced moves (dynamic eval threshold?) and repetitions primarily
+# TODO: Additional move exclusions; repetitions primarily
 
 
 def main():

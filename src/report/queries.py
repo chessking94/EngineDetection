@@ -805,3 +805,33 @@ AND m2.MeasurementName = '{typ2}'
     # print(qry)
     val = pd.read_sql(qry, conn).values[0][0]
     return val
+
+
+def zscore_data(agg, src, tc, rating, colorid=None):
+    qry = f"""
+SELECT
+ms.MeasurementName,
+ss.Average,
+ss.StandardDeviation
+
+FROM stat.StatisticsSummary ss
+JOIN dim.Sources s ON
+    ss.SourceID = s.SourceID
+JOIN dim.Aggregations agg ON
+    ss.AggregationID = agg.AggregationID
+JOIN dim.Measurements ms ON
+    ss.MeasurementID = ms.MeasurementID
+JOIN dim.TimeControls tc ON
+    ss.TimeControlID = tc.TimeControlID
+LEFT JOIN dim.Colors c ON
+    ss.ColorID = c.ColorID
+
+WHERE agg.AggregationName = '{agg}'
+AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score')
+AND s.SourceName = '{src}'
+AND tc.TimeControlName = '{tc}'
+AND ss.RatingID = {rating}
+"""
+    if colorid:
+        qry = qry + f"AND c.ColorID = {colorid}"
+    return qry

@@ -1,3 +1,6 @@
+import logging
+import math
+
 import numpy as np
 import pandas as pd
 
@@ -5,27 +8,6 @@ from scipy.spatial.distance import mahalanobis
 from scipy.stats import chi2
 
 import queries as qry
-
-
-def calc_roi(typ, score, distribution):
-    if len(distribution) > 0:
-        z_score = (score - distribution[0][0])/distribution[0][1]
-        roi = 50 + z_score*5
-        flg = ''
-        if typ == 'Event':
-            if (roi) >= 70 or score >= distribution[0][2]:
-                flg = '*'
-        elif typ == 'Game':
-            if (roi) >= 70 or score >= distribution[0][2]:
-                flg = '*'
-        # else:
-        #     pass
-
-        roi = '{:.1f}'.format(50 + z_score*5) + flg
-    else:
-        roi = ''
-
-    return roi
 
 
 def format_cpl(typ, stat, rating, score, conn, colorid=None):
@@ -84,3 +66,40 @@ def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
         flg = '*'
     rtn = '{:.2f}'.format(chisq*100) + '%' + flg
     return rtn
+
+
+def calc_zscore(score, distribution):
+    if len(distribution) > 0:
+        z_score = (score - distribution[0][0])/distribution[0][1]
+    else:
+        z_score = None
+
+    return z_score
+
+
+def calc_comp_roi(z_arr):
+    weights = [0.2, 0.35, 0.45]
+    if len(z_arr) != len(weights):
+        logging.critical('Number of weights does not match number of z-scores')
+        raise SystemExit
+    if sum(weights) != 1:
+        logging.critical('Z-score weights do not sum to 1')
+        raise SystemExit
+
+    n = sum([x*y for x, y in zip(z_arr, weights)])
+    d = 0
+    for i in weights:
+        d = d + i*i
+    d = math.sqrt(d)
+    if np.isnan(d) or d == 0:
+        roi = ''
+    else:
+        z = n/d
+
+        roi = 5*z + 50
+        flg = ''
+        if (roi) >= 70:
+            flg = '*'
+
+        roi = '{:.1f}'.format(roi) + flg
+    return roi

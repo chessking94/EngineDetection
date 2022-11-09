@@ -22,7 +22,7 @@ class report:
         self.playerid = playerid
         self.startdate = startdate
         self.enddate = enddate
-        self.roi = False
+        self.roi = True
 
     def key_stats(self):
         if self.typ == 'Event':
@@ -67,12 +67,6 @@ class report:
         self.rpt.write(str(int(rs[0][1])) + ' / ' + str(mvs) + ' = ' + '{:.2f}'.format(100*int(rs[0][1])/mvs) + '%' + NL)
         self.rpt.write(NL)
 
-        qry_text = qry.max_eval()
-        mx_ev = pd.read_sql(qry_text, self.conn).values.tolist()
-        mx_ev = str(int(mx_ev[0][0]))
-        self.rpt.write(f'A move is Scored if it does not meet any of the following: Theoretical move, tablebase move, or one side is up by {mx_ev} centipawns' + NL)
-        self.rpt.write(NL)
-
         self.rpt.write('Total T1:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][2])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][2])/int(rs[0][1])) + '%' + NL)
         self.rpt.write('Total T2:'.ljust(EV_LEN, ' '))
@@ -105,11 +99,16 @@ class report:
             self.rpt.write('Overall player score:'.ljust(EV_LEN, ' '))
         self.rpt.write('{:2.2f}'.format(rss[0][0]) + NL)
 
-        agg_typ = 'Event'
         if self.roi:
-            z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
-            z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-            roi = outliers.calc_roi(agg_typ, rss[0][0], z_rs)
+            z_qry = qry.zscore_data(agg='Event', src='Control', tc='Classical', rating=rt)
+            z_rs = pd.read_sql(z_qry, self.conn)
+            z_rs = z_rs.set_index('MeasurementName')
+
+            t1_z = ((int(rs[0][2])/int(rs[0][1])) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
+            scacpl_z = (rs[0][7] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
+            score_z = (rss[0][0] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+
+            roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
 
             if self.typ == 'Event':
                 self.rpt.write('Overall event ROI:'.ljust(EV_LEN, ' '))
@@ -118,7 +117,7 @@ class report:
             self.rpt.write(roi + NL)
         else:
             test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], rss[0][0]]
-            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=5)
+            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=5)
 
             if self.typ == 'Event':
                 self.rpt.write('Overall event P-Value:'.ljust(EV_LEN, ' '))
@@ -208,9 +207,15 @@ class report:
             self.rpt.write(score.ljust(score_len, ' '))
 
             if self.roi:
-                z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
-                z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-                roi = outliers.calc_roi(agg_typ, player['Score'], z_rs)
+                z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt)
+                z_rs = pd.read_sql(z_qry, self.conn)
+                z_rs = z_rs.set_index('MeasurementName')
+
+                t1_z = ((player['EVM']/player['ScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
+                scacpl_z = (player['ACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
+                score_z = (player['Score'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+
+                roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
                 self.rpt.write(roi.ljust(roi_len, ' '))
             else:
                 test_arr = [player['EVM']/player['ScoredMoves'], player['ACPL'], player['Score']]
@@ -234,11 +239,6 @@ class report:
 
             oppscore = '{:.2f}'.format(player['OppScore'])
             self.rpt.write(oppscore.ljust(score_len, ' '))
-
-            # z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt)
-            # z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-            # opproi = outliers.calc_roi(agg_typ, player['OppScore'], z_rs)
-            # self.rpt.write(opproi)
 
             self.rpt.write(NL)
 
@@ -280,7 +280,7 @@ class report:
                 self.rpt.write(game['Color'] + ' ')
                 self.rpt.write(game['Result'] + ' ')
                 self.rpt.write(game['OppName'][0:25].ljust(25, ' '))
-                self.rpt.write(str(game['OppRating']) + ':  ')
+                self.rpt.write(str(game['OppRating']).ljust(4, ' ') + ':  ')
 
                 agg_typ = 'Game'
                 evm = str(game['EVM']).ljust(3, ' ') + ' / ' + str(game['ScoredMoves']).ljust(3, ' ') + ' = '
@@ -299,9 +299,15 @@ class report:
                 self.rpt.write(score.ljust(7, ' '))
 
                 if self.roi:
-                    z_qry = qry.roi_calc(agg=agg_typ, src='Control', tc='Classical', rating=rt, color=c)
-                    z_rs = pd.read_sql(z_qry, self.conn).values.tolist()
-                    roi = outliers.calc_roi(agg_typ, game['Score'], z_rs)
+                    z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt, colorid=c)
+                    z_rs = pd.read_sql(z_qry, self.conn)
+                    z_rs = z_rs.set_index('MeasurementName')
+
+                    t1_z = ((game['EVM']/game['ScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
+                    scacpl_z = (game['ACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
+                    score_z = (game['Score'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+
+                    roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
                     self.rpt.write(roi.ljust(8, ' '))
                 else:
                     test_arr = [game['EVM']/game['ScoredMoves'], game['ACPL'], game['Score']]
@@ -331,7 +337,7 @@ class report:
 class general:
     def __init__(self, rpt):
         self.rpt = rpt
-        self.roi = False
+        self.roi = True
 
     def header_type(self, rpt_typ, conn, event, name, startdate, enddate):
         self.rpt.write('-'*100 + NL)
@@ -388,7 +394,7 @@ class general:
         self.rpt.write('Game Score; measurement of how accurately the game was played, ranges from 0 to 100' + NL)
         if self.roi:
             self.rpt.write('ROI:'.ljust(PK_LEN, ' '))
-            self.rpt.write('Raw Outlier Index; normalized Score value where 50 represents the mean and each increment of 5 is one standard deviation from the mean' + NL)
+            self.rpt.write('Raw Outlier Index; standardized value where 50 represents the mean for that rating level and each increment of 5 is one standard deviation' + NL)
             self.rpt.write(' '*PK_LEN + 'An asterisk (*) following an ROI value indicates a situation that deserves extra scrutiny' + NL)
         else:
             self.rpt.write('P-Value:'.ljust(PK_LEN, ' '))
@@ -404,8 +410,8 @@ class general:
             self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (game trace)' + NL)
         else:
             self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (P-Value) (game trace)' + NL)
-        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead, t = Tablebase hit' + NL)
-        # self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead,' + NL)
+        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead,' + NL)
+        self.rpt.write(' '*16 + 't = Tablebase hit, f = forced move' + NL)
         # self.rpt.write(' '*16 + 't = Tablebase hit, f = forced move, r = move included in a repetition' + NL)
         self.rpt.write(NL)
 
