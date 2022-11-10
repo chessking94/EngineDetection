@@ -25,9 +25,9 @@ class report:
 
     def key_stats(self):
         if self.typ == 'Event':
-            self.rpt.write('Whole-event statistics:' + NL)
+            self.rpt.write('WHOLE-EVENT STATISTICS:' + NL)
         else:
-            self.rpt.write('Whole-sample statistics:' + NL)
+            self.rpt.write('WHOLE-SAMPLE STATISTICS:' + NL)
 
         self.rpt.write('-'*25 + NL)
 
@@ -96,7 +96,12 @@ class report:
             self.rpt.write('Overall event score:'.ljust(EV_LEN, ' '))
         else:
             self.rpt.write('Overall player score:'.ljust(EV_LEN, ' '))
-        self.rpt.write('{:2.2f}'.format(rss[0][0]) + NL)
+
+        if rss[0][0] >= 99.995:
+            score = '100.0*'
+        else:
+            score = '{:.2f}'.format(rss[0][0])
+        self.rpt.write(score + NL)
 
         z_qry = qry.zscore_data(agg='Event', src='Control', tc='Classical', rating=rt)
         z_rs = pd.read_sql(z_qry, self.conn)
@@ -117,9 +122,9 @@ class report:
         pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=5)
 
         if self.typ == 'Event':
-            self.rpt.write('Overall event P-Value:'.ljust(EV_LEN, ' '))
+            self.rpt.write('Overall event PValue:'.ljust(EV_LEN, ' '))
         else:
-            self.rpt.write('Overall player P-Value:'.ljust(EV_LEN, ' '))
+            self.rpt.write('Overall player PValue:'.ljust(EV_LEN, ' '))
         self.rpt.write(pval + NL)
 
         self.rpt.write(NL)
@@ -128,8 +133,8 @@ class report:
     def player_summary(self):
         player_len = 30
         elo_len = 7
-        rec_len = 12
-        perf_len = 8
+        rec_len = 13
+        perf_len = 7
         evm_len = 24
         blun_len = 24
         acpl_len = 11
@@ -148,15 +153,16 @@ class report:
         self.rpt.write('ScSDCPL'.ljust(sdcpl_len, ' '))
         self.rpt.write('Score'.ljust(score_len, ' '))
         self.rpt.write('ROI'.ljust(roi_len, ' '))
-        self.rpt.write('P-Value'.ljust(pval_len, ' '))
+        self.rpt.write('PValue'.ljust(pval_len, ' '))
         self.rpt.write('Opp EVM Pcnt'.ljust(evm_len, ' '))
         self.rpt.write('Opp Blund Pcnt'.ljust(blun_len, ' '))
         self.rpt.write('OppScACPL'.ljust(acpl_len, ' '))
         self.rpt.write('OppScSDCPL'.ljust(sdcpl_len, ' '))
         self.rpt.write('OppScore'.ljust(score_len, ' '))
-        # self.rpt.write('OppROI'.ljust(roi_len, ' '))
+        self.rpt.write('OppROI'.ljust(roi_len, ' '))
+        self.rpt.write('OppPValue'.ljust(roi_len, ' '))
         self.rpt.write(NL)
-        self.rpt.write('-'*234)
+        self.rpt.write('-'*257)
         self.rpt.write(NL)
 
         if self.eventid:
@@ -199,7 +205,10 @@ class report:
             sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.conn)
             self.rpt.write(sdcpl.ljust(sdcpl_len, ' '))
 
-            score = '{:.2f}'.format(player['Score'])
+            if player['Score'] >= 99.995:
+                score = '100.0*'
+            else:
+                score = '{:.2f}'.format(player['Score'])
             self.rpt.write(score.ljust(score_len, ' '))
 
             z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt)
@@ -231,8 +240,22 @@ class report:
             oppsdcpl = '{:.4f}'.format(player['OppSDCPL'])
             self.rpt.write(oppsdcpl.ljust(sdcpl_len, ' '))
 
-            oppscore = '{:.2f}'.format(player['OppScore'])
+            if player['OppScore'] >= 99.995:
+                oppscore = '100.0*'
+            else:
+                oppscore = '{:.2f}'.format(player['OppScore'])
             self.rpt.write(oppscore.ljust(score_len, ' '))
+
+            opp_t1_z = ((player['OppEVM']/player['OppScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
+            opp_scacpl_z = -1*(player['OppACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
+            opp_score_z = (player['OppScore'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+            opproi = outliers.calc_comp_roi([opp_t1_z, opp_scacpl_z, opp_score_z])
+            self.rpt.write(opproi.ljust(roi_len, ' '))
+
+            # opp p-value
+            opp_test_arr = [player['OppEVM']/player['OppScoredMoves'], player['OppACPL'], player['OppScore']]
+            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=5)
+            self.rpt.write(opppval.ljust(pval_len, ' '))
 
             self.rpt.write(NL)
 
@@ -240,7 +263,7 @@ class report:
         self.rpt.write(NL)
 
     def game_traces(self):
-        self.rpt.write('-'*25)
+        self.rpt.write('-'*31)
         self.rpt.write(NL)
 
         if self.eventid:
@@ -252,7 +275,7 @@ class report:
             self.rpt.write(player['Name'])
             rt = int(math.floor(player['Rating']/100)*100)
             self.rpt.write(' ' + str(player['Rating']))
-            self.rpt.write(' ' + str(player['ScoredMoves']))
+            self.rpt.write(f" (Moves={player['ScoredMoves']})")
             self.rpt.write(NL)
 
             if self.eventid:
@@ -289,7 +312,10 @@ class report:
                 sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.conn, c)
                 self.rpt.write(sdcpl.ljust(8, ' '))
 
-                score = '{:.2f}'.format(game['Score'])
+                if game['Score'] >= 99.995:
+                    score = '100.0*'
+                else:
+                    score = '{:.2f}'.format(game['Score'])
                 self.rpt.write(score.ljust(7, ' '))
 
                 z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt, colorid=c)
@@ -387,7 +413,7 @@ class general:
         self.rpt.write('Game Score; measurement of how accurately the game was played, ranges from 0 to 100' + NL)
         self.rpt.write('ROI:'.ljust(PK_LEN, ' '))
         self.rpt.write('Raw Outlier Index; standardized value where 50 represents the mean for that rating level and each increment of 5 is one standard deviation' + NL)
-        self.rpt.write('P-Value:'.ljust(PK_LEN, ' '))
+        self.rpt.write('PValue:'.ljust(PK_LEN, ' '))
         self.rpt.write('Statistic associated with the Mahalanobis distance of the test point (T1, ScACPL, Score)' + NL)
         self.rpt.write(' '*PK_LEN + 'An asterisk (*) following any statistic indicates an outlier that should be reviewed more closely' + NL)
         self.rpt.write(NL)
