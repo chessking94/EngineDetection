@@ -98,7 +98,7 @@ def calc_comp_roi(z_arr):
 
         roi = 5*z + 50
         flg = ''
-        if (roi) >= 70:
+        if roi >= 70 or roi <= 30:
             flg = '*'
 
         roi = '{:.1f}'.format(roi) + flg

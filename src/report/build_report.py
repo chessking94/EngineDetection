@@ -51,7 +51,7 @@ def main():
 
     report_path = get_config(config_path, 'reportPath')
     if rpt == 'Event':
-        report_name = f'{ev}_report.txt'
+        report_name = ev.replace("/", "").replace("\\", "") + '_report.txt'
     elif rpt == 'Player':
         report_name = f'{last_name}{first_name}_report.txt'
     else:
