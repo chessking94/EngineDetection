@@ -395,6 +395,7 @@ class general:
         self.rpt.write(f'The best engine evaluation is greater than {mx_ev} centipawns or a mate in N' + NL)
         self.rpt.write('The engine evaluation of the move played is a mate in N' + NL)
         self.rpt.write('Only one legal move exists or the difference in evaluation between the top 2 engine moves is greater than 200 centipawns' + NL)
+        self.rpt.write('Is the second or third occurance of the position' + NL)
         self.rpt.write(NL)
         self.rpt.write(NL)
 
@@ -423,8 +424,8 @@ class general:
         self.rpt.write('-'*100 + NL)
         self.rpt.write('(Player Name) (Elo) (Scored Moves)' + NL)
         self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (P-Value) (game trace)' + NL)
-        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead; ')
-        self.rpt.write('t = Tablebase hit; f = forced move' + NL)
+        self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead; ')
+        self.rpt.write('t = Tablebase hit; f = Forced move; r = Repeated move' + NL)
         # self.rpt.write('t = Tablebase hit, f = forced move, r = move included in a repetition' + NL)
         self.rpt.write(NL)
 

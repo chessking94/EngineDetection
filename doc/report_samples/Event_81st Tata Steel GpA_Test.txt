@@ -7,7 +7,7 @@ Players:            14
 
 Engine Name:        stockfish_14.1_x64.exe
 Depth:              11
-Report Date:        11/10/2022
+Report Date:        11/18/2022
 
 
 MOVE SCORING
@@ -18,26 +18,27 @@ Is a tablebase hit
 The best engine evaluation is greater than 300 centipawns or a mate in N
 The engine evaluation of the move played is a mate in N
 Only one legal move exists or the difference in evaluation between the top 2 engine moves is greater than 200 centipawns
+Is the second or third occurance of the position
 
 
 WHOLE-EVENT STATISTICS:
 -------------------------
 Average rating by game:            2747; min 2653, max 2826
-Average rating for scored moves:   2748
-Scored Moves percentage:           4768 / 7746 = 61.55%
+Average rating for scored moves:   2747
+Scored Moves percentage:           4726 / 7746 = 61.01%
 
-Total T1:                          2245 / 4768 = 47.08%
-Total T2:                          3166 / 4768 = 66.40%
-Total T3:                          3648 / 4768 = 76.51%
-Total T4:                          3928 / 4768 = 82.38%
-Total T5:                          4141 / 4768 = 86.85%
-Total Blunders:                    12 / 4768 = 0.25%
-Total ScACPL:                      0.1115
-Total ScSDCPL:                     0.1858
+Total T1:                          2209 / 4726 = 46.74%
+Total T2:                          3119 / 4726 = 66.00%
+Total T3:                          3598 / 4726 = 76.13%
+Total T4:                          3882 / 4726 = 82.14%
+Total T5:                          4092 / 4726 = 86.58%
+Total Blunders:                    29 / 4726 = 0.61%
+Total ScACPL:                      0.1178
+Total ScSDCPL:                     0.2169
 
-Overall event score:               88.43
-Overall event ROI:                 49.5
-Overall event PValue:              99.40%
+Overall event score:               90.55
+Overall event ROI:                 48.1
+Overall event PValue:              63.27%
 
 
 PLAYER KEY
@@ -53,266 +54,266 @@ PValue:   Statistic associated with the Mahalanobis distance of the test point (
 
 Player Name                   Elo    Record       Perf   EVM / Turns = Pcnt      Blund / Turns = Pcnt    ScACPL     ScSDCPL    Score     ROI      PValue     Opp EVM Pcnt            Opp Blund Pcnt          OppScACPL  OppScSDCPL OppScore  OppROI   OppPValue
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Anish Giri                    2783   8.5  / 13    +115   131  / 264  = 49.6%     0    / 264  = 0.00%     0.0896     0.1374     89.84     58.9     62.12%     126  / 270  = 46.7%     1    / 270  = 0.37%     0.1202     0.1902     88.12     46.7     76.48%     
-Ding Liren                    2813   7.5  / 13    +66    141  / 294  = 48.0%     0    / 294  = 0.00%     0.1008     0.1469     89.21     50.1     99.11%     142  / 305  = 46.6%     0    / 305  = 0.00%     0.1240     0.2018     88.76     43.0     1.72%      
-Ian Nepomniachtchi            2763   7.5  / 13    +50    115  / 276  = 41.7%     0    / 276  = 0.00%     0.1173     0.1681     85.94     38.7     1.49%      124  / 271  = 45.8%     2    / 271  = 0.74%     0.1324     0.2218     87.22     41.4     39.14%     
-J. Duda                       2738   5.5  / 13    -65    175  / 364  = 48.1%     2    / 364  = 0.55%     0.1058     0.1686     89.03     52.8     95.73%     159  / 345  = 46.1%     0    / 345  = 0.00%     0.1054     0.1795     87.90     48.6     55.09%     
-Jorden Van Foreest            2612   4.5  / 13    -83    125  / 298  = 41.9%     1    / 298  = 0.34%     0.1424     0.2697     85.84     40.8     62.22%     158  / 296  = 53.4%     1    / 296  = 0.34%     0.1117     0.2046     88.84     56.7     32.59%     
-Magnus Carlsen                2835   9.0  / 13    +160   186  / 419  = 44.4%     0    / 419  = 0.00%     0.0933     0.1483     89.16     50.0     30.26%     210  / 448  = 46.9%     1    / 448  = 0.22%     0.1052     0.1811     89.62     49.9     34.58%     
-R. Rapport                    2731   6.5  / 13    -15    171  / 347  = 49.3%     0    / 347  = 0.00%     0.1104     0.1611     88.85     51.9     83.07%     154  / 347  = 44.4%     0    / 347  = 0.00%     0.1034     0.1578     87.97     48.5     45.58%     
-S. Shankland                  2725   6.5  / 13    +10    177  / 370  = 47.8%     0    / 370  = 0.00%     0.0998     0.1464     88.71     52.9     77.99%     173  / 382  = 45.3%     0    / 382  = 0.00%     0.1147     0.1826     88.39     48.0     87.31%     
-S. Vidit                      2695   7.0  / 13    +23    201  / 375  = 53.6%     1    / 375  = 0.27%     0.0917     0.1899     90.65     64.0     18.48%     158  / 360  = 43.9%     0    / 360  = 0.00%     0.1114     0.1786     88.36     52.1     75.02%     
-Shakhriyar Mamedyarov         2817   5.0  / 13    -88    134  / 290  = 46.2%     1    / 290  = 0.34%     0.1165     0.2079     89.16     45.7     5.61%      138  / 287  = 48.1%     1    / 287  = 0.35%     0.1121     0.2197     88.48     45.4     84.41%     
-Teimour Radjabov              2757   6.5  / 13    +7     151  / 284  = 53.2%     0    / 284  = 0.00%     0.0901     0.1408     89.85     60.4     29.76%     148  / 288  = 51.4%     1    / 288  = 0.35%     0.1080     0.2064     90.01     56.7     11.23%     
-Viswanathan Anand             2700   7.5  / 13    +51    139  / 308  = 45.1%     1    / 308  = 0.32%     0.1039     0.1449     88.64     50.7     91.40%     131  / 304  = 43.1%     1    / 304  = 0.33%     0.1220     0.1755     86.82     41.0     53.65%     
-Vladimir Fedoseev             2724   5.0  / 13    -80    207  / 436  = 47.5%     2    / 436  = 0.46%     0.1339     0.2244     87.46     42.6     19.47%     219  / 442  = 49.5%     3    / 442  = 0.68%     0.0968     0.1464     89.16     55.5     74.94%     
-Vladimir Kramnik              2777   4.5  / 13    -111   192  / 443  = 43.3%     4    / 443  = 0.90%     0.1499     0.2415     85.98     33.4     4.50%      205  / 423  = 48.5%     1    / 423  = 0.24%     0.1082     0.1767     87.78     48.8     44.48%     
+Anish Giri                    2783   8.5  / 13    +72    130  / 263  = 49.4%     0    / 263  = 0.00%     0.0899     0.1376     91.67     58.4     59.98%     126  / 275  = 45.8%     2    / 275  = 0.73%     0.1273     0.1987     89.95     43.9     39.39%     
+Ding Liren                    2813   7.5  / 13    -14    138  / 288  = 47.9%     0    / 288  = 0.00%     0.1003     0.1468     91.44     50.9     93.03%     138  / 299  = 46.2%     1    / 299  = 0.33%     0.1279     0.2092     90.62     41.1     0.41%      
+Ian Nepomniachtchi            2763   7.5  / 13    +40    115  / 279  = 41.2%     2    / 279  = 0.72%     0.1247     0.1985     88.94     38.9     32.65%     122  / 270  = 45.2%     4    / 270  = 1.48%     0.1514     0.3247     89.47     37.4     0.01%*     
+J. Duda                       2738   5.5  / 13    -47    168  / 354  = 47.5%     2    / 354  = 0.56%     0.1097     0.1714     90.44     49.6     98.37%     154  / 341  = 45.2%     2    / 341  = 0.59%     0.1128     0.1950     90.25     47.4     97.72%     
+Jorden Van Foreest            2612   4.5  / 13    +36    125  / 304  = 41.1%     3    / 304  = 0.99%     0.1496     0.2760     88.40     39.8     14.81%     158  / 298  = 53.0%     2    / 298  = 0.67%     0.1184     0.2286     90.79     55.3     16.43%     
+Magnus Carlsen                2835   9.0  / 13    +47    186  / 413  = 45.0%     1    / 413  = 0.24%     0.1011     0.2327     91.52     49.7     34.73%     210  / 447  = 47.0%     3    / 447  = 0.67%     0.1080     0.1880     91.49     49.0     22.51%     
+R. Rapport                    2731   6.5  / 13    +18    168  / 344  = 48.8%     1    / 344  = 0.29%     0.1127     0.1652     90.83     51.0     73.00%     150  / 341  = 44.0%     1    / 341  = 0.29%     0.1066     0.1675     90.32     48.3     73.52%     
+S. Shankland                  2725   6.5  / 13    +24    173  / 365  = 47.4%     1    / 365  = 0.27%     0.1043     0.1556     90.74     51.6     96.74%     166  / 380  = 43.7%     2    / 380  = 0.53%     0.1284     0.2591     90.33     44.0     4.65%      
+S. Vidit                      2695   7.0  / 13    +85    197  / 365  = 54.0%     2    / 365  = 0.55%     0.0974     0.2443     92.61     63.7     3.24%      156  / 350  = 44.6%     1    / 350  = 0.29%     0.1145     0.1866     90.59     52.2     53.82%     
+Shakhriyar Mamedyarov         2817   5.0  / 13    -162   129  / 286  = 45.1%     3    / 286  = 1.05%     0.1242     0.2186     90.95     42.6     0.22%      135  / 280  = 48.2%     1    / 280  = 0.36%     0.1117     0.2208     90.87     46.5     68.74%     
+Teimour Radjabov              2757   6.5  / 13    -10    147  / 279  = 52.7%     1    / 279  = 0.36%     0.0937     0.1526     92.00     60.3     41.33%     145  / 280  = 51.8%     2    / 280  = 0.71%     0.1193     0.2724     91.64     53.8     0.20%      
+Viswanathan Anand             2700   7.5  / 13    +108   137  / 307  = 44.6%     2    / 307  = 0.65%     0.1076     0.1543     90.89     50.3     80.43%     131  / 305  = 43.0%     2    / 305  = 0.66%     0.1232     0.1784     89.52     41.9     70.73%     
+Vladimir Fedoseev             2724   5.0  / 13    -62    204  / 429  = 47.6%     4    / 429  = 0.93%     0.1444     0.2770     89.67     40.5     0.20%      214  / 436  = 49.1%     4    / 436  = 0.92%     0.0998     0.1545     91.31     55.2     90.95%     
+Vladimir Kramnik              2777   4.5  / 13    -142   192  / 450  = 42.7%     7    / 450  = 1.56%     0.1651     0.3054     88.20     29.4*    0.01%*     204  / 424  = 48.1%     2    / 424  = 0.47%     0.1168     0.2368     89.95     46.9     81.80%     
 
 
 GAME KEY
 ----------------------------------------------------------------------------------------------------
 (Player Name) (Elo) (Scored Moves)
  (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (P-Value) (game trace)
-Game trace key: b = Book move; M = EV match; 0 = inferior move; e = eliminated because one side far ahead; t = Tablebase hit; f = forced move
+Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead; t = Tablebase hit; f = Forced move; r = Repeated move
 
 -------------------------------
-Anish Giri 2783 (Moves=264)
- 1w L Ian Nepomniachtchi       2763:  4   / 15  =  27%  0.1598  0.1672  79.92  35.9  9.61%   bbbbbbbb00 00MfM0000f 0M0M0e
- 2b W Vladimir Kramnik         2777:  8   / 21  =  38%  0.1333  0.1474  85.05  44.4  40.30%  bbbbbbbbbb 0000M0000M M0MMMM0f0e M0f0eeeeee ee
- 3w D Shakhriyar Mamedyarov    2817:  7   / 12  =  58%  0.0889  0.1658  89.78  54.3  73.89%  bbbbbbbbbb bbbbbMMMMf MMMf0000f0 f
- 4b W R. Rapport               2731:  10  / 26  =  38%  0.0764  0.0956  90.13  53.0  32.35%  bbbbbbb000 000MMMMM0M 000MM0000M 00Meeeeeee
- 5w D Viswanathan Anand        2700:  6   / 14  =  43%  0.1359  0.1772  84.92  44.5  87.66%  bbbbbbbb00 000M00MMM0 MM
- 6b W J. Duda                  2738:  17  / 32  =  53%  0.0490  0.0977  93.17  59.9  44.61%  bbbbbM00M0 MM0M0M00MM MMf0Mee0M0 0000MMMMe0 Meee
- 7w D Ding Liren               2813:  7   / 12  =  58%  0.0572  0.1060  93.62  60.0  47.42%  bbbbbbbbbb bbbbbbMM0M 00MM00fMM
- 8b D S. Vidit                 2695:  11  / 20  =  55%  0.0494  0.0699  95.26  62.2  34.46%  bbbbbbbbbb bbb00MfMM0 M00f000MMf 0MMMMM
- 9w D Jorden Van Foreest       2612:  7   / 19  =  37%  0.0959  0.1643  88.05  49.1  82.66%  bbbbbbbbb0 0000M0f0M0 MM0f0M0M0M
-10b W Vladimir Fedoseev        2724:  16  / 28  =  57%  0.0938  0.1414  90.63  55.1  84.57%  bbbbbbbbbM 00M0MMMMM0 00MM0M000M 0MMMMM0eee e
-11w W S. Shankland             2725:  20  / 35  =  57%  0.0575  0.1070  92.42  58.6  70.02%  bbbbbb00M0 00000MMM0M 0MMM0fMMMM MMMM0M0M00 MMttt
-12b D Teimour Radjabov         2757:  11  / 17  =  65%  0.0946  0.1381  90.96  56.5  48.42%  bbbbbbbbbb bbMM0MMMMM M0Mf000MfM 0
-13w D Magnus Carlsen           2835:  7   / 13  =  54%  0.1681  0.2248  83.98  43.1  21.44%  bbbbbbbbbb bbbbb0M0M0 fM00M0MMfM
+Anish Giri 2783 (Moves=263)
+ 1w L Ian Nepomniachtchi       2763:  4   / 15  =  27%  0.1598  0.1672  83.19  35.6  4.03%   bbbbbbbb00 00MfM0000f 0M0M0e
+ 2b W Vladimir Kramnik         2777:  8   / 21  =  38%  0.1333  0.1474  87.65  44.5  36.97%  bbbbbbbbbb 0000M0000M M0MMMM0f0e M0f0eeeeee ee
+ 3w D Shakhriyar Mamedyarov    2817:  7   / 12  =  58%  0.0889  0.1658  91.87  54.3  73.93%  bbbbbbbbbb bbbbbMMMMf MMMf0000f0 f
+ 4b W R. Rapport               2731:  10  / 26  =  38%  0.0764  0.0956  92.12  53.3  32.60%  bbbbbbb000 000MMMMM0M 000MM0000M 00Meeeeeee
+ 5w D Viswanathan Anand        2700:  6   / 14  =  43%  0.1359  0.1772  88.03  44.8  90.14%  bbbbbbbb00 000M00MMM0 MM
+ 6b W J. Duda                  2738:  16  / 31  =  52%  0.0506  0.0989  94.27  59.3  41.46%  bbbbbM00M0 MM0M0M00MM MMf0Mee0M0 0000rMMMe0 Meee
+ 7w D Ding Liren               2813:  7   / 12  =  58%  0.0572  0.1060  95.08  59.9  43.77%  bbbbbbbbbb bbbbbbMM0M 00MM00fMM
+ 8b D S. Vidit                 2695:  11  / 20  =  55%  0.0494  0.0699  96.33  62.2  33.18%  bbbbbbbbbb bbb00MfMM0 M00f000MMf 0MMMMM
+ 9w D Jorden Van Foreest       2612:  7   / 19  =  37%  0.0959  0.1643  90.49  49.3  82.67%  bbbbbbbbb0 0000M0f0M0 MM0f0M0M0M
+10b W Vladimir Fedoseev        2724:  16  / 28  =  57%  0.0938  0.1414  92.29  55.1  84.31%  bbbbbbbbbM 00M0MMMMM0 00MM0M000M 0MMMMM0eee e
+11w W S. Shankland             2725:  20  / 35  =  57%  0.0575  0.1070  94.05  58.6  69.87%  bbbbbb00M0 00000MMM0M 0MMM0fMMMM MMMM0M0M00 MMttt
+12b D Teimour Radjabov         2757:  11  / 17  =  65%  0.0946  0.1381  91.63  55.4  34.28%  bbbbbbbbbb bbMM0MMMMM M0Mf000MfM 0
+13w D Magnus Carlsen           2835:  7   / 13  =  54%  0.1681  0.2248  87.33  43.5  17.34%  bbbbbbbbbb bbbbb0M0M0 fM00M0MMfM
 -------------------------
-Ding Liren 2813 (Moves=294)
- 1w D Magnus Carlsen           2835:  6   / 25  =  24%  0.2010  0.1928  81.48  31.3  2.08%   bbbb000000 0f0M000000 0M000MfM0f MM
- 2w D S. Vidit                 2695:  8   / 21  =  38%  0.1413  0.1700  86.14  42.4  51.22%  bbbbbbbbbM 0M00M0M00f ff0M00MM00 0M0
- 3b W Jorden Van Foreest       2612:  19  / 25  =  76%  0.0753  0.1699  92.69  59.0  20.65%  bbbbbbbbbb bbbM00M0M0 MfMMMMMeeM M0MMMf0MMM MMfeettttt
- 4w D Vladimir Fedoseev        2724:  9   / 31  =  29%  0.0837  0.0960  88.78  47.9  21.28%  bbbbbbbbbb M000M00M00 000fM0Mf00 MM0M00000M 000
- 5b W S. Shankland             2725:  6   / 11  =  55%  0.0403  0.0691  94.66  60.4  45.83%  bbbbbbbbbb bbbbMfM00M MMM000eeee eee
- 6w D Teimour Radjabov         2757:  39  / 59  =  66%  0.0526  0.0880  94.47  61.4  33.08%  bbbbbbbbbb bbbbM0M0MM f00MMM00M0 M0MMM0M0f0 000MMMMMMM MMMMM0MM0M
-                                                                                             MMM0MMM0MM 0MM0M
- 7b D Anish Giri               2783:  6   / 10  =  60%  0.0941  0.1356  90.62  54.0  83.91%  bbbbbbbbbb bbbbbb0M00 M0MffMfMM
- 8w D Ian Nepomniachtchi       2763:  0   / 1   =   0%  0.1377  0.0000* 81.70  32.5  0.02%*  bbbbbbbbbb bbbbbb0
- 9b D Vladimir Kramnik         2777:  14  / 33  =  42%  0.1137  0.1564  86.05  46.3  33.65%  bbbbbbbbb0 0M0Mf0M000 0M000000MM M0MMM0MM00 0fMM
-10w D Shakhriyar Mamedyarov    2817:  14  / 33  =  42%  0.0910  0.1035  88.94  49.5  92.90%  bbbbbbbbbb MM0M00M0M0 00fM00MfM0 MfMMM0000M 0M0000
-11b D R. Rapport               2731:  3   / 7   =  43%  0.0900  0.1263  92.17  53.5  48.11%  bbbbbbbbbM 00MM00
-12w D Viswanathan Anand        2700:  13  / 23  =  57%  0.1433  0.2389  85.06  43.8  28.67%  bbbbbbbbbb bM0000ff0M 0M0fMM0fff 0M0MMMMMMM
-13b D J. Duda                  2738:  4   / 15  =  27%  0.1243  0.1172  88.93  46.4  16.75%  bbbbbbbbbb bbbbbbbfM0 000M00000M 0M0f
+Ding Liren 2813 (Moves=288)
+ 1w D Magnus Carlsen           2835:  6   / 25  =  24%  0.2010  0.1928  84.99  31.4  1.73%   bbbb000000 0f0M000000 0M000MfM0f MM
+ 2w D S. Vidit                 2695:  8   / 20  =  40%  0.1304  0.1667  89.53  44.4  62.95%  bbbbbbbbbM 0M00M0M00f ff0M00MM00 0Mr
+ 3b W Jorden Van Foreest       2612:  19  / 25  =  76%  0.0753  0.1699  93.83  58.7  19.29%  bbbbbbbbbb bbbM00M0M0 MfMMMMMeeM M0MMMf0MMM MMfeettttt
+ 4w D Vladimir Fedoseev        2724:  9   / 30  =  30%  0.0766  0.0890  92.02  49.8  18.71%  bbbbbbbbbb M000M00M00 000fM0Mf00 MMrM00000M 000
+ 5b W S. Shankland             2725:  6   / 11  =  55%  0.0403  0.0691  95.35  59.9  44.19%  bbbbbbbbbb bbbbMfM00M MMM000eeee eee
+ 6w D Teimour Radjabov         2757:  37  / 56  =  66%  0.0536  0.0896  95.65  61.2  31.21%  bbbbbbbbbb bbbbM0M0MM f00MMM00M0 M0MMM0M0f0 000MMMMMMM MMMMM0MM0r
+                                                                                             rMMrMMM0MM 0MM0M
+ 7b D Anish Giri               2783:  6   / 10  =  60%  0.0941  0.1356  92.64  54.3  86.41%  bbbbbbbbbb bbbbbb0M00 M0MffMfMM
+ 8w D Ian Nepomniachtchi       2763:  0   / 1   =   0%  0.1377  0.0000* 85.99  33.6  0.02%*  bbbbbbbbbb bbbbbb0
+ 9b D Vladimir Kramnik         2777:  14  / 33  =  42%  0.1137  0.1564  88.91  46.8  43.99%  bbbbbbbbb0 0M0Mf0M000 0M000000MM M0MMM0MM00 0fMM
+10w D Shakhriyar Mamedyarov    2817:  14  / 33  =  42%  0.0910  0.1035  91.45  49.9  90.86%  bbbbbbbbbb MM0M00M0M0 00fM00MfM0 MfMMM0000M 0M0000
+11b D R. Rapport               2731:  3   / 7   =  43%  0.0900  0.1263  93.79  53.7  42.00%  bbbbbbbbbM 00MM00
+12w D Viswanathan Anand        2700:  12  / 22  =  55%  0.1498  0.2424  87.25  42.3  28.11%  bbbbbbbbbb bM0000ff0M 0M0fMM0fff 0M0MMMMMMr
+13b D J. Duda                  2738:  4   / 15  =  27%  0.1243  0.1172  91.19  46.7  12.68%  bbbbbbbbbb bbbbbbbfM0 000M00000M 0M0f
 -------------------------
-Ian Nepomniachtchi 2763 (Moves=276)
- 1b W Anish Giri               2783:  4   / 11  =  36%  0.2764  0.2880  76.04  26.3* 0.47%   bbbbbbb000 000M0MMMee eeeeee
- 2b D Magnus Carlsen           2835:  10  / 18  =  56%  0.1183  0.1734  87.66  50.4  64.20%  bbbbbbbbbb b00MMMMMMM 00000MMM0f f
- 3w W Vladimir Kramnik         2777:  12  / 22  =  55%  0.1114  0.1824  86.13  48.9  45.93%  bbbbbbbbbb bbb000M0M0 M0MMM0MMMM 000MMe
- 4b D Shakhriyar Mamedyarov    2817:  11  / 22  =  50%  0.1157  0.1566  88.24  50.4  95.14%  bbbbbbbbbM 00MM0MM000 M0M0MM00Mf M0
- 5w D R. Rapport               2731:  4   / 24  =  17%  0.1268  0.1253  83.91  40.3  7.72%   bbbbbbbbbb bb0M000000 00000MM000 0f000fM0
- 6b D Viswanathan Anand        2700:  3   / 11  =  27%  0.1806  0.1428  78.17  33.1  0.08%*  bbbbbbbbbb 0MMMf00000 00
- 7w D J. Duda                  2738:  16  / 56  =  29%  0.1268  0.1457  81.83  40.1  6.84%   bbbbbbbbb0 0M0MMMM000 MM000000M0 000M0M0MM0 00000MMMM0 0000000000
-                                                                                             00000
- 8b D Ding Liren               2813:  1   / 1   = 100%* 0.0000* 0.0000* 100.0* 76.4* 0.01%*  bbbbbbbbbb bbbbbbM
- 9w W S. Vidit                 2695:  15  / 27  =  56%  0.0836  0.1585  90.83  55.2  80.12%  bbbbbbbMM0 M0eM0f0M00 MM0M00MMMM Mf00M0M
-10b L Jorden Van Foreest       2612:  8   / 17  =  47%  0.1603  0.3072  85.79  44.7  79.19%  bbbbbbbbbb b0M0000M0M MM0M0MM0f0 eeeeefeee0 eeeeeeeeee eeeeeeeee
-11w W Vladimir Fedoseev        2724:  17  / 34  =  50%  0.0808  0.1255  88.40  52.3  73.35%  bbbbbb00M0 0M0MMMM000 M00000fM00 MM0MMMMMfM M0feeeeeee
-12b L S. Shankland             2725:  10  / 23  =  43%  0.0691  0.0925  92.47  56.5  50.04%  bbbb000MMM M00000MMf0 M0M00M00M0 0eee
-13w D Teimour Radjabov         2757:  4   / 10  =  40%  0.0767  0.1000  89.53  52.2  79.66%  bbbbbbbbbb bbb00000MM MM0
+Ian Nepomniachtchi 2763 (Moves=279)
+ 1b W Anish Giri               2783:  4   / 11  =  36%  0.2764  0.2880  80.43  26.9* 0.60%   bbbbbbb000 000M0MMMee eeeeee
+ 2b D Magnus Carlsen           2835:  10  / 18  =  56%  0.1183  0.1734  90.11  50.8  74.31%  bbbbbbbbbb b00MMMMMMM 00000MMM0f f
+ 3w W Vladimir Kramnik         2777:  12  / 22  =  55%  0.1114  0.1824  88.58  48.7  40.35%  bbbbbbbbbb bbb000M0M0 M0MMM0MMMM 000MMe
+ 4b D Shakhriyar Mamedyarov    2817:  11  / 22  =  50%  0.1157  0.1566  90.74  50.9  99.29%  bbbbbbbbbM 00MM0MM000 M0M0MM00Mf M0
+ 5w D R. Rapport               2731:  4   / 24  =  17%  0.1268  0.1253  87.42  40.9  7.89%   bbbbbbbbbb bb0M000000 00000MM000 0f000fM0
+ 6b D Viswanathan Anand        2700:  3   / 11  =  27%  0.1806  0.1428  83.05  34.7  1.23%   bbbbbbbbbb 0MMMf00000 00
+ 7w D J. Duda                  2738:  16  / 54  =  30%  0.1175  0.1329  86.36  42.2  10.86%  bbbbbbbbb0 0M0MMMM000 MM000000M0 000M0M0MM0 00000MMMM0 000000000r
+                                                                                             000r0
+ 8b D Ding Liren               2813:  1   / 1   = 100%* 0.0000* 0.0000* 100.0* 76.0* 0.01%*  bbbbbbbbbb bbbbbbM
+ 9w W S. Vidit                 2695:  15  / 27  =  56%  0.0836  0.1585  92.73  55.2  76.91%  bbbbbbbMM0 M0eM0f0M00 MM0M00MMMM Mf00M0M
+10b L Jorden Van Foreest       2612:  8   / 19  =  42%  0.2614  0.4890  87.91  37.3  0.00%*  bbbbbbbbbb b0M0000M0M MM0M0MM0f0 eeeeefeee0 eeeeeeeeee eeeeeeeee
+11w W Vladimir Fedoseev        2724:  17  / 34  =  50%  0.0808  0.1255  90.72  52.4  71.12%  bbbbbb00M0 0M0MMMM000 M00000fM00 MM0MMMMMfM M0feeeeeee
+12b L S. Shankland             2725:  10  / 26  =  38%  0.0969  0.1424  93.16  53.2  34.91%  bbbb000MMM M00000MMf0 M0M00M00M0 0eee
+13w D Teimour Radjabov         2757:  4   / 10  =  40%  0.0767  0.1000  91.93  52.5  79.04%  bbbbbbbbbb bbb00000MM MM0
 -------------------------
-J. Duda 2738 (Moves=364)
- 1b D S. Vidit                 2695:  22  / 39  =  56%  0.0601  0.1024  91.77  58.3  43.55%  bbbbbbbbbb bbMM000MM0 MM0M0MMf0M 0000MMM0M0 MMMMMM000M 0Mtttttttt
+J. Duda 2738 (Moves=354)
+ 1b D S. Vidit                 2695:  21  / 38  =  55%  0.0617  0.1033  93.37  58.1  47.89%  bbbbbbbbbb bbMM000MM0 MM0M0MMf0M 0000MMM0M0 MMMMMr000M 0Mtttttttt
                                                                                              tttttttttt tttttttt
- 2w L Jorden Van Foreest       2612:  15  / 28  =  54%  0.1620  0.2697  86.75  46.0  8.31%   bbbbbbbbbb bbM0MMM000 0M0000MM00 MMMMMM0MM0 feeeeeeeee
- 3b W Vladimir Fedoseev        2724:  10  / 25  =  40%  0.1799  0.2000  78.41  35.2  0.06%*  bbbbbbb00M M0MMMM000M 000000MM00 0Meee
- 4w D S. Shankland             2725:  11  / 14  =  79%  0.0635  0.1505  93.80  62.6  3.53%   bbbbbbbbbb bbbbbM0ff0 0MMMMMMMMM M
- 5b D Teimour Radjabov         2757:  8   / 21  =  38%  0.1565  0.2224  85.15  43.0  81.92%  bbbbbbbb00 MM0M000f00 MMM00MM000
- 6w L Anish Giri               2783:  15  / 33  =  45%  0.1296  0.2152  87.45  47.6  71.23%  bbbbb0M00M M00MMMMM00 f0MM00M0f0 M00M00M00M f00e
- 7b D Ian Nepomniachtchi       2763:  30  / 53  =  57%  0.1005  0.1703  90.81  54.8  85.19%  bbbbbbbbb0 M00Mf0MMMM 000000MMMM 0M0M00Mf0M 00M0000M0M MM0MMMMMMM
-                                                                                             MMMM
- 8w W Vladimir Kramnik         2777:  13  / 23  =  57%  0.0723  0.1109  90.50  55.8  78.83%  bbbbbbbbbb bb0fMMMMMe 0M0MMMeeee eee00M0000 M0MMe
- 9b D Shakhriyar Mamedyarov    2817:  6   / 19  =  32%  0.0967  0.1280  91.04  51.6  17.58%  bbbbbbbbbb MM0Mf0000M 0000000MM0
-10w L R. Rapport               2731:  10  / 23  =  43%  0.1127  0.1380  87.22  48.2  99.52%  bbbbbbM00f 000M0Mf0fM MM000M00M0 MMffeeeeee e
-11b D Viswanathan Anand        2700:  8   / 17  =  47%  0.1245  0.1940  89.13  50.3  93.80%  bbbbbbbbbb bbb00M000M MMMM000M0M
-12b L Magnus Carlsen           2835:  22  / 52  =  42%  0.0698  0.0964  92.57  56.4  44.28%  bbbbbbbbbM fMM000M0ff 0fMMMM0M0M 0M0M0000MM 0MM0000000 M000MMfM0e
+ 2w L Jorden Van Foreest       2612:  15  / 28  =  54%  0.1620  0.2697  88.82  45.5  8.40%   bbbbbbbbbb bbM0MMM000 0M0000MM00 MMMMMM0MM0 feeeeeeeee
+ 3b W Vladimir Fedoseev        2724:  10  / 25  =  40%  0.1799  0.2000  82.08  35.4  0.04%*  bbbbbbb00M M0MMMM000M 000000MM00 0Meee
+ 4w D S. Shankland             2725:  9   / 12  =  75%  0.0741  0.1610  94.29  60.4  6.35%   bbbbbbbbbb bbbbbM0ff0 0MMMMMrMMM r
+ 5b D Teimour Radjabov         2757:  8   / 19  =  42%  0.1656  0.2318  85.82  40.9  32.95%  bbbbbbbb00 MM0M000f00 MMM00MM0rr
+ 6w L Anish Giri               2783:  15  / 34  =  44%  0.1442  0.2194  88.07  44.5  76.52%  bbbbb0M00M M00MMMMM00 f0MM00M0f0 M00Mr0M00M f00e
+ 7b D Ian Nepomniachtchi       2763:  28  / 51  =  55%  0.1044  0.1724  92.04  53.8  91.38%  bbbbbbbbb0 M00Mf0MMMM 000000MMMM 0M0M00Mf0M 00M0000M0M MM0MMMMMrM
+                                                                                             MMrM
+ 8w W Vladimir Kramnik         2777:  13  / 23  =  57%  0.0723  0.1109  91.48  54.7  52.50%  bbbbbbbbbb bb0fMMMMMe 0M0MMMeeee eee00M0000 M0MMe
+ 9b D Shakhriyar Mamedyarov    2817:  4   / 15  =  27%  0.1104  0.1397  91.89  49.2  9.54%   bbbbbbbbbb MM0Mf0000M 000000rrrr
+10w L R. Rapport               2731:  10  / 23  =  43%  0.1127  0.1380  90.01  48.6  97.82%  bbbbbbM00f 000M0Mf0fM MM000M00M0 MMffeeeeee e
+11b D Viswanathan Anand        2700:  8   / 17  =  47%  0.1245  0.1940  90.74  49.9  98.02%  bbbbbbbbbb bbb00M000M MMMM000M0M
+12b L Magnus Carlsen           2835:  22  / 52  =  42%  0.0707  0.0965  92.50  54.6  38.17%  bbbbbbbbbM fMM000M0ff 0fMMMM0M0M 0M0M0000MM 0MMr000000 M000MMfM0e
                                                                                              M0000e0M0t
-13w D Ding Liren               2813:  5   / 17  =  29%  0.0883  0.0986  89.93  50.3  17.18%  bbbbbbbbbb bbbbbbb000 0fMM00M0MM 00000
+13w D Ding Liren               2813:  5   / 17  =  29%  0.0883  0.0986  92.18  50.5  15.72%  bbbbbbbbbb bbbbbbb000 0fMM00M0MM 00000
 -------------------------
-Jorden Van Foreest 2612 (Moves=298)
- 1w L Viswanathan Anand        2700:  8   / 18  =  44%  0.1802  0.2949  82.36  41.7  52.83%  bbbbbb00MM 00MM0M0000 0MMM0eee
- 2b W J. Duda                  2738:  12  / 26  =  46%  0.1044  0.1609  87.40  51.2  73.78%  bbbbbbbbbb bb00M0M00M 0MM00MM0M0 M00MM00Mee eeeeeeeeee
- 3w L Ding Liren               2813:  10  / 28  =  36%  0.2567  0.4043  78.95  33.2  1.49%   bbbbbbbbbb bbb0MMf000 00MMM000eM 0MMf000000 00MfMttttt
- 4b L S. Vidit                 2695:  4   / 22  =  18%  0.1124  0.1420  88.79  48.1  2.86%   bbbbbbbbbb bbbbbbb00f 0f0f00M0fM 0000000M00 f0M00ttttt
- 5w L Magnus Carlsen           2835:  8   / 19  =  42%  0.1694  0.1922  83.44  42.9  69.47%  bbbbbbbbbb bb0M00M0M0 M0M00M00M0 M00
- 6w W Vladimir Fedoseev        2724:  21  / 33  =  64%  0.0828  0.1554  88.64  55.3  26.71%  bbbbbM0MM0 00MMfMf00M 000MMMfMMM MfMMMfMMM0 eM0e0e
- 7b L S. Shankland             2725:  11  / 37  =  30%  0.1509  0.2423  83.03  42.6  33.88%  bbbbbb0M00 00000M00Mf f0M0M00000 Mff0000000 0M0MMMMeet t
- 8w D Teimour Radjabov         2757:  1   / 3   =  33%  0.1524  0.1377  78.59  38.5  1.68%   bbbbbbbbbb bbbbM00
- 9b D Anish Giri               2783:  8   / 18  =  44%  0.1027  0.1493  91.28  54.4  61.00%  bbbbbbbb00 0MMMM0ff00 fM0M0M0M0
-10w W Ian Nepomniachtchi       2763:  5   / 15  =  33%  0.1073  0.1149  81.72  43.8  1.78%   bbbbbbbbbb bb00M00000 0f00MMeeMM eeeeeeeeee eeeeeeeeee eeeeeeeeee
-11b L Vladimir Kramnik         2777:  21  / 45  =  47%  0.1037  0.1860  89.75  53.4  95.45%  bbbbb0000M 000M000000 f0MMMMMMM0 fM000MMMM0 M0M0MMMffe M0000eeeMe
+Jorden Van Foreest 2612 (Moves=304)
+ 1w L Viswanathan Anand        2700:  8   / 19  =  42%  0.1865  0.2879  85.65  41.2  43.37%  bbbbbb00MM 00MM0M0000 0MMM0eee
+ 2b W J. Duda                  2738:  12  / 26  =  46%  0.1044  0.1609  89.94  51.6  79.71%  bbbbbbbbbb bb00M0M00M 0MM00MM0M0 M00MM00Mee eeeeeeeeee
+ 3w L Ding Liren               2813:  10  / 28  =  36%  0.2567  0.4043  82.12  32.7  1.44%   bbbbbbbbbb bbb0MMf000 00MMM000eM 0MMf000000 00MfMttttt
+ 4b L S. Vidit                 2695:  4   / 23  =  17%  0.1297  0.1617  90.94  47.2  1.06%   bbbbbbbbbb bbbbbbb00f 0f0f00M0fM 0000000M00 f0M00ttttt
+ 5w L Magnus Carlsen           2835:  8   / 21  =  38%  0.1861  0.2088  85.50  40.5  46.32%  bbbbbbbbbb bb0M00M0M0 M0M00M00M0 M00
+ 6w W Vladimir Fedoseev        2724:  21  / 33  =  64%  0.0828  0.1554  91.16  55.7  34.06%  bbbbbM0MM0 00MMfMf00M 000MMMfMMM MfMMMfMMM0 eM0e0e
+ 7b L S. Shankland             2725:  11  / 37  =  30%  0.1509  0.2423  86.93  43.8  52.66%  bbbbbb0M00 00000M00Mf f0M0M00000 Mff0000000 0M0MMMMeet t
+ 8w D Teimour Radjabov         2757:  1   / 3   =  33%  0.1524  0.1377  83.18  39.4  4.93%   bbbbbbbbbb bbbbM00
+ 9b D Anish Giri               2783:  8   / 18  =  44%  0.1027  0.1493  92.82  54.4  57.36%  bbbbbbbb00 0MMMM0ff00 fM0M0M0M0
+10w W Ian Nepomniachtchi       2763:  5   / 15  =  33%  0.1073  0.1149  85.67  44.5  2.84%   bbbbbbbbbb bb00M00000 0f00MMeeMM eeeeeeeeee eeeeeeeeee eeeeeeeeee
+11b L Vladimir Kramnik         2777:  21  / 46  =  46%  0.1097  0.1883  91.24  52.6  96.16%  bbbbb0000M 000M000000 f0MMMMMMM0 fM000MMMM0 M0M0MMMffe M0000eeeMe
                                                                                              eeeee
-12w D Shakhriyar Mamedyarov    2817:  13  / 28  =  46%  0.2084  0.5390  85.33  42.9  0.59%   bbbbbbbb00 M000M0000M 0MMMMf00M0 M0MfMMf0fM
-13b L R. Rapport               2731:  3   / 6   =  50%  0.1428  0.2447  87.10  49.4  94.81%  bbbbbbbbbb b0M0M0fM0e
+12w D Shakhriyar Mamedyarov    2817:  13  / 28  =  46%  0.2084  0.5390  87.90  42.8  0.19%   bbbbbbbb00 M000M0000M 0MMMMf00M0 M0MfMMf0fM
+13b L R. Rapport               2731:  3   / 7   =  43%  0.2890  0.4466  88.94  40.2  0.00%*  bbbbbbbbbb b0M0M0fM0e
 -------------------------
-Magnus Carlsen 2835 (Moves=419)
- 1b D Ding Liren               2813:  12  / 22  =  55%  0.0861  0.1584  89.55  52.8  61.84%  bbbb000M00 MM0M0M0MMf MMM0M0Mfff f
- 2w D Ian Nepomniachtchi       2763:  8   / 18  =  44%  0.1686  0.1919  81.71  36.8  19.31%  bbbbbbbbbb b000M00ff0 M00MM00MMM M0
- 3b D S. Vidit                 2695:  28  / 80  =  35%  0.1104  0.1803  87.86  47.3  64.93%  bbbbbbbbbb 0M00MMM0M0 000MM0M0MM M00M0MMM00 00M0M00000 MM0000M00M
-                                                                                             0M00M00M00 000M0000M0 000M00000M tttttttttt tttttttttt tttttttttt
+Magnus Carlsen 2835 (Moves=413)
+ 1b D Ding Liren               2813:  12  / 22  =  55%  0.0861  0.1584  91.70  53.1  68.57%  bbbb000M00 MM0M0M0MMf MMM0M0Mfff f
+ 2w D Ian Nepomniachtchi       2763:  8   / 19  =  42%  0.3557  0.8365  85.36  23.4* 0.00%*  bbbbbbbbbb b000M00ff0 M00MM00MMM M0
+ 3b D S. Vidit                 2695:  28  / 76  =  37%  0.1088  0.1843  90.60  48.3  75.32%  bbbbbbbbbb 0M00MMM0M0 000MM0M0MM M00M0MMM00 00M0M00000 MM00r0M00M
+                                                                                             0M00M00M00 r00M000rM0 000M00r00M tttttttttt tttttttttt tttttttttt
                                                                                              tttttttttt
- 4w D Vladimir Kramnik         2777:  15  / 39  =  38%  0.1030  0.1384  88.56  47.7  74.20%  bbbbbbbbbb 0000000000 0fMM0000f0 M0M00M0fMM f000fMMMMf fM0MMM
- 5b W Jorden Van Foreest       2612:  7   / 16  =  44%  0.1398  0.1999  85.41  44.3  70.85%  bbbbbbbbbb bb0M000MMM M000Mf00Me eee
- 6w W Shakhriyar Mamedyarov    2817:  18  / 30  =  60%  0.0637  0.1000  91.78  56.9  75.80%  bbbbbbbbbb bbbbM00000 0M000M0MMM MMMfMMMM0f 0MMMMMeeee e
- 7b D Vladimir Fedoseev        2724:  17  / 30  =  57%  0.1060  0.2224  90.28  52.5  93.30%  bbbbbbbbbb f000MM0MMM M00MM0M0Mf 0MMMM0M00f fMfM0ttttt tttttttttt
+ 4w D Vladimir Kramnik         2777:  15  / 39  =  38%  0.1030  0.1384  91.02  47.9  70.09%  bbbbbbbbbb 0000000000 0fMM0000f0 M0M00M0fMM f000fMMMMf fM0MMM
+ 5b W Jorden Van Foreest       2612:  7   / 16  =  44%  0.1398  0.1999  88.14  44.5  76.23%  bbbbbbbbbb bb0M000MMM M000Mf00Me eee
+ 6w W Shakhriyar Mamedyarov    2817:  18  / 29  =  62%  0.0573  0.0952  94.31  58.7  64.08%  bbbbbbbbbb bbbbM000r0 0M000M0MMM MMMfMMMM0f 0MMMMMeeee e
+ 7b D Vladimir Fedoseev        2724:  17  / 30  =  57%  0.1060  0.2224  92.15  52.6  91.95%  bbbbbbbbbb f000MM0MMM M00MM0M0Mf 0MMMM0M00f fMrM0ttttt tttttttttt
                                                                                              tttttttttt ttt
- 8w W R. Rapport               2731:  9   / 20  =  45%  0.0586  0.0865  90.94  54.2  67.22%  bbbbbbbbbb b000M0M00M 0MMM0fMM0e 0Mee0eeeee
- 9b D S. Shankland             2725:  12  / 30  =  40%  0.0886  0.0960  92.06  53.1  39.90%  bbbbbbbbb0 00000000MM M0MM00M00M 0MM000MfMM
-10w W Viswanathan Anand        2700:  28  / 64  =  44%  0.0579  0.0807  91.69  54.9  60.85%  bbbbbbb000 00MM0M0M00 00M00fMMMM 0MMf0M00MM 0000M00MM0 0Mf0000M0M
+ 8w W R. Rapport               2731:  8   / 18  =  44%  0.0599  0.0899  92.44  53.6  60.75%  bbbbbbbbbb b000M0M0rr 0MMM0fMM0e 0Mee0eeeee
+ 9b D S. Shankland             2725:  12  / 30  =  40%  0.0886  0.0960  93.72  53.3  34.59%  bbbbbbbbb0 00000000MM M0MM00M00M 0MM000MfMM
+10w W Viswanathan Anand        2700:  28  / 64  =  44%  0.0579  0.0807  93.56  55.0  60.88%  bbbbbbb000 00MM0M0M00 00M00fMMMM 0MMf0M00MM 0000M00MM0 0Mf0000M0M
                                                                                              0MMMM00M00 0MMMet
-11b D Teimour Radjabov         2757:  1   / 10  =  10%  0.2560  0.1790  74.93  23.2* 0.42%   bbbbbbbbbb bbbb0000M0 0000
-12w W J. Duda                  2738:  26  / 45  =  58%  0.0618  0.1086  91.06  56.0  73.30%  bbbbbbbbb0 00MMM0fMMf 0MMMMMf000 M00M00MMMM 0MMM0000MM 00MMMefMMe
+11b D Teimour Radjabov         2757:  1   / 9   =  11%  0.2702  0.1838  79.10  22.4* 0.42%   bbbbbbbbbb bbbb0000M0 000r
+12w W J. Duda                  2738:  27  / 46  =  59%  0.0595  0.1076  93.03  56.5  68.13%  bbbbbbbbb0 00MMM0fMMf 0MMMMMf000 M00M00MMMM 0MMMr000MM 00MMMefMMe
                                                                                              e0eeMeeeee t
-13b D Anish Giri               2783:  5   / 15  =  33%  0.0754  0.1148  89.76  51.0  21.73%  bbbbbbbbbb bbbbM0M00M 000000MM0
+13b D Anish Giri               2783:  5   / 15  =  33%  0.0754  0.1148  91.85  51.3  21.52%  bbbbbbbbbb bbbbM0M00M 000000MM0
 -------------------------
-R. Rapport 2731 (Moves=347)
- 1b D Vladimir Fedoseev        2724:  11  / 23  =  48%  0.0970  0.1502  91.21  54.1  84.96%  bbbbbbbbbb b00000M0MM 0fM0M00M0M fM0MfMfM
- 2w D S. Shankland             2725:  27  / 57  =  47%  0.1172  0.1833  87.65  48.9  94.55%  bbbbbbbbbb 000000MM00 MMf0000MMM 0MM0MMM000 M0M0M0ffMM MMf0M00M00
-                                                                                             0MMM0M0MM0 0ttttttttt tttttttttt tttt
- 3b D Teimour Radjabov         2757:  11  / 19  =  58%  0.0766  0.1132  91.60  57.3  72.83%  bbbbbbbbbb 00MM0000M0 MMMMMM0MMf f
- 4w L Anish Giri               2783:  14  / 27  =  52%  0.0966  0.1364  89.64  52.7  90.18%  bbbbbbbbMM MM0M000M00 Mf0MM0000M 00MM0eMMfe
- 5b D Ian Nepomniachtchi       2763:  8   / 24  =  33%  0.2004  0.1940  82.86  37.3  33.61%  bbbbbbbbbb b00f0M000M M00000fM00 M000MMM
- 6w D Vladimir Kramnik         2777:  26  / 53  =  49%  0.1037  0.1541  88.19  50.5  98.94%  bbbbbbb0MM 000MM000M0 MMM0fM0fMM 000MMM0f00 00M0MMfMM0 M00MM00M0M
+R. Rapport 2731 (Moves=344)
+ 1b D Vladimir Fedoseev        2724:  10  / 22  =  45%  0.1014  0.1522  92.33  53.0  87.73%  bbbbbbbbbb b00000M0MM 0fM0M00M0M fM0MfMrr
+ 2w D S. Shankland             2725:  25  / 55  =  45%  0.1215  0.1853  89.75  48.0  91.32%  bbbbbbbbbb 000000MM00 MMf0000MMM 0MM0MMM000 M0M0M0ffMM MMf0M00M00
+                                                                                             0Mrr0M0MM0 0ttttttttt tttttttttt tttt
+ 3b D Teimour Radjabov         2757:  11  / 19  =  58%  0.0766  0.1132  93.44  57.6  75.32%  bbbbbbbbbb 00MM0000M0 MMMMMM0MMf f
+ 4w L Anish Giri               2783:  14  / 28  =  50%  0.1212  0.1865  91.05  50.1  42.72%  bbbbbbbbMM MM0M000M00 Mf0MM0000M 00MM0eMMfe
+ 5b D Ian Nepomniachtchi       2763:  8   / 24  =  33%  0.2004  0.1940  86.10  37.8  26.67%  bbbbbbbbbb b00f0M000M M00000fM00 M000MMM
+ 6w D Vladimir Kramnik         2777:  26  / 53  =  49%  0.1037  0.1541  90.61  50.6  98.57%  bbbbbbb0MM 000MM000M0 MMM0fM0fMM 000MMM0f00 00M0MMfMM0 M00MM00M0M
                                                                                              0MM0tttttt tttttttttt tttttttttt tttt
- 7b D Shakhriyar Mamedyarov    2817:  13  / 27  =  48%  0.1380  0.2161  87.56  48.0  96.11%  bbbbbbbbbb 0M00MM000M 0M00MMf00M MMM0Mf00M
- 8b L Magnus Carlsen           2835:  9   / 24  =  38%  0.1416  0.1799  86.31  45.0  86.29%  bbbbbbbbbb b000M0M000 0M0MMM000f 0MMM000ee
- 9w D Viswanathan Anand        2700:  17  / 30  =  57%  0.0746  0.1053  91.07  56.2  80.48%  bbbbbbbbbb bMMMMM0000 0M0MM0MMMM 0MMM0M000M f0
-10b W J. Duda                  2738:  11  / 25  =  44%  0.1152  0.1386  88.64  49.9  98.49%  bbbbb0MMM0 0000MM0MM0 M00M0f0f00 MfMfeeeeee e
-11w D Ding Liren               2813:  5   / 6   =  83%  0.0644  0.1578  92.61  62.1  0.94%   bbbbbbbbbb 0MMMMM
-12b D S. Vidit                 2695:  16  / 27  =  59%  0.0837  0.1431  92.24  57.6  71.00%  bbbbbb0000 0M0MM00f0M M0fMMfeMeM MMMff0fMMM M
-13w W Jorden Van Foreest       2612:  3   / 5   =  60%  0.0242  0.0395  95.94  64.5  25.88%  bbbbbbbbbb bbMM00Mfee e
+ 7b D Shakhriyar Mamedyarov    2817:  13  / 27  =  48%  0.1380  0.2161  89.72  48.0  95.73%  bbbbbbbbbb 0M00MM000M 0M00MMf00M MMM0Mf00M
+ 8b L Magnus Carlsen           2835:  9   / 23  =  39%  0.1343  0.1813  88.32  45.4  69.92%  bbbbbbbbbb b000M0Mrr0 0M0MMM000f 0MMM000ee
+ 9w D Viswanathan Anand        2700:  17  / 30  =  57%  0.0746  0.1053  93.04  56.3  78.24%  bbbbbbbbbb bMMMMM0000 0M0MM0MMMM 0MMM0M000M f0
+10b W J. Duda                  2738:  11  / 25  =  44%  0.1152  0.1386  91.11  50.5  96.90%  bbbbb0MMM0 0000MM0MM0 M00M0f0f00 MfMfeeeeee e
+11w D Ding Liren               2813:  5   / 6   =  83%  0.0644  0.1578  94.11  62.0  1.02%   bbbbbbbbbb 0MMMMM
+12b D S. Vidit                 2695:  16  / 27  =  59%  0.0837  0.1431  93.02  56.9  74.40%  bbbbbb0000 0M0MM00f0M M0fMMfeMeM MMMff0fMMM M
+13w W Jorden Van Foreest       2612:  3   / 5   =  60%  0.0242  0.0395  96.84  64.3  28.48%  bbbbbbbbbb bbMM00Mfee e
 -------------------------
-S. Shankland 2725 (Moves=370)
- 1w D Shakhriyar Mamedyarov    2817:  18  / 44  =  41%  0.1154  0.1276  85.79  46.3  89.10%  bbbbbbbbb0 00MM00Mf0M M00M0M0M0M 0000000MMM 0M00M0M0M0 00MM
- 2b D R. Rapport               2731:  34  / 58  =  59%  0.0623  0.1083  91.08  57.8  27.83%  bbbbbbbbb0 MM000f000M M0M0MM0MM0 00MMMM0ffM 0MMMM0MeM0 000MMMMMM0
-                                                                                             MMM0M00MMM Mttttttttt tttttttttt tttt
- 3w D Viswanathan Anand        2700:  8   / 20  =  40%  0.1454  0.1577  80.70  39.5  5.14%   bbbbbbbbb0 00MMM000M0 0MfM0f00Mf 0fffM
- 4b D J. Duda                  2738:  11  / 12  =  92%  0.0020  0.0069  99.78  74.9* 0.11%   bbbbbbbbbb bbbbb0MfMM MMMMMfMMfM f
- 5w L Ding Liren               2813:  4   / 14  =  29%  0.2111  0.2257  80.57  33.5  6.36%   bbbbbbbbbb bbbb0M00fM 00M00000Mf 0ee
- 6b D S. Vidit                 2695:  2   / 10  =  20%  0.1416  0.1305  85.53  41.7  9.80%   bbbbbbbb0M 00M00000
- 7w W Jorden Van Foreest       2612:  17  / 35  =  49%  0.0885  0.1335  89.44  52.6  98.84%  bbbbbbb000 0000Mf00M0 fM0MM00fMM MMMMM0M00M M00MMeeeet tt
- 8b L Vladimir Fedoseev        2724:  11  / 34  =  32%  0.1697  0.1781  84.54  40.8  58.77%  bbbb000000 00M0M000M0 0000M0M0M0 M00MM0MM0e eeeeeeeeee e
- 9w D Magnus Carlsen           2835:  10  / 28  =  36%  0.0915  0.1059  88.76  49.9  69.93%  bbbbbbbbbb MM000000MM 0000fM000M M0f0M00M0M
-10w D Teimour Radjabov         2757:  10  / 14  =  71%  0.0250  0.0516  96.78  66.9  8.93%   bbbbbbbbbb bbbbM0MMfM 0MfMM0f0MM M
-11b L Anish Giri               2783:  13  / 35  =  37%  0.1136  0.1387  89.19  49.6  70.52%  bbbbb00MM0 0M0000M000 MM000Mf0M0 0M0MM0000M Mftt
-12w W Ian Nepomniachtchi       2763:  12  / 19  =  63%  0.0254  0.0472  95.45  64.4  28.15%  bbbbb0MMMf M0MMM0f00M MM00MeMeee eeeee
-13b W Vladimir Kramnik         2777:  27  / 47  =  57%  0.0997  0.1962  89.11  53.3  63.19%  bbbbb00M00 0MM0MMMfM0 MM0M0eMMM0 M00fMMM0fM 0MM0M0ffM0 MMM0M00Mee
+S. Shankland 2725 (Moves=365)
+ 1w D Shakhriyar Mamedyarov    2817:  17  / 43  =  40%  0.1181  0.1278  88.54  46.0  91.49%  bbbbbbbbb0 00MM00Mf0M M00M0M0M0M 0000000MMM 0M00M0M0M0 00Mr
+ 2b D R. Rapport               2731:  32  / 55  =  58%  0.0638  0.1104  92.75  57.6  28.82%  bbbbbbbbb0 MM000f000M M0M0MM0MM0 00MMMM0ffM 0MMMM0MeM0 000MMMMMM0
+                                                                                             MrrrM00MMM Mttttttttt tttttttttt tttt
+ 3w D Viswanathan Anand        2700:  8   / 20  =  40%  0.1454  0.1577  84.54  39.9  7.65%   bbbbbbbbb0 00MMM000M0 0MfM0f00Mf 0fffM
+ 4b D J. Duda                  2738:  10  / 11  =  91%  0.0022  0.0072  99.82  74.4* 0.15%   bbbbbbbbbb bbbbb0MfMM MMMMMfMMfr r
+ 5w L Ding Liren               2813:  4   / 15  =  27%  0.2660  0.3042  82.07  27.5* 0.01%*  bbbbbbbbbb bbbb0M00fM 00M00000Mf 0ee
+ 6b D S. Vidit                 2695:  2   / 8   =  25%  0.1554  0.1410  87.38  40.9  28.12%  bbbbbbbb0M 00M000rr
+ 7w W Jorden Van Foreest       2612:  17  / 35  =  49%  0.0885  0.1335  91.65  52.7  98.27%  bbbbbbb000 0000Mf00M0 fM0MM00fMM MMMMM0M00M M00MMeeeet tt
+ 8b L Vladimir Fedoseev        2724:  11  / 35  =  31%  0.1760  0.1793  87.55  40.7  39.42%  bbbb000000 00M0M000M0 0000M0M0M0 M00MM0MM0e eeeeeeeeee e
+ 9w D Magnus Carlsen           2835:  10  / 28  =  36%  0.0915  0.1059  91.30  50.3  65.68%  bbbbbbbbbb MM000000MM 0000fM000M M0f0M00M0M
+10w D Teimour Radjabov         2757:  10  / 14  =  71%  0.0250  0.0516  97.54  66.6  9.07%   bbbbbbbbbb bbbbM0MMfM 0MfMM0f0MM M
+11b L Anish Giri               2783:  13  / 35  =  37%  0.1136  0.1387  91.06  49.5  71.93%  bbbbb00MM0 0M0000M000 MM000Mf0M0 0M0MM0000M Mftt
+12w W Ian Nepomniachtchi       2763:  12  / 19  =  63%  0.0254  0.0472  96.47  64.2  29.13%  bbbbb0MMMf M0MMM0f00M MM00MeMeee eeeee
+13b W Vladimir Kramnik         2777:  27  / 47  =  57%  0.0997  0.1962  90.96  53.2  58.86%  bbbbb00M00 0MM0MMMfM0 MM0M0eMMM0 M00fMMM0fM 0MM0M0ffM0 MMM0M00Mee
                                                                                              eeeeee
 -------------------------
-S. Vidit 2695 (Moves=375)
- 1w D J. Duda                  2738:  20  / 37  =  54%  0.0996  0.1884  90.81  55.0  55.03%  bbbbbbbbbb bb0000MMMf 0f0M00MMfM MMM000M00M MM00MMMM00 MMtttttttt
+S. Vidit 2695 (Moves=365)
+ 1w D J. Duda                  2738:  20  / 37  =  54%  0.0996  0.1884  92.49  54.7  53.63%  bbbbbbbbbb bb0000MMMf 0f0M00MMfM MMM000M00M MM00MMMM00 MMtttttttt
                                                                                              tttttttttt tttttttt
- 2b D Ding Liren               2813:  14  / 24  =  58%  0.0962  0.1638  90.68  56.2  76.77%  bbbbbbbb0M M00M0MMM0M 0MMMMMfM0M 000
- 3w D Magnus Carlsen           2835:  39  / 78  =  50%  0.0692  0.1167  93.00  58.0  39.28%  bbbbbbbbbb 00MM000M00 0MMMMMMMMf 00MMM0000M 00MM0MMM00 00MMM00M00
-                                                                                             0M00M0M0MM 0MfM000MMM 00MM0MM00M tttttttttt tttttttttt tttttttttt
+ 2b D Ding Liren               2813:  14  / 22  =  64%  0.0849  0.1550  93.61  58.8  48.38%  bbbbbbbb0M M00M0MMM0M 0MMMMMfM0M 0rr
+ 3w D Magnus Carlsen           2835:  39  / 77  =  51%  0.0687  0.1174  94.23  57.8  48.82%  bbbbbbbbbb 00MM000M00 0MMMMMMMMf 00MMM0000M 00MM0MMM00 00MMM00M00
+                                                                                             0M00M0M0MM rMfM000MMM 00MM0MM00M tttttttttt tttttttttt tttttttttt
                                                                                              tttttttttt t
- 4w W Jorden Van Foreest       2612:  15  / 26  =  58%  0.0542  0.0966  92.39  59.4  64.71%  bbbbbbbbbb bbbbbbbb00 M00MMMMMMM 0M0000M00M MMMMettttt t
- 5b D Vladimir Fedoseev        2724:  31  / 64  =  48%  0.0825  0.1225  91.33  56.1  82.82%  bbbbbbbbb0 M000MM0000 0000000M00 MMMMMMMM0M 0M0M0M0M00 MM0M0eM0MM
-                                                                                             0MMM00M000 MMMM
- 6w D S. Shankland             2725:  4   / 10  =  40%  0.0901  0.1715  91.29  54.0  26.04%  bbbbbbbb00 00MMM00M
- 7b L Teimour Radjabov         2757:  4   / 9   =  44%  0.3717  0.7413  79.26  29.6* 0.00%*  bbbbbbbbM0 MM00f00M0e efffffeeee eeeee
- 8w D Anish Giri               2783:  18  / 21  =  86%  0.0222  0.0602  97.64  69.7  0.76%   bbbbbbbbbb bbbMMMMM0f 00MMMMMfMM MMMMMM
- 9b L Ian Nepomniachtchi       2763:  16  / 27  =  59%  0.1204  0.2493  89.43  53.9  67.24%  bbbbbb0MMf M00MMf0M0M MMM0M0MMMM fM0000
-10w W Vladimir Kramnik         2777:  12  / 16  =  75%  0.0420  0.0838  92.90  62.9  6.89%   bbbbbbbbbb bMMMMMMM00 0MMM0MMfe
-11b W Shakhriyar Mamedyarov    2817:  10  / 19  =  53%  0.1024  0.1792  87.71  52.5  64.62%  bbbbbbbbbb 000000M0MM MMM0MM0MMe
-12w D R. Rapport               2731:  14  / 28  =  50%  0.0852  0.1313  88.28  53.0  85.23%  bbbbbbbM00 00M0MMMM0M 00Mf0eeeMe 00MMM00MMf 0
-13b D Viswanathan Anand        2700:  4   / 16  =  25%  0.2078  0.2161  77.23  33.9  3.64%   bbbbbbbbbb bbbM00M0M0 0000Mf0000
+ 4w W Jorden Van Foreest       2612:  15  / 26  =  58%  0.0542  0.0966  94.10  59.5  64.19%  bbbbbbbbbb bbbbbbbb00 M00MMMMMMM 0M0000M00M MMMMettttt t
+ 5b D Vladimir Fedoseev        2724:  28  / 59  =  47%  0.0827  0.1232  92.96  56.0  80.70%  bbbbbbbbb0 M000MM0000 0000000M00 MMMMMMMM0M 0M0M0M0M00 rr0M0eMrMM
+                                                                                             0MMM00M0r0 MMMr
+ 6w D S. Shankland             2725:  3   / 9   =  33%  0.1001  0.1788  92.29  51.7  13.01%  bbbbbbbb00 00MMM00r
+ 7b L Teimour Radjabov         2757:  4   / 10  =  40%  0.6384  1.0954  81.28  13.3* 0.00%*  bbbbbbbbM0 MM00f00M0e efffffeeee eeeee
+ 8w D Anish Giri               2783:  18  / 21  =  86%  0.0222  0.0602  98.19  69.3  0.75%   bbbbbbbbbb bbbMMMMM0f 00MMMMMfMM MMMMMM
+ 9b L Ian Nepomniachtchi       2763:  16  / 27  =  59%  0.1204  0.2493  90.86  53.5  69.30%  bbbbbb0MMf M00MMf0M0M MMM0M0MMMM fM0000
+10w W Vladimir Kramnik         2777:  12  / 16  =  75%  0.0420  0.0838  94.50  63.0  7.42%   bbbbbbbbbb bMMMMMMM00 0MMM0MMfe
+11b W Shakhriyar Mamedyarov    2817:  10  / 19  =  53%  0.1024  0.1792  90.32  53.0  75.72%  bbbbbbbbbb 000000M0MM MMM0MM0MMe
+12w D R. Rapport               2731:  14  / 28  =  50%  0.0852  0.1313  90.34  52.8  76.83%  bbbbbbbM00 00M0MMMM0M 00Mf0eeeMe 00MMM00MMf 0
+13b D Viswanathan Anand        2700:  4   / 14  =  29%  0.1728  0.2079  85.44  40.9  45.58%  bbbbbbbbbb bbbM00M0M0 0000Mf00rr
 -------------------------
-Shakhriyar Mamedyarov 2817 (Moves=290)
- 1b D S. Shankland             2725:  17  / 45  =  38%  0.1568  0.2048  86.73  43.7  59.53%  bbbbbbbbb0 M0M0MMM000 0000M0M000 00000M00M0 MMMM0M0000 M0MM
- 2w D Teimour Radjabov         2757:  7   / 14  =  50%  0.0638  0.0798  91.88  55.5  83.83%  bbbbbbbbbb bbbbbbbbM0 0M0MMM0000 MM
- 3b D Anish Giri               2783:  10  / 14  =  71%  0.0569  0.1176  94.41  61.2  38.53%  bbbbbbbbbb bbbb00MMMf MMffM0MMM0 M
- 4w D Ian Nepomniachtchi       2763:  8   / 20  =  40%  0.1005  0.1181  88.31  47.8  87.54%  bbbbbbbbbb 000M00M00M 0f0MM0MM00 fM
- 5b D Vladimir Kramnik         2777:  5   / 12  =  42%  0.1540  0.3119  88.15  45.7  34.01%  bbbbbbbbbb bbbbbM0000 0fMMf0MfM0
- 6b L Magnus Carlsen           2835:  14  / 33  =  42%  0.2021  0.4163  85.75  40.6  2.95%   bbbbbbbbbb bbb0MMM000 0MM0000M00 0M0M00M0M0 MMM000Meee
- 7w D R. Rapport               2731:  15  / 28  =  54%  0.0965  0.1429  86.53  48.3  32.96%  bbbbbbbbbb 0MM0MMM0M0 M0M00MM0MM f0000fMM0M
- 8b L Viswanathan Anand        2700:  7   / 16  =  44%  0.1075  0.1464  89.50  50.1  95.85%  bbbbbbbbbb M00M0M0000 MMM0M00e
- 9w D J. Duda                  2738:  10  / 20  =  50%  0.0588  0.0878  93.51  57.6  46.06%  bbbbbbbbbb 0M0MM0M000 0f0MMM0M0M M
-10b D Ding Liren               2813:  9   / 33  =  27%  0.0935  0.1089  90.93  50.2  10.03%  bbbbbbbbb0 MMf0000MM0 M0f00000M0 0M0f000000 000MM
-11w L S. Vidit                 2695:  9   / 19  =  47%  0.1441  0.2154  86.53  43.9  47.14%  bbbbbbbbbb 0MM0M000MM 0MMM000M00
-12b D Jorden Van Foreest       2612:  21  / 29  =  72%  0.0734  0.1474  93.85  59.8  34.27%  bbbbbbbb00 MM00M0MMMM MMMMMMMM0M f0MMfMM0fM
-13w D Vladimir Fedoseev        2724:  2   / 7   =  29%  0.1377  0.1060  84.85  39.9  35.40%  bbbbbbb0M0 000Mfffff
+Shakhriyar Mamedyarov 2817 (Moves=286)
+ 1b D S. Shankland             2725:  15  / 43  =  35%  0.1641  0.2067  88.42  42.2  49.11%  bbbbbbbbb0 M0M0MMM000 0000M0M000 00000M00M0 MMMM0M0000 M0rr
+ 2w D Teimour Radjabov         2757:  7   / 14  =  50%  0.0638  0.0798  93.72  55.7  82.04%  bbbbbbbbbb bbbbbbbbM0 0M0MMM0000 MM
+ 3b D Anish Giri               2783:  10  / 14  =  71%  0.0569  0.1176  95.48  61.1  38.53%  bbbbbbbbbb bbbb00MMMf MMffM0MMM0 M
+ 4w D Ian Nepomniachtchi       2763:  8   / 19  =  42%  0.0843  0.0956  92.39  51.5  73.54%  bbbbbbbbbb 000M00Mr0M 0f0MM0MM00 fM
+ 5b D Vladimir Kramnik         2777:  5   / 12  =  42%  0.1540  0.3119  90.23  45.6  28.27%  bbbbbbbbbb bbbbbM0000 0fMMf0MfM0
+ 6b L Magnus Carlsen           2835:  14  / 34  =  41%  0.2077  0.4112  87.87  39.7  1.17%   bbbbbbbbbb bbb0MMM000 0MM0000M00 0M0M00M0M0 MMM000Meee
+ 7w D R. Rapport               2731:  15  / 28  =  54%  0.0965  0.1429  89.11  48.3  32.02%  bbbbbbbbbb 0MM0MMM0M0 M0M00MM0MM f0000fMM0M
+ 8b L Viswanathan Anand        2700:  7   / 17  =  41%  0.1506  0.2273  90.76  46.4  18.53%  bbbbbbbbbb M00M0M0000 MMM0M00e
+ 9w D J. Duda                  2738:  7   / 16  =  44%  0.0710  0.0943  93.88  54.5  46.03%  bbbbbbbbbb 0M0MM0M000 0f0MMM0rrr r
+10b D Ding Liren               2813:  9   / 33  =  27%  0.0935  0.1089  92.75  50.4  9.58%   bbbbbbbbb0 MMf0000MM0 M0f00000M0 0M0f000000 000MM
+11w L S. Vidit                 2695:  9   / 20  =  45%  0.1846  0.2770  88.17  39.5  0.82%   bbbbbbbbbb 0MM0M000MM 0MMM000M00
+12b D Jorden Van Foreest       2612:  21  / 29  =  72%  0.0734  0.1474  94.68  59.3  35.82%  bbbbbbbb00 MM00M0MMMM MMMMMMMM0M f0MMfMM0fM
+13w D Vladimir Fedoseev        2724:  2   / 7   =  29%  0.1377  0.1060  88.04  40.3  33.37%  bbbbbbb0M0 000Mfffrr
 -------------------------
-Teimour Radjabov 2757 (Moves=284)
- 1w D Vladimir Kramnik         2777:  14  / 26  =  54%  0.1116  0.1753  85.11  47.8  20.76%  bbbbbbbbbb bbb0000M00 MMMMMM000M 0MfMMeMee0 0MM
- 2b D Shakhriyar Mamedyarov    2817:  5   / 11  =  45%  0.1473  0.2652  86.99  46.5  92.27%  bbbbbbbbbb bbbbbbbb00 f00fMMMM00 fM
- 3w D R. Rapport               2731:  7   / 17  =  41%  0.1414  0.2005  85.99  44.9  72.30%  bbbbbbbbbb M00f0fM000 00MMfMMM0f f0
- 4b D Viswanathan Anand        2700:  7   / 17  =  41%  0.1288  0.1695  88.26  48.3  92.91%  bbbbbbbbbb bbb00MM000 00M0MMMM00
- 5w D J. Duda                  2738:  8   / 19  =  42%  0.0678  0.0899  89.55  53.1  71.53%  bbbbbbbbbM 0MMM0000MM e0f0000M0M
- 6b D Ding Liren               2813:  38  / 57  =  67%  0.0601  0.1150  93.71  61.7  36.40%  bbbbbbbbbb bbb00MMfM0 0MMM0M0000 00MM00MMMM MMMM0M0M0f M00fMM0MMM
-                                                                                             MfMMMMMMMM MMMM
- 7w W S. Vidit                 2695:  4   / 9   =  44%  0.1193  0.1873  84.62  45.5  53.13%  bbbbbbbb0M 0M00M0fMee eeeeeeeeee eeeeee
- 8b D Jorden Van Foreest       2612:  2   / 3   =  67%  0.0799  0.1384  92.72  59.4  38.82%  bbbbbbbbbb bbb0MM
- 9w L Vladimir Fedoseev        2724:  38  / 72  =  53%  0.0829  0.1126  90.01  54.1  93.81%  bbbbbbbb00 00MM0MM000 M00000fM00 000MM00M0M 00M0M00M00 0MMMMMMMMM
+Teimour Radjabov 2757 (Moves=279)
+ 1w D Vladimir Kramnik         2777:  14  / 26  =  54%  0.1116  0.1753  87.78  47.7  16.76%  bbbbbbbbbb bbb0000M00 MMMMMM000M 0MfMMeMee0 0MM
+ 2b D Shakhriyar Mamedyarov    2817:  5   / 11  =  45%  0.1473  0.2652  88.81  46.0  94.20%  bbbbbbbbbb bbbbbbbb00 f00fMMMM00 fM
+ 3w D R. Rapport               2731:  7   / 17  =  41%  0.1414  0.2005  88.81  45.1  61.59%  bbbbbbbbbb M00f0fM000 00MMfMMM0f f0
+ 4b D Viswanathan Anand        2700:  7   / 17  =  41%  0.1288  0.1695  90.67  48.7  83.75%  bbbbbbbbbb bbb00MM000 00M0MMMM00
+ 5w D J. Duda                  2738:  7   / 18  =  39%  0.0716  0.0909  91.04  51.7  53.44%  bbbbbbbbbM 0MMM0000MM e0f0000M0r
+ 6b D Ding Liren               2813:  35  / 54  =  65%  0.0634  0.1173  94.80  61.0  44.18%  bbbbbbbbbb bbb00MMfM0 0MMM0M0000 00MM00MMMM MMMM0M0M0f M00fMM0Mrr
+                                                                                             MfrMMMMMMM MMMM
+ 7w W S. Vidit                 2695:  4   / 9   =  44%  0.1193  0.1873  87.84  45.9  66.42%  bbbbbbbb0M 0M00M0fMee eeeeeeeeee eeeeee
+ 8b D Jorden Van Foreest       2612:  2   / 3   =  67%  0.0799  0.1384  94.13  59.4  37.84%  bbbbbbbbbb bbb0MM
+ 9w L Vladimir Fedoseev        2724:  38  / 73  =  52%  0.0959  0.1617  92.52  53.7  58.47%  bbbbbbbb00 00MM0MM000 M00000fM00 000MM00M0M 00M0M00Mr0 0MMMMMMMMM
                                                                                              0MMMMM0MM0 MMMM0MMMMM 000e
-10b D S. Shankland             2725:  9   / 15  =  60%  0.0930  0.1417  91.97  56.9  63.81%  bbbbbbbbbb bbb00MM0M0 00MMMMMMff
-11w D Magnus Carlsen           2835:  3   / 11  =  27%  0.1628  0.1399  81.83  37.6  35.98%  bbbbbbbbbb bbbbMM00M0 00000
-12w D Anish Giri               2783:  9   / 18  =  50%  0.0577  0.0753  91.79  57.0  79.98%  bbbbbbbbbb bbM0M0M00M 0MMfM0M0f0 M0
-13b D Ian Nepomniachtchi       2763:  7   / 9   =  78%  0.0291  0.0838  97.70  69.1  3.48%   bbbbbbbbbb bbb0MM0MMM MM
+10b D S. Shankland             2725:  9   / 15  =  60%  0.0930  0.1417  93.62  57.1  56.71%  bbbbbbbbbb bbb00MM0M0 00MMMMMMff
+11w D Magnus Carlsen           2835:  3   / 9   =  33%  0.1440  0.1356  87.11  41.9  70.21%  bbbbbbbbbb bbbbMM00M0 000rr
+12w D Anish Giri               2783:  9   / 18  =  50%  0.0577  0.0753  93.62  57.1  79.87%  bbbbbbbbbb bbM0M0M00M 0MMfM0M0f0 M0
+13b D Ian Nepomniachtchi       2763:  7   / 9   =  78%  0.0291  0.0838  98.15  68.9  3.74%   bbbbbbbbbb bbb0MM0MMM MM
 -------------------------
-Viswanathan Anand 2700 (Moves=308)
- 1b W Jorden Van Foreest       2612:  3   / 15  =  20%  0.1313  0.1070  85.29  42.1  5.75%   bbbbb0000f M00000000M Meeeeeee
- 2w D Vladimir Fedoseev        2724:  8   / 16  =  50%  0.0583  0.0777  92.71  57.8  65.48%  bbbbbbbbbb bbbbbbb000 0MM0M00M0M MMMf
- 3b D S. Shankland             2725:  12  / 23  =  52%  0.1427  0.2000  87.65  48.4  80.15%  bbbbbbbbb0 MM0MM00M00 M0M0M00MfM Mf0M
- 4w D Teimour Radjabov         2757:  4   / 16  =  25%  0.1112  0.1217  85.44  44.0  28.26%  bbbbbbbbbb bbb0MM0fM0 00000M0000
- 5b D Anish Giri               2783:  5   / 13  =  38%  0.1492  0.2041  85.02  43.4  74.21%  bbbbbbb00M 0MM000Mf00 M
- 6w D Ian Nepomniachtchi       2763:  2   / 11  =  18%  0.1250  0.1456  83.94  40.7  10.01%  bbbbbbbbbb bMM0000000 00
- 7b W Vladimir Kramnik         2777:  18  / 43  =  42%  0.1135  0.1610  85.67  46.8  16.09%  bbbbbbb00M M0M0M0000M MMMMM00000 0M00M0M000 00MM000MMM eeeeeee
- 8w W Shakhriyar Mamedyarov    2817:  11  / 16  =  69%  0.0682  0.1138  92.14  59.3  25.72%  bbbbbbbbbb M00MMMMM0M MM0M0Meee
- 9b D R. Rapport               2731:  13  / 30  =  43%  0.1317  0.1623  88.85  49.0  81.39%  bbbbbbbbbb 00000M0M0M 00MMMM000f 00MM00MMM0 M
-10b L Magnus Carlsen           2835:  36  / 67  =  54%  0.0586  0.0941  94.03  60.2  53.96%  bbbbbb000M 0M000000MM MMMMM0M0MM MMMMM00M0M M0M00MMM00 00M0MM000M
+Viswanathan Anand 2700 (Moves=307)
+ 1b W Jorden Van Foreest       2612:  3   / 15  =  20%  0.1313  0.1070  88.49  43.0  7.36%   bbbbb0000f M00000000M Meeeeeee
+ 2w D Vladimir Fedoseev        2724:  8   / 16  =  50%  0.0583  0.0777  94.40  57.9  62.66%  bbbbbbbbbb bbbbbbb000 0MM0M00M0M MMMf
+ 3b D S. Shankland             2725:  12  / 23  =  52%  0.1427  0.2000  89.93  48.6  75.48%  bbbbbbbbb0 MM0MM00M00 M0M0M00MfM Mf0M
+ 4w D Teimour Radjabov         2757:  4   / 16  =  25%  0.1112  0.1217  88.64  44.5  29.31%  bbbbbbbbbb bbb0MM0fM0 00000M0000
+ 5b D Anish Giri               2783:  5   / 13  =  38%  0.1492  0.2041  88.09  44.1  85.66%  bbbbbbb00M 0MM000Mf00 M
+ 6w D Ian Nepomniachtchi       2763:  2   / 11  =  18%  0.1250  0.1456  87.48  41.3  10.51%  bbbbbbbbbb bMM0000000 00
+ 7b W Vladimir Kramnik         2777:  18  / 43  =  42%  0.1135  0.1610  88.33  47.1  16.19%  bbbbbbb00M M0M0M0000M MMMMM00000 0M00M0M000 00MM000MMM eeeeeee
+ 8w W Shakhriyar Mamedyarov    2817:  11  / 16  =  69%  0.0682  0.1138  93.67  59.2  25.68%  bbbbbbbbbb M00MMMMM0M MM0M0Meee
+ 9b D R. Rapport               2731:  13  / 30  =  43%  0.1317  0.1623  90.98  49.2  70.56%  bbbbbbbbbb 00000M0M0M 00MMMM000f 00MM00MMM0 M
+10b L Magnus Carlsen           2835:  36  / 68  =  53%  0.0729  0.1506  95.02  58.9  47.47%  bbbbbb000M 0M000000MM MMMMM0M0MM MMMMM00M0M M0M00MMM00 00M0MM000M
                                                                                              M000MMMMM0 MM00t
-11w D J. Duda                  2738:  5   / 15  =  33%  0.1164  0.1368  84.92  44.3  59.37%  bbbbbbbbbb bbbb0f0M0M 0f0MMM0000 0
-12b D Ding Liren               2813:  16  / 26  =  62%  0.1013  0.1738  90.69  55.4  64.24%  bbbbbbbbbb 0M000MMMfM 0000MM0Mff MMM0MMMMM
-13w D S. Vidit                 2695:  6   / 17  =  35%  0.1471  0.1589  81.94  39.8  33.76%  bbbbbbbbbb bbb0000M00 0M000MMM0M
+11w D J. Duda                  2738:  5   / 15  =  33%  0.1164  0.1368  88.19  44.9  66.80%  bbbbbbbbbb bbbb0f0M0M 0f0MMM0000 0
+12b D Ding Liren               2813:  15  / 25  =  60%  0.1053  0.1761  92.29  54.8  68.48%  bbbbbbbbbb 0M000MMMfM 0000MM0Mff MMM0MMMMr
+13w D S. Vidit                 2695:  5   / 16  =  31%  0.1563  0.1593  84.59  38.0  24.41%  bbbbbbbbbb bbb0000M00 0M000MMM0r
 -------------------------
-Vladimir Fedoseev 2724 (Moves=436)
- 1w D R. Rapport               2731:  12  / 25  =  48%  0.0879  0.1264  87.61  50.8  72.10%  bbbbbbbbbb bM000MM0M0 M0000000fM ffMMMMMM0
- 2b D Viswanathan Anand        2700:  7   / 16  =  44%  0.1365  0.1559  88.92  48.8  66.98%  bbbbbbbbbb bbbbbb0M00 00000MMM0M MffM
- 3w L J. Duda                  2738:  10  / 23  =  43%  0.1933  0.2242  81.60  37.7  18.78%  bbbbbbb00M M0M0M00M00 M00000fMMf MM0efe
- 4b D Ding Liren               2813:  6   / 31  =  19%  0.1669  0.1530  85.84  40.4  5.41%   bbbbbbbbbb 0000f0MMM0 0000M0M000 0000000000 0M
- 5w D S. Vidit                 2695:  26  / 55  =  47%  0.1345  0.2409  87.17  47.3  65.00%  bbbbbbbbbM MMf000M000 0M0M00MfM0 00M0fMMMM0 0MM0f00000 00M0MMf0M0
-                                                                                             0f0fMMfMfM MMMf
- 6b L Jorden Van Foreest       2612:  18  / 34  =  53%  0.1942  0.3516  83.22  40.9  16.81%  bbbb000M0M M00fMMMM0M MM0MfMMee0 0000M0ffMM 0MMf0
- 7w D Magnus Carlsen           2835:  21  / 35  =  60%  0.0704  0.1166  90.52  56.4  59.70%  bbbbbbbbbb M0000MMMM0 0M0MMMMfM0 00MMMMMMMM 0M000Mtttt tttttttttt
+Vladimir Fedoseev 2724 (Moves=429)
+ 1w D R. Rapport               2731:  11  / 23  =  48%  0.0737  0.0951  91.43  53.3  80.71%  bbbbbbbbbb bM000MM0M0 M0000000fM ffMMMMMrr
+ 2b D Viswanathan Anand        2700:  7   / 16  =  44%  0.1365  0.1559  91.07  49.0  51.78%  bbbbbbbbbb bbbbbb0M00 00000MMM0M MffM
+ 3w L J. Duda                  2738:  10  / 24  =  42%  0.2203  0.2561  85.35  36.2  0.37%   bbbbbbb00M M0M0M00M00 M00000fMMf MM0efe
+ 4b D Ding Liren               2813:  6   / 30  =  20%  0.1669  0.1557  88.31  40.5  5.78%   bbbbbbbbbb 0000f0MMM0 0000M0M000 0r00000000 0M
+ 5w D S. Vidit                 2695:  26  / 52  =  50%  0.1347  0.2460  89.36  47.4  63.30%  bbbbbbbbbM MMf000M000 0M0M00MfM0 00M0fMMMM0 0MM0f00000 rrM0MMfrM0
+                                                                                             0f0fMMfMrM MMMf
+ 6b L Jorden Van Foreest       2612:  18  / 34  =  53%  0.1942  0.3516  85.45  40.3  14.67%  bbbb000M0M M00fMMMM0M MM0MfMMee0 0000M0ffMM 0MMf0
+ 7w D Magnus Carlsen           2835:  21  / 34  =  62%  0.0704  0.1183  92.64  56.9  54.20%  bbbbbbbbbb M0000MMMM0 0M0MMMMfM0 00MMMMMMMM 0M0r0Mtttt tttttttttt
                                                                                              tttttttttt tttt
- 8w W S. Shankland             2725:  17  / 31  =  55%  0.1011  0.1776  86.68  50.1  42.83%  bbbbMMMMM0 M000Mf00M0 00M00000MM MMfMMMeMee eeeeeeeeee ee
- 9b W Teimour Radjabov         2757:  34  / 68  =  50%  0.1054  0.1827  91.47  54.2  64.87%  bbbbbbbbM0 MM0f0M00MM 000M00M000 0M0M0MMM00 00MM0M0MM0 M00fM00M0M
-                                                                                             fMMMMM00MM M00M00MMfM feee
-10w L Anish Giri               2783:  14  / 28  =  50%  0.1211  0.2006  87.57  48.9  86.53%  bbbbbbbbb0 M000M00MMM 00MM00M0MM MMM0M0000e e
-11b L Ian Nepomniachtchi       2763:  14  / 37  =  38%  0.2017  0.3290  84.41  39.4  15.61%  bbbbb00M00 0MM000000M 0M0ffMMM0M 0000MMMM00 00Me0feee
-12w L Vladimir Kramnik         2777:  20  / 43  =  47%  0.1384  0.2446  87.23  47.0  51.26%  bbbbbbbbbb b00MM00000 00MMMM0MMM 00M0000M00 MfffM0fMfM MffffM0fMf
+ 8w W S. Shankland             2725:  17  / 31  =  55%  0.1011  0.1776  89.54  50.4  55.48%  bbbbMMMMM0 M000Mf00M0 00M00000MM MMfMMMeMee eeeeeeeeee ee
+ 9b W Teimour Radjabov         2757:  33  / 66  =  50%  0.1077  0.1849  92.98  54.0  56.62%  bbbbbbbbM0 MM0f0M00MM 000M00M000 0M0M0MMM00 00MM0M0Mr0 M00fM00M0M
+                                                                                             fMMMMM00MM M0rM00MMfM feee
+10w L Anish Giri               2783:  14  / 30  =  47%  0.1480  0.2345  89.54  46.3  19.99%  bbbbbbbbb0 M000M00MMM 00MM00M0MM MMM0M0000e e
+11b L Ian Nepomniachtchi       2763:  14  / 37  =  38%  0.2017  0.3290  86.47  38.8  21.66%  bbbbb00M00 0MM000000M 0M0ffMMM0M 0000MMMM00 00Me0feee
+12w L Vladimir Kramnik         2777:  19  / 43  =  44%  0.2163  0.5466  88.70  40.6  0.00%*  bbbbbbbbbb b00MM00000 00MMMM0MMM 00M0000M00 MfffM0frfM MfffrM0fMf
                                                                                              f00Mf00Mf
-13b D Shakhriyar Mamedyarov    2817:  8   / 10  =  80%  0.0792  0.1715  91.72  60.4  2.42%   bbbbbbb0MM MMMMMfMf0
+13b D Shakhriyar Mamedyarov    2817:  8   / 9   =  89%  0.0347  0.1042  97.65  69.5  0.37%   bbbbbbb0MM MMMMMfMrr
 -------------------------
-Vladimir Kramnik 2777 (Moves=443)
- 1b D Teimour Radjabov         2757:  14  / 28  =  50%  0.1545  0.2407  86.26  46.0  77.60%  bbbbbbbbbb bbMM0000M0 M0000MMM00 MM000MMMMf fM
- 2w L Anish Giri               2783:  5   / 27  =  19%  0.2592  0.3058  73.58  22.3* 0.33%   bbbbbbbbbb 00M0000M00 M0M0000000 00000Me00e ee
- 3b L Ian Nepomniachtchi       2763:  10  / 22  =  45%  0.1698  0.3692  87.78  45.8  15.17%  bbbbbbbbbb bbM0MMM000 00M0MM0M00 M00M0
- 4b D Magnus Carlsen           2835:  25  / 45  =  56%  0.1048  0.1864  91.19  54.8  74.22%  bbbbbbbbb0 0000000MMM M0MfM00M00 M0MMM000MM MMM0fM0MMM MM0MMM
- 5w D Shakhriyar Mamedyarov    2817:  4   / 16  =  25%  0.1082  0.0920  88.42  47.0  10.38%  bbbbbbbbbb bbbbb0000M M00000M00M 0
- 6b D R. Rapport               2731:  20  / 55  =  36%  0.1517  0.2441  85.58  43.5  80.73%  bbbbbb0000 000f0MM0MM 00000MM00f M00M00000M M0M00M0M0M M00M0M0MM0
+Vladimir Kramnik 2777 (Moves=450)
+ 1b D Teimour Radjabov         2757:  14  / 27  =  52%  0.1490  0.2435  88.48  46.5  73.38%  bbbbbbbbbb bbMM0000M0 M0000MMM0r MM000MMMMf fM
+ 2w L Anish Giri               2783:  5   / 28  =  18%  0.2536  0.3015  77.67  22.1* 0.21%   bbbbbbbbbb 00M0000M00 M0M0000000 00000Me00e ee
+ 3b L Ian Nepomniachtchi       2763:  10  / 23  =  43%  0.2356  0.4793  89.57  41.0  0.00%*  bbbbbbbbbb bbM0MMM000 00M0MM0M00 M00M0
+ 4b D Magnus Carlsen           2835:  25  / 45  =  56%  0.1048  0.1864  92.82  54.8  69.93%  bbbbbbbbb0 0000000MMM M0MfM00M00 M0MMM000MM MMM0fM0MMM MM0MMM
+ 5w D Shakhriyar Mamedyarov    2817:  4   / 16  =  25%  0.1082  0.0920  91.00  47.3  8.19%   bbbbbbbbbb bbbbb0000M M00000M00M 0
+ 6b D R. Rapport               2731:  20  / 55  =  36%  0.1517  0.2441  87.98  43.5  80.20%  bbbbbb0000 000f0MM0MM 00000MM00f M00M00000M M0M00M0M0M M00M0M0MM0
                                                                                              M00ttttttt tttttttttt tttttttttt ttt
- 7w L Viswanathan Anand        2700:  15  / 42  =  36%  0.1495  0.2051  85.36  43.0  51.83%  bbbbbbb000 0MM000M00M 00M00M00M0 00M000M00M M0MMMM000f 0eMeeee
- 8b L J. Duda                  2738:  9   / 20  =  45%  0.2554  0.4478  76.58  29.4* 0.32%   bbbbbbbbbb bb0MMM0000 fM0Mf0eeee e0Mf000M00 M0Mf
- 9w D Ding Liren               2813:  15  / 34  =  44%  0.1938  0.2413  84.03  40.1  3.97%   bbbbbbbbbb MMM0MMMM00 00000MM000 000MM0000M 0MMM
-10b L S. Vidit                 2695:  7   / 14  =  50%  0.2044  0.2714  82.06  38.7  13.86%  bbbbbbbbbb b00M0MM0M0 0MM0Mffe
-11w W Jorden Van Foreest       2612:  23  / 44  =  52%  0.0972  0.1339  88.83  52.0  94.98%  bbbbb0MMM0 000M0MMe0M 0MM00M00MM fM0M00M0M0 00MMMMM00e eeMMfeeeee
+ 7w L Viswanathan Anand        2700:  16  / 44  =  36%  0.1486  0.2022  87.69  42.7  65.16%  bbbbbbb000 0MM000M00M 00M00M00M0 00M000M00M M0MMMM000f 0eMeeee
+ 8b L J. Duda                  2738:  9   / 23  =  39%  0.3131  0.4721  80.80  25.4* 0.00%*  bbbbbbbbbb bb0MMM0000 fM0Mf0eeee e0Mf000M00 M0Mf
+ 9w D Ding Liren               2813:  15  / 34  =  44%  0.1938  0.2413  86.54  39.6  4.02%   bbbbbbbbbb MMM0MMMM00 00000MM000 000MM0000M 0MMM
+10b L S. Vidit                 2695:  7   / 14  =  50%  0.2044  0.2714  85.44  39.2  15.41%  bbbbbbbbbb b00M0MM0M0 0MM0Mffe
+11w W Jorden Van Foreest       2612:  23  / 44  =  52%  0.0972  0.1339  91.25  52.2  93.95%  bbbbb0MMM0 000M0MMe0M 0MM00M00MM fM0M00M0M0 00MMMMM00e eeMMfeeeee
                                                                                              eeeeee
-12b W Vladimir Fedoseev        2724:  28  / 45  =  62%  0.0726  0.1461  91.81  58.4  52.83%  bbbbbbbbbb b00f00M0M0 MMMMMMMMe0 MMfMf000e0 MMMMMeMeeM MMMfMffe00
+12b W Vladimir Fedoseev        2724:  27  / 44  =  61%  0.0742  0.1474  92.74  57.4  44.09%  bbbbbbbbbb b00f00M0M0 MMMMMMMMe0 MMfMf000e0 MMMMMeMeeM MMMfrffe00
                                                                                              M000MMM0t
-13w L S. Shankland             2725:  17  / 51  =  33%  0.1603  0.2348  83.81  40.5  51.20%  bbbbbb00MM 0000000M0M 0000M0MM00 M0MMM00MMf 000000fMM0 0000000MeM
+13w L S. Shankland             2725:  17  / 53  =  32%  0.2308  0.5330  86.26  35.2  0.00%*  bbbbbb00MM 0000000M0M 0000M0MM00 M0MMM00MMf 000000fMM0 0000000MeM
                                                                                              0ee0ee
 -------------------------

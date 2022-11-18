@@ -7,10 +7,8 @@ from func import get_conf, get_config
 import sections
 from queries import get_evid, get_plid, get_srcid
 
-
-# TODO: Add Mahalanobis p-value to the report alongside ROI
 # TODO: Devise way to pass a PGN file and output the results
-# TODO: Additional move exclusions; repetitions primarily
+# TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources?
 
 
 def main():
