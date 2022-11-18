@@ -8,6 +8,7 @@ import queries as q
 
 # TODO: Review delete process when customizing paramters
 # TODO: Look into adding covariance table write for Evaluation
+# TODO: Considering looping through multiple sources
 
 
 def validate_args(config):
@@ -35,13 +36,11 @@ def validate_args(config):
 
     # update dictionary
     if 'Control' in config['src']:
-        rmv_tc = ['Rapid']
+        rmv_tc = ['Bullet', 'Blitz', 'Rapid']
         config['timecontrol']['Control'] = [e for e in config['timecontrol']['Control'] if e not in rmv_tc]
         config['rating']['Control'] = [e for e in config['rating']['Control'] if e < 2900]
 
     if 'Lichess' in config['src']:
-        rmv_tc = ['Correspondence']
-        config['timecontrol']['Lichess'] = [e for e in config['timecontrol']['Lichess'] if e not in rmv_tc]
         config['rating']['Lichess'] = [e for e in config['rating']['Lichess'] if e >= 2200]
 
     return config
