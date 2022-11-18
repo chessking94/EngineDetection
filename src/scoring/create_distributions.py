@@ -38,13 +38,13 @@ def main():
     )
     parser.add_argument(
         '-s', '--source',
-        default='Control',
+        default='Lichess',
         choices=SRC_CHOICES,
         help='Data source'
     )
     parser.add_argument(
         '-t', '--timecontrol',
-        default='Classical',
+        default='Rapid',
         choices=TC_CHOICES,
         help='Time control'
     )
@@ -59,18 +59,18 @@ def main():
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
-        "Rapid": {'Mean': 0.19, 'StDev': 4.47},
-        'Classical': {'Mean': 0.35, 'StDev': 1.85},
-        # 'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        'Classical': {'Mean': 0.08, 'StDev': 2.43},
+        # 'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
 
     perol = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        "Bullet": {'Mean': 0.19, 'StDev': 4.47},
-        "Blitz": {'Mean': 0.19, 'StDev': 4.47},
-        "Rapid": {'Mean': 0.19, 'StDev': 4.47},
-        'Classical': {'Mean': 0.35, 'StDev': 1.85},
-        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+        "Bullet": {'Mean': 0.11, 'StDev': 3.86},
+        "Blitz": {'Mean': 0.11, 'StDev': 3.86},
+        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        'Classical': {'Mean': 0.08, 'StDev': 2.43},
+        'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
 
     ctrl = {
@@ -78,26 +78,26 @@ def main():
         # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
         # "Rapid": {'Mean': 0.00, 'StDev': 0.00},
-        'Classical': {'Mean': 0.35, 'StDev': 1.85},
-        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+        'Classical': {'Mean': 0.08, 'StDev': 2.43},
+        'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
 
     lc = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
-        'Rapid': {'Mean': 0.19, 'StDev': 4.47},
-        'Classical': {'Mean': 0.15, 'StDev': 3.88},
-        # "Correspondence": {'Mean': 0.34, 'StDev': 2.55}
+        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        'Classical': {'Mean': 0.14, 'StDev': 3.33},
+        "Correspondence": {'Mean': 0.17, 'StDev': 2.59}
     }
 
     tst = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
-        "Rapid": {'Mean': 0.35, 'StDev': 1.85},
-        'Classical': {'Mean': 0.35, 'StDev': 1.85},
-        'Correspondence': {'Mean': 0.34, 'StDev': 2.55}
+        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        'Classical': {'Mean': 0.08, 'StDev': 2.43},
+        'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
 
     dist_dict = {'Personal': per, 'PersonalOnline': perol, 'Control': ctrl, 'Lichess': lc, 'Test': tst}
@@ -118,7 +118,7 @@ AND t.TimeControlName = '{tc}'
     srcid, tcid = pd.read_sql(qry_text, conn).values[0].tolist()
 
     csr = conn.cursor()
-    sql_del = f'DELETE FROM ChessWarehouse.stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
+    sql_del = f'DELETE FROM stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
     logging.debug(f'Delete query|{sql_del}')
     csr.execute(sql_del)
     conn.commit()
@@ -132,7 +132,7 @@ AND t.TimeControlName = '{tc}'
         pdf_val = NormalDist(mu=m, sigma=sd).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
         cdf_val = NormalDist(mu=m, sigma=sd).cdf(x)
 
-        sql_cmd = 'INSERT INTO ChessWarehouse.stat.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
+        sql_cmd = 'INSERT INTO stat.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
         sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {pdf_val}, {cdf_val})'
         logging.debug(f'Insert query|{sql_cmd}')
         csr.execute(sql_cmd)
