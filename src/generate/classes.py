@@ -42,7 +42,7 @@ class aggregator:
             mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
         else:
             ct = 0
             av = 'NULL'
@@ -71,7 +71,7 @@ class aggregator:
             mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
             csr = self.conn.cursor()
             dfcov = data.cov()
@@ -117,7 +117,7 @@ class aggregator:
             mx = max(data_arr)
 
             ci_max = 100 - self.ci_min
-            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.percentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
+            lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
             if fld == 'Score' and qtr3 > 100:
                 qtr3 = 100
