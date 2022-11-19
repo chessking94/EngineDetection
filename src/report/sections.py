@@ -415,7 +415,7 @@ class general:
         self.rpt.write('ROI:'.ljust(PK_LEN, ' '))
         self.rpt.write('Raw Outlier Index; standardized value where 50 represents the mean for that rating level and each increment of 5 is one standard deviation' + NL)
         self.rpt.write('PValue:'.ljust(PK_LEN, ' '))
-        self.rpt.write('Statistic associated with the Mahalanobis distance of the test point (T1, ScACPL, Score)' + NL)
+        self.rpt.write('Chi-square statistic associated with the Mahalanobis distance of the test point (T1, ScACPL, Score)' + NL)
         self.rpt.write(' '*PK_LEN + 'An asterisk (*) following any statistic indicates an outlier that should be reviewed more closely' + NL)
         self.rpt.write(NL)
 
@@ -423,7 +423,7 @@ class general:
         self.rpt.write('GAME KEY' + NL)
         self.rpt.write('-'*100 + NL)
         self.rpt.write('(Player Name) (Elo) (Scored Moves)' + NL)
-        self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (P-Value) (game trace)' + NL)
+        self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (PValue) (game trace)' + NL)
         self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead; ')
         self.rpt.write('t = Tablebase hit; f = Forced move; r = Repeated move' + NL)
         # self.rpt.write('t = Tablebase hit, f = forced move, r = move included in a repetition' + NL)
