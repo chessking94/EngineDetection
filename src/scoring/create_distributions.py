@@ -66,8 +66,8 @@ def main():
 
     perol = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        "Bullet": {'Mean': 0.11, 'StDev': 3.86},
-        "Blitz": {'Mean': 0.11, 'StDev': 3.86},
+        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
+        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
         'Rapid': {'Mean': 0.11, 'StDev': 3.86},
         'Classical': {'Mean': 0.08, 'StDev': 2.43},
         'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
@@ -84,8 +84,8 @@ def main():
 
     lc = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
-        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
+        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
         'Rapid': {'Mean': 0.11, 'StDev': 3.86},
         'Classical': {'Mean': 0.14, 'StDev': 3.33},
         "Correspondence": {'Mean': 0.17, 'StDev': 2.59}
@@ -93,8 +93,8 @@ def main():
 
     tst = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
-        # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
+        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
+        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
         'Rapid': {'Mean': 0.11, 'StDev': 3.86},
         'Classical': {'Mean': 0.08, 'StDev': 2.43},
         'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
@@ -109,8 +109,8 @@ def main():
 SELECT
 SourceID,
 TimeControlID
-FROM ChessWarehouse.dim.Sources s
-CROSS APPLY ChessWarehouse.dim.TimeControls t
+FROM dim.Sources s
+CROSS APPLY dim.TimeControls t
 WHERE s.SourceName = '{src}'
 AND t.TimeControlName = '{tc}'
 """
