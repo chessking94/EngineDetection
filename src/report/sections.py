@@ -110,7 +110,13 @@ class report:
             score = '{:.2f}'.format(rss[0][0])
         self.rpt.write(score + NL)
 
-        z_qry = qry.zscore_data(agg='Event', srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt)
+        if self.comp_tcid not in [5, 6]:
+            key_tcid = 5
+        else:
+            key_tcid = self.comp_tcid
+
+        # hard-coding sourceID since Lichess doesn't have event stats
+        z_qry = qry.zscore_data(agg='Event', srcid=3, tcid=key_tcid, rating=rt)
         z_rs = pd.read_sql(z_qry, self.conn)
         z_rs = z_rs.set_index('MeasurementName')
 
@@ -126,7 +132,8 @@ class report:
         self.rpt.write(roi + NL)
 
         test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], rss[0][0]]
-        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg='Event', rating=rt, tcid=self.comp_tcid)
+        # hard-coding sourceID since Lichess doesn't have event stats
+        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid)
 
         if self.typ == 'Event':
             self.rpt.write('Overall event PValue:'.ljust(EV_LEN, ' '))
@@ -221,7 +228,13 @@ class report:
                 score = '{:.2f}'.format(player['Score'])
             self.rpt.write(score.ljust(score_len, ' '))
 
-            z_qry = qry.zscore_data(agg=agg_typ, srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt)
+            if self.comp_tcid not in [5, 6]:
+                sum_tcid = 5
+            else:
+                sum_tcid = self.comp_tcid
+
+            # hard-coding sourceID since Lichess doesn't have event stats
+            z_qry = qry.zscore_data(agg=agg_typ, srcid=3, tcid=sum_tcid, rating=rt)
             z_rs = pd.read_sql(z_qry, self.conn)
             z_rs = z_rs.set_index('MeasurementName')
 
@@ -232,7 +245,8 @@ class report:
             self.rpt.write(roi.ljust(roi_len, ' '))
 
             test_arr = [player['EVM']/player['ScoredMoves'], player['ACPL'], player['Score']]
-            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid)
+            # hard-coding sourceID since Lichess doesn't have event stats
+            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
             self.rpt.write(pval.ljust(pval_len, ' '))
 
             oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -264,7 +278,7 @@ class report:
 
             # opp p-value
             opp_test_arr = [player['OppEVM']/player['OppScoredMoves'], player['OppACPL'], player['OppScore']]
-            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid)
+            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
             self.rpt.write(opppval.ljust(pval_len, ' '))
 
             self.rpt.write(NL)
