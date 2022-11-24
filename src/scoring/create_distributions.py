@@ -59,16 +59,16 @@ def main():
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Bullet": {'Mean': 0.00, 'StDev': 0.00},
         # "Blitz": {'Mean': 0.00, 'StDev': 0.00},
-        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        'Rapid': {'Mean': 0.11, 'StDev': 3.87},
         'Classical': {'Mean': 0.08, 'StDev': 2.43},
         # 'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
 
     perol = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
-        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
-        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        "Bullet": {'Mean': 0.1, 'StDev': 7.96},
+        "Blitz": {'Mean': 0.07, 'StDev': 6.16},
+        'Rapid': {'Mean': 0.11, 'StDev': 3.87},
         'Classical': {'Mean': 0.08, 'StDev': 2.43},
         'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
@@ -84,18 +84,18 @@ def main():
 
     lc = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
-        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
-        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        "Bullet": {'Mean': 0.1, 'StDev': 7.96},
+        "Blitz": {'Mean': 0.07, 'StDev': 6.16},
+        'Rapid': {'Mean': 0.11, 'StDev': 3.87},
         'Classical': {'Mean': 0.14, 'StDev': 3.33},
         "Correspondence": {'Mean': 0.17, 'StDev': 2.59}
     }
 
     tst = {
         # "UltraBullet": {'Mean': 0.00, 'StDev': 0.00},
-        "Bullet": {'Mean': 0.15, 'StDev': 3.31},
-        "Blitz": {'Mean': 0.11, 'StDev': 3.87},
-        'Rapid': {'Mean': 0.11, 'StDev': 3.86},
+        "Bullet": {'Mean': 0.1, 'StDev': 7.96},
+        "Blitz": {'Mean': 0.07, 'StDev': 6.16},
+        'Rapid': {'Mean': 0.11, 'StDev': 3.87},
         'Classical': {'Mean': 0.08, 'StDev': 2.43},
         'Correspondence': {'Mean': 0.00, 'StDev': 1.89}
     }
