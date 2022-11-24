@@ -373,10 +373,8 @@ class general:
             self.rpt.write('Games Between:'.ljust(HDR_LEN, ' ') + startdate + ' - ' + enddate + NL)
         self.rpt.write(NL)
 
-    def header_info(self, pgn, engine, depth):
+    def header_info(self, engine, depth):
         dte = dt.datetime.now().strftime('%m/%d/%Y')
-        if pgn:
-            self.rpt.write('File Name:'.ljust(HDR_LEN, ' ') + pgn + NL)
         self.rpt.write('Engine Name:'.ljust(HDR_LEN, ' ') + engine + NL)
         self.rpt.write('Depth:'.ljust(HDR_LEN, ' ') + str(depth) + NL)
         self.rpt.write('Report Date:'.ljust(HDR_LEN, ' ') + dte + NL)

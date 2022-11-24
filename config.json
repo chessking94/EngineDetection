@@ -7,8 +7,6 @@
 	"lastName": "Carlsen",
 	"startDate": "01/01/2019",
 	"endDate": "12/31/2019",
-	"useDatabase": true,
-	"pgnName": "EEH_Online_202209.pgn",
 	"enginePath": "C:/Users/eehunt/Documents/Chess/ENGINES",
 	"engineName": "stockfish_14.1_x64.exe",
 	"depth": 11,

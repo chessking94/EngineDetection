@@ -7,8 +7,8 @@ from func import get_conf, get_config
 import sections
 from queries import get_evid, get_plid, get_srcid
 
-# TODO: Devise way to pass a PGN file and output the results
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources?
+# TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
 
 
 def main():
@@ -27,9 +27,6 @@ def main():
     src = get_config(config_path, 'reportSource')
     srcid = get_srcid(conn, src)
     rpt = get_config(config_path, 'reportType')
-
-    db = get_config(config_path, 'useDatabase')
-    pgn_name = None if db else get_config(config_path, 'pgnName')
 
     engine_name = get_config(config_path, 'engineName')
     depth = get_config(config_path, 'depth')
@@ -65,7 +62,7 @@ def main():
         r = sections.report(rf, rpt, conn, evid, plid, start_date, end_date)
 
         g.header_type(rpt, conn, ev, full_name, start_date, end_date)
-        g.header_info(pgn_name, engine_name, depth)
+        g.header_info(engine_name, depth)
         g.scoring_desc(conn)
         r.key_stats()
         g.player_key()
