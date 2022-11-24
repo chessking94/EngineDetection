@@ -97,6 +97,10 @@ def main():
     job_name = 'Recalculate Fact Table Z-Scores'
     run_job(job_name, conn, csr)
 
+    # step 5: SQL job "Index Maintenance.Subplan_1"
+    job_name = 'Index Maintenance.Subplan_1'
+    run_job(job_name, conn, csr)
+
     conn.close()
 
 
