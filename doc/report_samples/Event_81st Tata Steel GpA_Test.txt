@@ -1,13 +1,17 @@
 ----------------------------------------------------------------------------------------------------
-Analysis Type:      Event
-Event Name:         81st Tata Steel GpA
-Event Date:         01/12/2019 - 01/27/2019
-Rounds:             13
-Players:            14
+Analysis Type:           Event
+Compared Source:         Control
+Compared Time Control:   Classical
+Compared Rating:         Current values
 
-Engine Name:        stockfish_14.1_x64.exe
-Depth:              11
-Report Date:        11/23/2022
+Event Name:              81st Tata Steel GpA
+Event Date:              01/12/2019 - 01/27/2019
+Rounds:                  13
+Players:                 14
+
+Engine Name:             stockfish_14.1_x64.exe
+Depth:                   11
+Report Date:             11/24/2022
 
 
 MOVE SCORING
@@ -36,7 +40,7 @@ Total Blunders:                    12 / 4689 = 0.26%
 Total ScACPL:                      0.1115
 Total ScSDCPL:                     0.1864
 
-Overall event score:               90.55
+Total event score:                 90.55
 Overall event ROI:                 49.5
 Overall event PValue:              99.14%
 

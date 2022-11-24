@@ -10,7 +10,11 @@ FROM dim.Aggregations
 
 WHERE AggregationName = '{agg}'
 """
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
     return idval
 
 
@@ -24,7 +28,11 @@ FROM dim.Events
 WHERE SourceID = {srcid}
 AND EventName = '{event}'
 """
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
     return idval
 
 
@@ -39,7 +47,11 @@ WHERE SourceID = {srcid}
 AND LastName = '{lname}'
 AND FirstName = '{fname}'
 """
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
     return idval
 
 
@@ -52,7 +64,28 @@ FROM dim.Sources
 
 WHERE SourceName = '{src}'
 """
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
+    return idval
+
+
+def get_tcid(conn, tc):
+    qry = f"""
+SELECT
+TimeControlID
+
+FROM dim.TimeControls
+
+WHERE TimeControlName = '{tc}'
+"""
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
     return idval
 
 
@@ -796,7 +829,7 @@ AND m2.MeasurementName = '{typ2}'
     return val
 
 
-def zscore_data(agg, src, tc, rating, colorid=None):
+def zscore_data(agg, srcid, tcid, rating, colorid=None):
     qry = f"""
 SELECT
 ms.MeasurementName,
@@ -817,8 +850,8 @@ LEFT JOIN dim.Colors c ON
 
 WHERE agg.AggregationName = '{agg}'
 AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score')
-AND s.SourceName = '{src}'
-AND tc.TimeControlName = '{tc}'
+AND ss.SourceID = {srcid}
+AND ss.TimeControlID = {tcid}
 AND ss.RatingID = {rating}
 """
     if colorid:

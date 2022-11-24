@@ -10,5 +10,10 @@
 	"enginePath": "C:/Users/eehunt/Documents/Chess/ENGINES",
 	"engineName": "stockfish_14.1_x64.exe",
 	"depth": 11,
-	"maxEval": 3
+	"maxEval": 3,
+	"compareStats": {
+		"sourceName": "Control",
+		"timeControlName": "Classical",
+		"ratingID": false
+	}
 }

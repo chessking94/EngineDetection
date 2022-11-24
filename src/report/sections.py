@@ -9,13 +9,16 @@ import queries as qry
 
 NL = '\n'
 EV_LEN = 35
-HDR_LEN = 20
+HDR_LEN = 25
 PK_LEN = 10
 
 
 class report:
-    def __init__(self, rpt, typ, conn, eventid, playerid, startdate, enddate):
+    def __init__(self, rpt, compare_stats, typ, conn, eventid, playerid, startdate, enddate):
         self.rpt = rpt
+        self.comp_srcid = compare_stats.get('srcid')
+        self.comp_tcid = compare_stats.get('tcid')
+        self.comp_rid = compare_stats.get('rid')
         self.typ = typ
         self.conn = conn
         self.eventid = eventid
@@ -39,10 +42,14 @@ class report:
             qry_text = qry.player_avgrating(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
-        if self.typ == 'Event':
-            rt = math.floor(int(rs[0][0])/100)*100
+        if self.comp_rid:
+            rt = self.comp_rid
         else:
-            rt = math.floor(int(rs[0][3])/100)*100
+            if self.typ == 'Event':
+                rt = math.floor(int(rs[0][0])/100)*100
+            else:
+                rt = math.floor(int(rs[0][3])/100)*100
+
         self.rpt.write(str(int(rs[0][0])) + '; ')
         self.rpt.write('min ' + str(int(rs[0][1])) + ', ')
         self.rpt.write('max ' + str(int(rs[0][2])) + NL)
@@ -93,9 +100,9 @@ class report:
         rss = pd.read_sql(qry_text, self.conn).values.tolist()
 
         if self.typ == 'Event':
-            self.rpt.write('Overall event score:'.ljust(EV_LEN, ' '))
+            self.rpt.write('Total event score:'.ljust(EV_LEN, ' '))
         else:
-            self.rpt.write('Overall player score:'.ljust(EV_LEN, ' '))
+            self.rpt.write('Total sample score:'.ljust(EV_LEN, ' '))
 
         if rss[0][0] >= 99.995:
             score = '100.0*'
@@ -103,7 +110,7 @@ class report:
             score = '{:.2f}'.format(rss[0][0])
         self.rpt.write(score + NL)
 
-        z_qry = qry.zscore_data(agg='Event', src='Control', tc='Classical', rating=rt)
+        z_qry = qry.zscore_data(agg='Event', srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt)
         z_rs = pd.read_sql(z_qry, self.conn)
         z_rs = z_rs.set_index('MeasurementName')
 
@@ -119,7 +126,7 @@ class report:
         self.rpt.write(roi + NL)
 
         test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], rss[0][0]]
-        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=5)
+        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg='Event', rating=rt, tcid=self.comp_tcid)
 
         if self.typ == 'Event':
             self.rpt.write('Overall event PValue:'.ljust(EV_LEN, ' '))
@@ -172,7 +179,10 @@ class report:
         rs = pd.read_sql(qry_text, self.conn)
         for idx, player in rs.iterrows():
             self.rpt.write(player['Name'][0:player_len].ljust(player_len, ' '))
-            rt = int(math.floor(player['Rating']/100)*100)
+            if self.comp_rid:
+                rt = self.comp_rid
+            else:
+                rt = int(math.floor(player['Rating']/100)*100)
             self.rpt.write(str(player['Rating']).ljust(elo_len, ' '))
 
             if player['GamesPlayed'] < 10:
@@ -211,7 +221,7 @@ class report:
                 score = '{:.2f}'.format(player['Score'])
             self.rpt.write(score.ljust(score_len, ' '))
 
-            z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt)
+            z_qry = qry.zscore_data(agg=agg_typ, srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt)
             z_rs = pd.read_sql(z_qry, self.conn)
             z_rs = z_rs.set_index('MeasurementName')
 
@@ -222,7 +232,7 @@ class report:
             self.rpt.write(roi.ljust(roi_len, ' '))
 
             test_arr = [player['EVM']/player['ScoredMoves'], player['ACPL'], player['Score']]
-            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=5)
+            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid)
             self.rpt.write(pval.ljust(pval_len, ' '))
 
             oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -254,7 +264,7 @@ class report:
 
             # opp p-value
             opp_test_arr = [player['OppEVM']/player['OppScoredMoves'], player['OppACPL'], player['OppScore']]
-            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=5)
+            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid)
             self.rpt.write(opppval.ljust(pval_len, ' '))
 
             self.rpt.write(NL)
@@ -273,7 +283,10 @@ class report:
         player_rs = pd.read_sql(qry_text, self.conn)
         for i, player in player_rs.iterrows():
             self.rpt.write(player['Name'])
-            rt = int(math.floor(player['Rating']/100)*100)
+            if self.comp_rid:
+                rt = self.comp_rid
+            else:
+                rt = int(math.floor(player['Rating']/100)*100)
             self.rpt.write(' ' + str(player['Rating']))
             self.rpt.write(f" (Moves={player['ScoredMoves']})")
             self.rpt.write(NL)
@@ -318,7 +331,7 @@ class report:
                     score = '{:.2f}'.format(game['Score'])
                 self.rpt.write(score.ljust(7, ' '))
 
-                z_qry = qry.zscore_data(agg=agg_typ, src='Control', tc='Classical', rating=rt, colorid=c)
+                z_qry = qry.zscore_data(agg=agg_typ, srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt, colorid=c)
                 z_rs = pd.read_sql(z_qry, self.conn)
                 z_rs = z_rs.set_index('MeasurementName')
 
@@ -330,7 +343,7 @@ class report:
                 self.rpt.write(roi.ljust(6, ' '))
 
                 test_arr = [game['EVM']/game['ScoredMoves'], game['ACPL'], game['Score']]
-                pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=5, colorid=c)
+                pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid, colorid=c)
                 self.rpt.write(pval.ljust(8, ' '))
 
                 # moves
@@ -354,12 +367,24 @@ class report:
 
 
 class general:
-    def __init__(self, rpt):
+    def __init__(self, rpt, compare_stats):
         self.rpt = rpt
+        self.srcname = compare_stats.get('srcname')
+        self.tcname = compare_stats.get('tcname')
+        self.rating = compare_stats.get('rid')
 
     def header_type(self, rpt_typ, conn, event, name, startdate, enddate):
         self.rpt.write('-'*100 + NL)
         self.rpt.write('Analysis Type:'.ljust(HDR_LEN, ' ') + rpt_typ + NL)
+        self.rpt.write('Compared Source:'.ljust(HDR_LEN, ' ') + self.srcname + NL)
+        self.rpt.write('Compared Time Control:'.ljust(HDR_LEN, ' ') + self.tcname + NL)
+        self.rpt.write('Compared Rating:'.ljust(HDR_LEN, ' '))
+        if self.rating:
+            self.rpt.write(str(self.rating) + NL)
+        else:
+            self.rpt.write('Current values' + NL)
+        self.rpt.write(NL)
+
         if rpt_typ == 'Event':
             qry_text = qry.event_summary(event)
             rs = pd.read_sql(qry_text, conn).values.tolist()
@@ -424,7 +449,6 @@ class general:
         self.rpt.write(' (Round)(Color) (Result) (Opp) (Opp Rating): (EVM/Turns = EVM%) (ScACPL) (ScSDCPL) (Score) (ROI) (PValue) (game trace)' + NL)
         self.rpt.write('Game trace key: b = Book move; M = EV match; 0 = Inferior move; e = Eliminated because one side far ahead; ')
         self.rpt.write('t = Tablebase hit; f = Forced move; r = Repeated move' + NL)
-        # self.rpt.write('t = Tablebase hit, f = forced move, r = move included in a repetition' + NL)
         self.rpt.write(NL)
 
 

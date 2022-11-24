@@ -3,7 +3,7 @@ import os
 
 import pyodbc as sql
 
-from func import get_conf, get_config
+from func import get_conf, get_config, parse_stats
 import sections
 from queries import get_evid, get_plid, get_srcid
 
@@ -33,6 +33,9 @@ def main():
 
     max_eval = get_config(config_path, 'maxEval')
 
+    compare_stats = get_config(config_path, 'compareStats')
+    compare_stats = parse_stats(compare_stats, conn)
+
     if rpt == 'Event':
         ev = get_config(config_path, 'eventName')
         evid = get_evid(conn, srcid, ev)
@@ -58,8 +61,8 @@ def main():
     max_eval = sections.update_maxeval(conn, max_eval)
 
     with open(report_full, 'w') as rf:
-        g = sections.general(rf)
-        r = sections.report(rf, rpt, conn, evid, plid, start_date, end_date)
+        g = sections.general(rf, compare_stats)
+        r = sections.report(rf, compare_stats, rpt, conn, evid, plid, start_date, end_date)
 
         g.header_type(rpt, conn, ev, full_name, start_date, end_date)
         g.header_info(engine_name, depth)
