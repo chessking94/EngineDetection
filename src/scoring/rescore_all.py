@@ -90,8 +90,9 @@ def main():
     parameters = '-aGame'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-aEvaluation'
-    run_script(script_path, script_name, parameters)
+    """Not currently using the Evaluation aggregation, going to disable from recalc until it's actually used"""
+    # parameters = '-aEvaluation'
+    # run_script(script_path, script_name, parameters)
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
     job_name = 'Recalculate Fact Table Z-Scores'
