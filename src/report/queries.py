@@ -141,7 +141,7 @@ ORDER BY 2
     return qry
 
 
-def event_playeropp(playerid, eventid):  # TODO: Parameterize Score
+def event_playeropp(playerid, eventid):
     qry = f"""
 SELECT
 g.GameID,
@@ -163,7 +163,14 @@ SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0 END) AS EVM,
 COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -201,7 +208,7 @@ ORDER BY 2
     return qry
 
 
-def event_playersummary(eventid):  # TODO: Parameterize Score
+def event_playersummary(eventid):
     qry = f"""
 SELECT
 CASE
@@ -218,13 +225,21 @@ SUM(CASE WHEN m.CP_Loss >= 2 THEN 1 ELSE 0 END) AS Blunders,
 COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual,
 opp.OppEVM,
 opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore
+opp.OppScore,
+opp.OppScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -260,7 +275,14 @@ LEFT JOIN (
     COUNT(m.MoveNumber) AS OppScoredMoves,
     AVG(m.ScACPL) AS OppACPL,
     ISNULL(STDEV(m.ScACPL), 0) AS OppSDCPL,
-    CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS OppScore
+    CASE
+        WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+    END AS OppScore,
+    CASE
+        WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+    END AS OppScoreEqual
 
     FROM lake.Moves m
     JOIN lake.Games g ON
@@ -294,7 +316,8 @@ opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore
+opp.OppScore,
+opp.OppScoreEqual
 
 ORDER BY 1
 """
@@ -366,10 +389,17 @@ WHERE g.EventID = {eventid}
     return qry
 
 
-def event_totalscore(eventid):  # TODO: Parameterize Score
+def event_totalscore(eventid):
     qry = f"""
 SELECT
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -480,7 +510,7 @@ ORDER BY 2
     return qry
 
 
-def player_playeropp(playerid, startdate, enddate):  # Parameterize Score
+def player_playeropp(playerid, startdate, enddate):
     qry = f"""
 SELECT
 g.GameID,
@@ -502,7 +532,14 @@ SUM(CASE WHEN m.Move_Rank = 1 THEN 1 ELSE 0 END) AS EVM,
 COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -540,7 +577,7 @@ ORDER BY 1
     return qry
 
 
-def player_playersummary(playerid, startdate, enddate):  # Parameterize Score
+def player_playersummary(playerid, startdate, enddate):
     qry = f"""
 SELECT
 (CASE WHEN c.Color = 'White' THEN wp.FirstName ELSE bp.FirstName END) + ' ' + (CASE WHEN c.Color = 'White' THEN wp.LastName ELSE bp.LastName END) AS Name,
@@ -553,13 +590,21 @@ SUM(CASE WHEN m.CP_Loss >= 2 THEN 1 ELSE 0 END) AS Blunders,
 COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual,
 opp.OppEVM,
 opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore
+opp.OppScore,
+opp.OppScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -597,7 +642,14 @@ JOIN (
     COUNT(m.MoveNumber) AS OppScoredMoves,
     AVG(m.ScACPL) AS OppACPL,
     ISNULL(STDEV(m.ScACPL), 0) AS OppSDCPL,
-    CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS OppScore
+    CASE
+        WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+    END AS OppScore,
+    CASE
+        WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+    END AS OppScoreEqual
 
     FROM lake.Moves m
     JOIN lake.Games g ON
@@ -631,7 +683,8 @@ opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore
+opp.OppScore,
+opp.OppScoreEqual
 """
     return qry
 
@@ -685,10 +738,17 @@ AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
     return qry
 
 
-def player_totalscore(playerid, startdate, enddate):  # Parameterize Score
+def player_totalscore(playerid, startdate, enddate):
     qry = f"""
 SELECT
-CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
+CASE
+    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+END AS Score,
+CASE
+    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
+END AS ScoreEqual
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -809,7 +869,7 @@ AND m2.MeasurementName = '{typ2}'
     return val
 
 
-def zscore_data(agg, srcid, tcid, rating, colorid=None):  # Parameterize Score
+def zscore_data(agg, srcid, tcid, rating, colorid=None):
     qry = f"""
 SELECT
 ms.MeasurementName,
@@ -829,7 +889,7 @@ LEFT JOIN dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE agg.AggregationName = '{agg}'
-AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score')
+AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score', 'ScoreEqual')
 AND ss.SourceID = {srcid}
 AND ss.TimeControlID = {tcid}
 AND ss.RatingID = {rating}

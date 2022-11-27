@@ -14,6 +14,7 @@
 	"compareStats": {
 		"sourceName": "Control",
 		"timeControlName": "Classical",
-		"ratingID": false
+		"ratingID": false,
+		"useScoreEqual": false
 	}
 }
