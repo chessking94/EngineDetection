@@ -66,34 +66,32 @@ class report:
             qry_text = qry.player_scoredmoves(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
-        # if self.typ == 'Event':
-        #     self.rpt.write('Average rating for scored moves:'.ljust(EV_LEN, ' ') + str(int(rs[0][0])) + NL)
         self.rpt.write('Scored Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][1])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(rs[0][1])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][1])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(rs[0][1])/int(totrs[0][0]))}%" + NL)
         self.rpt.write('Book Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(totrs[0][1])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][1])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(totrs[0][1])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][1])/int(totrs[0][0]))}%" + NL)
         self.rpt.write('Tablebase Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(totrs[0][2])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][2])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(totrs[0][2])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][2])/int(totrs[0][0]))}%" + NL)
         self.rpt.write('Eliminated Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(totrs[0][3])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][3])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(totrs[0][3])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][3])/int(totrs[0][0]))}%" + NL)
         self.rpt.write('Forced Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(totrs[0][4])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][4])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(totrs[0][4])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][4])/int(totrs[0][0]))}%" + NL)
         self.rpt.write('Repeated Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(totrs[0][5])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][5])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write(f"{int(totrs[0][5])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][5])/int(totrs[0][0]))}%" + NL)
         self.rpt.write(NL)
 
         self.rpt.write('T1:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][2])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][2])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][2])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][2])/int(rs[0][1]))}%" + NL)
         self.rpt.write('T2:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][3])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][3])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][3])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][3])/int(rs[0][1]))}%" + NL)
         self.rpt.write('T3:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][4])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][4])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][4])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][4])/int(rs[0][1]))}%" + NL)
         self.rpt.write('T4:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][5])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][5])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][5])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][5])/int(rs[0][1]))}%" + NL)
         self.rpt.write('T5:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][6])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][6])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][6])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][6])/int(rs[0][1]))}%" + NL)
         self.rpt.write('Blunders:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][9])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1])) + '%' + NL)
+        self.rpt.write(f"{int(rs[0][9])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1]))}%" + NL)
         self.rpt.write('ScACPL:'.ljust(EV_LEN, ' '))
         acpl = outliers.format_cpl('Event', 'ScACPL', rt, rs[0][7], self.conn)
         self.rpt.write(acpl + NL)
@@ -202,12 +200,12 @@ class report:
             self.rpt.write(perf.ljust(perf_len, ' '))
 
             agg_typ = 'Event'
-            evm = str(player['EVM']) .ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
+            evm = str(player['EVM']).ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
             evmpcnt = outliers.format_evm(agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.conn)
             evm = evm + evmpcnt
             self.rpt.write(evm.ljust(evm_len, ' '))
 
-            bl = str(player['Blunders']) .ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
+            bl = str(player['Blunders']).ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
             blpcnt = '{:3.2f}'.format(100*player['Blunders']/player['ScoredMoves']) + '%'
             bl = bl + blpcnt
             self.rpt.write(bl.ljust(blun_len, ' '))
@@ -245,11 +243,11 @@ class report:
             pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
             self.rpt.write(pval.ljust(pval_len, ' '))
 
-            oppevm = str(player['OppEVM']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
+            oppevm = str(player['OppEVM']).ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
             oppevm = oppevm + '{:3.1f}'.format(100*player['OppEVM']/player['OppScoredMoves']) + '%'
             self.rpt.write(oppevm.ljust(evm_len, ' '))
 
-            oppbl = str(player['OppBlunders']) .ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
+            oppbl = str(player['OppBlunders']).ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
             oppblpcnt = '{:3.2f}'.format(100*player['OppBlunders']/player['OppScoredMoves']) + '%'
             oppbl = oppbl + oppblpcnt
             self.rpt.write(oppbl.ljust(blun_len, ' '))
