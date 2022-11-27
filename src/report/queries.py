@@ -141,7 +141,7 @@ ORDER BY 2
     return qry
 
 
-def event_playeropp(playerid, eventid):
+def event_playeropp(playerid, eventid):  # TODO: Parameterize Score
     qry = f"""
 SELECT
 g.GameID,
@@ -201,7 +201,7 @@ ORDER BY 2
     return qry
 
 
-def event_playersummary(eventid):
+def event_playersummary(eventid):  # TODO: Parameterize Score
     qry = f"""
 SELECT
 CASE
@@ -350,7 +350,12 @@ e.EventName
 def event_totalmoves(eventid):
     qry = f"""
 SELECT
-COUNT(m.MoveNumber) AS TotalMoves
+COUNT(m.MoveNumber) AS TotalMoves,
+SUM(CASE WHEN m.TraceKey = 'b' THEN 1 ELSE 0 END) AS BookMoves,
+SUM(CASE WHEN m.TraceKey = 't' THEN 1 ELSE 0 END) AS TablebaseMoves,
+SUM(CASE WHEN m.TraceKey = 'e' THEN 1 ELSE 0 END) AS EliminatedMoves,
+SUM(CASE WHEN m.TraceKey = 'f' THEN 1 ELSE 0 END) AS ForcedMoves,
+SUM(CASE WHEN m.TraceKey = 'r' THEN 1 ELSE 0 END) AS RepeatedMoves
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -361,7 +366,7 @@ WHERE g.EventID = {eventid}
     return qry
 
 
-def event_totalscore(eventid):
+def event_totalscore(eventid):  # TODO: Parameterize Score
     qry = f"""
 SELECT
 CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
@@ -475,7 +480,7 @@ ORDER BY 2
     return qry
 
 
-def player_playeropp(playerid, startdate, enddate):
+def player_playeropp(playerid, startdate, enddate):  # Parameterize Score
     qry = f"""
 SELECT
 g.GameID,
@@ -535,7 +540,7 @@ ORDER BY 1
     return qry
 
 
-def player_playersummary(playerid, startdate, enddate):
+def player_playersummary(playerid, startdate, enddate):  # Parameterize Score
     qry = f"""
 SELECT
 (CASE WHEN c.Color = 'White' THEN wp.FirstName ELSE bp.FirstName END) + ' ' + (CASE WHEN c.Color = 'White' THEN wp.LastName ELSE bp.LastName END) AS Name,
@@ -661,7 +666,12 @@ AND m.MoveScored = 1
 def player_totalmoves(playerid, startdate, enddate):
     qry = f"""
 SELECT
-COUNT(m.MoveNumber) AS TotalMoves
+COUNT(m.MoveNumber) AS TotalMoves,
+SUM(CASE WHEN m.TraceKey = 'b' THEN 1 ELSE 0 END) AS BookMoves,
+SUM(CASE WHEN m.TraceKey = 't' THEN 1 ELSE 0 END) AS TablebaseMoves,
+SUM(CASE WHEN m.TraceKey = 'e' THEN 1 ELSE 0 END) AS EliminatedMoves,
+SUM(CASE WHEN m.TraceKey = 'f' THEN 1 ELSE 0 END) AS ForcedMoves,
+SUM(CASE WHEN m.TraceKey = 'r' THEN 1 ELSE 0 END) AS RepeatedMoves
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -675,7 +685,7 @@ AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
     return qry
 
 
-def player_totalscore(playerid, startdate, enddate):
+def player_totalscore(playerid, startdate, enddate):  # Parameterize Score
     qry = f"""
 SELECT
 CASE WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100 ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) END AS Score
@@ -693,37 +703,7 @@ AND m.MoveScored = 1
     return qry
 
 
-def roi_calc(agg, src, tc, rating, colorid=None):
-    qry = f"""
-SELECT
-ss.Average,
-ss.StandardDeviation,
-ss.MaxValue
-
-FROM stat.StatisticsSummary ss
-JOIN dim.Sources s ON
-    ss.SourceID = s.SourceID
-JOIN dim.Aggregations agg ON
-    ss.AggregationID = agg.AggregationID
-JOIN dim.Measurements ms ON
-    ss.MeasurementID = ms.MeasurementID
-JOIN dim.TimeControls tc ON
-    ss.TimeControlID = tc.TimeControlID
-LEFT JOIN dim.Colors c ON
-    ss.ColorID = c.ColorID
-
-WHERE agg.AggregationName = '{agg}'
-AND ms.MeasurementName = 'Score'
-AND s.SourceName = '{src}'
-AND tc.TimeControlName = '{tc}'
-AND ss.RatingID = {rating}
-"""
-    if colorid:
-        qry = qry + f"AND c.ColorID = {colorid}"
-    return qry
-
-
-def cpl_outlier(agg, stat, rating, colorid=None):
+def cpl_outlier(agg, stat, rating, colorid=None):  # TODO: Source/TimeControl is hardcoded in query
     qry = f"""
 SELECT
 ss.Average,
@@ -753,7 +733,7 @@ AND ss.RatingID = {rating}
     return qry
 
 
-def evm_outlier(agg, rating, colorid=None):
+def evm_outlier(agg, rating, colorid=None):  # TODO: Source/TimeControl is hardcoded in query
     qry = f"""
 SELECT
 100*ss.Average AS Average,
@@ -829,7 +809,7 @@ AND m2.MeasurementName = '{typ2}'
     return val
 
 
-def zscore_data(agg, srcid, tcid, rating, colorid=None):
+def zscore_data(agg, srcid, tcid, rating, colorid=None):  # Parameterize Score
     qry = f"""
 SELECT
 ms.MeasurementName,

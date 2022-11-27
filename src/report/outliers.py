@@ -10,7 +10,7 @@ from scipy.stats import chi2
 import queries as qry
 
 
-def format_cpl(typ, stat, rating, score, conn, colorid=None):
+def format_cpl(typ, stat, rating, score, conn, colorid=None):  # TODO: Rename Score variable
     qry_text = qry.cpl_outlier(agg=typ, stat=stat, rating=rating, colorid=colorid)
     distribution = pd.read_sql(qry_text, conn).values.tolist()
     if len(distribution) > 0:
@@ -25,7 +25,7 @@ def format_cpl(typ, stat, rating, score, conn, colorid=None):
     return val
 
 
-def format_evm(typ, rating, score, dec, conn, colorid=None):
+def format_evm(typ, rating, score, dec, conn, colorid=None):  # TODO: Rename Score variable
     qry_text = qry.evm_outlier(agg=typ, rating=rating, colorid=colorid)
     distribution = pd.read_sql(qry_text, conn).values.tolist()
     flg = ''
@@ -38,7 +38,7 @@ def format_evm(typ, rating, score, dec, conn, colorid=None):
     return val
 
 
-def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
+def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):  # TODO: Parameterize Score
     aggid = qry.get_aggid(conn, agg)
     t1_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1')
     cpl_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL')
@@ -65,16 +65,17 @@ def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
     if chisq <= sig_lvl:
         flg = '*'
     rtn = '{:.2f}'.format(chisq*100) + '%' + flg
+
     return rtn
 
 
-def calc_zscore(score, distribution):
-    if len(distribution) > 0:
-        z_score = (score - distribution[0][0])/distribution[0][1]
-    else:
-        z_score = None
+# def calc_zscore(score, distribution):
+#     if len(distribution) > 0:
+#         z_score = (score - distribution[0][0])/distribution[0][1]
+#     else:
+#         z_score = None
 
-    return z_score
+#     return z_score
 
 
 def calc_comp_roi(z_arr):
@@ -102,4 +103,5 @@ def calc_comp_roi(z_arr):
             flg = '*'
 
         roi = '{:.1f}'.format(roi) + flg
+
     return roi

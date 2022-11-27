@@ -58,8 +58,7 @@ class report:
             qry_text = qry.event_totalmoves(self.eventid)
         else:
             qry_text = qry.player_totalmoves(self.playerid, self.startdate, self.enddate)
-        rs = pd.read_sql(qry_text, self.conn).values.tolist()
-        mvs = int(rs[0][0])
+        totrs = pd.read_sql(qry_text, self.conn).values.tolist()
 
         if self.typ == 'Event':
             qry_text = qry.event_scoredmoves(self.eventid)
@@ -67,31 +66,40 @@ class report:
             qry_text = qry.player_scoredmoves(self.playerid, self.startdate, self.enddate)
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
-        if self.typ == 'Event':
-            self.rpt.write('Average rating for scored moves:'.ljust(EV_LEN, ' ') + str(int(rs[0][0])) + NL)
-        self.rpt.write('Scored Moves percentage:'.ljust(EV_LEN, ' '))
-        self.rpt.write(str(int(rs[0][1])) + ' / ' + str(mvs) + ' = ' + '{:.2f}'.format(100*int(rs[0][1])/mvs) + '%' + NL)
+        # if self.typ == 'Event':
+        #     self.rpt.write('Average rating for scored moves:'.ljust(EV_LEN, ' ') + str(int(rs[0][0])) + NL)
+        self.rpt.write('Scored Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(rs[0][1])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(rs[0][1])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write('Book Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(totrs[0][1])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][1])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write('Tablebase Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(totrs[0][2])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][2])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write('Eliminated Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(totrs[0][3])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][3])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write('Forced Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(totrs[0][4])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][4])/int(totrs[0][0])) + '%' + NL)
+        self.rpt.write('Repeated Moves:'.ljust(EV_LEN, ' '))
+        self.rpt.write(str(int(totrs[0][5])) + ' / ' + str(int(totrs[0][0])) + ' = ' + '{:.2f}'.format(100*int(totrs[0][5])/int(totrs[0][0])) + '%' + NL)
         self.rpt.write(NL)
 
-        self.rpt.write('Total T1:'.ljust(EV_LEN, ' '))
+        self.rpt.write('T1:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][2])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][2])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total T2:'.ljust(EV_LEN, ' '))
+        self.rpt.write('T2:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][3])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][3])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total T3:'.ljust(EV_LEN, ' '))
+        self.rpt.write('T3:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][4])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][4])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total T4:'.ljust(EV_LEN, ' '))
+        self.rpt.write('T4:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][5])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][5])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total T5:'.ljust(EV_LEN, ' '))
+        self.rpt.write('T5:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][6])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][6])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total Blunders:'.ljust(EV_LEN, ' '))
+        self.rpt.write('Blunders:'.ljust(EV_LEN, ' '))
         self.rpt.write(str(int(rs[0][9])) + ' / ' + str(int(rs[0][1])) + ' = ' + '{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1])) + '%' + NL)
-        self.rpt.write('Total ScACPL:'.ljust(EV_LEN, ' '))
+        self.rpt.write('ScACPL:'.ljust(EV_LEN, ' '))
         acpl = outliers.format_cpl('Event', 'ScACPL', rt, rs[0][7], self.conn)
         self.rpt.write(acpl + NL)
-        self.rpt.write('Total ScSDCPL:'.ljust(EV_LEN, ' '))
+        self.rpt.write('ScSDCPL:'.ljust(EV_LEN, ' '))
         sdcpl = outliers.format_cpl('Event', 'ScSDCPL', rt, rs[0][8], self.conn)
         self.rpt.write(sdcpl + NL)
-        self.rpt.write(NL)
 
         if self.typ == 'Event':
             qry_text = qry.event_totalscore(self.eventid)
@@ -99,11 +107,7 @@ class report:
             qry_text = qry.player_totalscore(self.playerid, self.startdate, self.enddate)
         rss = pd.read_sql(qry_text, self.conn).values.tolist()
 
-        if self.typ == 'Event':
-            self.rpt.write('Total event score:'.ljust(EV_LEN, ' '))
-        else:
-            self.rpt.write('Total sample score:'.ljust(EV_LEN, ' '))
-
+        self.rpt.write('Score:'.ljust(EV_LEN, ' '))
         if rss[0][0] >= 99.995:
             score = '100.0*'
         else:
@@ -122,23 +126,15 @@ class report:
 
         t1_z = ((int(rs[0][2])/int(rs[0][1])) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
         scacpl_z = -1*(rs[0][7] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
-        score_z = (rss[0][0] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+        score_z = (rss[0][0] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']  # Parameterize score
         roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
-
-        if self.typ == 'Event':
-            self.rpt.write('Overall event ROI:'.ljust(EV_LEN, ' '))
-        else:
-            self.rpt.write('Overall player ROI:'.ljust(EV_LEN, ' '))
+        self.rpt.write('ROI:'.ljust(EV_LEN, ' '))
         self.rpt.write(roi + NL)
 
         test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], rss[0][0]]
         # hard-coding sourceID since Lichess doesn't have event stats
         pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid)
-
-        if self.typ == 'Event':
-            self.rpt.write('Overall event PValue:'.ljust(EV_LEN, ' '))
-        else:
-            self.rpt.write('Overall player PValue:'.ljust(EV_LEN, ' '))
+        self.rpt.write('PValue:'.ljust(EV_LEN, ' '))
         self.rpt.write(pval + NL)
 
         self.rpt.write(NL)
