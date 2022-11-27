@@ -53,17 +53,35 @@ def get_parameters(conn, srcid, tcid, recalc=False):
         actual = observed_values(conn, srcid, tcid)
         params = optimize.curve_fit(f=stats.norm.cdf, xdata=actual['Evaluation'], ydata=actual['Win_Percentage'], p0=[0, 1])[0]
 
-        csr = conn.cursor()
-        sql_del = f'DELETE FROM stat.EvalDistributionParameters WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
-        logging.debug(f'Delete query|{sql_del}')
-        csr.execute(sql_del)
-        conn.commit()
+        qry_text = f'SELECT SourceID, TimeControlID FROM stat.EvalDistributionParameters WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
+        ct = len(pd.read_sql(qry_text, conn))
 
-        sql_ins = 'INSERT INTO stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
-        sql_ins = sql_ins + f"VALUES ({srcid}, {tcid}, {params[0]}, {params[1]})"
-        logging.debug(f'Insert query|{sql_ins}')
-        csr.execute(sql_ins)
-        conn.commit()
+        csr = conn.cursor()
+        if ct == 0:
+            sql_ins = 'INSERT INTO stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
+            sql_ins = sql_ins + f"VALUES ({srcid}, {tcid}, {params[0]}, {params[1]})"
+            logging.debug(f'Insert query|{sql_ins}')
+            csr.execute(sql_ins)
+            conn.commit()
+        else:
+            sql_upd = f'''
+UPDATE new_p
+SET new_p.Mean = {params[0]},
+    new_p.StandardDeviation = {params[1]},
+    new_p.PrevMean = old_p.Mean,
+    new_p.PrevStandardDeviation = old_p.StandardDeviation,
+    new_p.UpdateDate = GETDATE()
+FROM stat.EvalDistributionParameters new_p
+JOIN stat.EvalDistributionParameters old_p ON
+    new_p.SourceID = old_p.SourceID AND
+    new_p.TimeControlID = old_p.TimeControlID
+WHERE new_p.SourceID = {srcid}
+AND new_p.TimeControlID = {tcid}
+'''
+            logging.debug(f'Update query|{sql_upd}')
+            csr = conn.cursor()
+            csr.execute(sql_upd)
+            conn.commit()
     else:
         params = get_curr_parameters(conn, srcid, tcid)
     dict = {
@@ -156,7 +174,7 @@ def main():
     srcid, tcid = convert_names(conn, src, tc)
     val_srcid, val_tcid = convert_names(conn, val_src, val_tc)
 
-    recalc = False
+    recalc = True
     param_dict = get_parameters(conn, val_srcid, val_tcid, recalc)
 
     csr = conn.cursor()
