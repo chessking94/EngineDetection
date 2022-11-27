@@ -8,7 +8,7 @@ import queries as q
 NL = '\n'
 AGG_CHOICES = ['Game', 'Event', 'Evaluation']
 SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'Score', 'ScACPL', 'ScSDCPL']
+FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'Score', 'ScACPL', 'ScSDCPL', 'ScoreEqual']
 TIMECONTROL_CHOICES = ['Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [100*i for i in range(34)]
 EVALGROUP_CHOICES = [i+1 for i in range(9)]

@@ -18,7 +18,7 @@ SELECT
 T1, T2, T3, T4, T5,
 ACPL, ScACPL,
 SDCPL, ScSDCPL,
-Score
+Score, ScoreEqual
 
 FROM fact.Game
 
@@ -38,7 +38,7 @@ SELECT
 T1, T2, T3, T4, T5,
 ACPL, ScACPL,
 SDCPL, ScSDCPL,
-Score
+Score, ScoreEqual
 
 FROM fact.Event
 
