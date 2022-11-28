@@ -1,0 +1,20 @@
+{
+	"reportPath": "File path to save the report",
+	"reportSource": "Value from dim.Sources.SourceName",
+	"reportType": "Event or Player",
+	"eventName": "Event name",
+	"firstName": "Player first name",
+	"lastName": "Player last name",
+	"startDate": "Player start date, formatted as MM/DD/YYYY",
+	"endDate": "Player end date, formatted as MM/DD/YYYY",
+	"enginePath": "File path of engine executables",
+	"engineName": "Name of the engine listed in the report",
+	"depth": "Depth of analysis listed in the report",
+	"maxEval": "Maximum evaluation to include moves from; should be set at 3",
+	"compareStats": {
+		"sourceName": "Value from dim.Sources.SourceName to compare against; used exclusively for ROI and PValue calculations in individual games",
+		"timeControlName": "Value from dim.TimeControls.TimeControlName to compare against; used in all ROI and PValue calculations",
+		"ratingID": "Rating rounded to the nearest 100 or false to ignore; used in all outlier, ROI, and PValue calculations",
+		"useScoreEqual": "true/false value whether to use the Score values relative to the same Source/TimeControl or against OTB Classical"
+	}
+}
