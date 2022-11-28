@@ -60,7 +60,8 @@ class report:
             qry_text = qry.event_totalmoves(self.eventid)
         else:
             qry_text = qry.player_totalmoves(self.playerid, self.startdate, self.enddate)
-        totrs = pd.read_sql(qry_text, self.conn).values.tolist()
+        totrs = pd.read_sql(qry_text, self.conn)
+        totrs = totrs.set_index('TraceKey')
 
         if self.typ == 'Event':
             qry_text = qry.event_scoredmoves(self.eventid)
@@ -69,17 +70,11 @@ class report:
         rs = pd.read_sql(qry_text, self.conn).values.tolist()
 
         self.rpt.write('Scored Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(rs[0][1])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(rs[0][1])/int(totrs[0][0]))}%" + NL)
-        self.rpt.write('Book Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(totrs[0][1])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][1])/int(totrs[0][0]))}%" + NL)
-        self.rpt.write('Tablebase Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(totrs[0][2])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][2])/int(totrs[0][0]))}%" + NL)
-        self.rpt.write('Eliminated Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(totrs[0][3])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][3])/int(totrs[0][0]))}%" + NL)
-        self.rpt.write('Forced Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(totrs[0][4])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][4])/int(totrs[0][0]))}%" + NL)
-        self.rpt.write('Repeated Moves:'.ljust(EV_LEN, ' '))
-        self.rpt.write(f"{int(totrs[0][5])} / {int(totrs[0][0])} = {'{:.2f}'.format(100*int(totrs[0][5])/int(totrs[0][0]))}%" + NL)
+        self.rpt.write(f"{int(rs[0][1])} / {totrs.loc['Total', 'MoveCount']} = {'{:.2f}'.format(100*int(rs[0][1])/totrs.loc['Total', 'MoveCount'])}%" + NL)
+        for key, trace in totrs.iterrows():
+            if key != 'Total':
+                self.rpt.write(f"{trace['TraceDescription']}:".ljust(EV_LEN, ' '))
+                self.rpt.write(f"{trace['MoveCount']} / {totrs.loc['Total', 'MoveCount']} = {'{:.2f}'.format(100*trace['MoveCount']/totrs.loc['Total', 'MoveCount'])}%" + NL)
         self.rpt.write(NL)
 
         self.rpt.write('T1:'.ljust(EV_LEN, ' '))

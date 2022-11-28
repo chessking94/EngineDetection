@@ -373,18 +373,38 @@ e.EventName
 def event_totalmoves(eventid):
     qry = f"""
 SELECT
-COUNT(m.MoveNumber) AS TotalMoves,
-SUM(CASE WHEN m.TraceKey = 'b' THEN 1 ELSE 0 END) AS BookMoves,
-SUM(CASE WHEN m.TraceKey = 't' THEN 1 ELSE 0 END) AS TablebaseMoves,
-SUM(CASE WHEN m.TraceKey = 'e' THEN 1 ELSE 0 END) AS EliminatedMoves,
-SUM(CASE WHEN m.TraceKey = 'f' THEN 1 ELSE 0 END) AS ForcedMoves,
-SUM(CASE WHEN m.TraceKey = 'r' THEN 1 ELSE 0 END) AS RepeatedMoves
+'Total' AS TraceKey,
+'Total Moves' AS TraceDescription,
+COUNT(m.MoveNumber) AS MoveCount
 
 FROM lake.Moves m
 JOIN lake.Games g ON
     m.GameID = g.GameID
 
 WHERE g.EventID = {eventid}
+
+UNION
+
+SELECT
+t.TraceKey,
+t.TraceDescription,
+COUNT(m.MoveNumber) AS MoveCount
+
+FROM lake.Moves m
+JOIN lake.Games g ON
+    m.GameID = g.GameID
+JOIN dim.Traces t ON
+    m.TraceKey = t.TraceKey
+
+WHERE g.EventID = {eventid}
+AND t.TraceKey NOT IN ('0', 'M')
+
+GROUP BY
+t.TraceKey,
+t.TraceDescription
+
+ORDER BY
+MoveCount DESC
 """
     return qry
 
@@ -719,12 +739,9 @@ AND m.MoveScored = 1
 def player_totalmoves(playerid, startdate, enddate):
     qry = f"""
 SELECT
-COUNT(m.MoveNumber) AS TotalMoves,
-SUM(CASE WHEN m.TraceKey = 'b' THEN 1 ELSE 0 END) AS BookMoves,
-SUM(CASE WHEN m.TraceKey = 't' THEN 1 ELSE 0 END) AS TablebaseMoves,
-SUM(CASE WHEN m.TraceKey = 'e' THEN 1 ELSE 0 END) AS EliminatedMoves,
-SUM(CASE WHEN m.TraceKey = 'f' THEN 1 ELSE 0 END) AS ForcedMoves,
-SUM(CASE WHEN m.TraceKey = 'r' THEN 1 ELSE 0 END) AS RepeatedMoves
+'Total' AS TraceKey,
+'Total Moves' AS TraceDescription,
+COUNT(m.MoveNumber) AS MoveCount
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -734,6 +751,32 @@ JOIN dim.Colors c ON
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
 AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
+
+UNION
+
+SELECT
+t.TraceKey,
+t.TraceDescription,
+COUNT(m.MoveNumber) AS MoveCount
+
+FROM lake.Moves m
+JOIN lake.Games g ON
+    m.GameID = g.GameID
+JOIN dim.Traces t ON
+    m.TraceKey = t.TraceKey
+JOIN dim.Colors c ON
+    m.ColorID = c.ColorID
+
+WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
+AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
+AND t.TraceKey NOT IN ('0', 'M')
+
+GROUP BY
+t.TraceKey,
+t.TraceDescription
+
+ORDER BY
+COUNT(m.MoveNumber) DESC
 """
     return qry
 

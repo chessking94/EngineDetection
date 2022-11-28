@@ -7,7 +7,7 @@ from func import get_conf, get_config, parse_stats
 import sections
 from queries import get_evid, get_plid, get_srcid
 
-# TODO: Look into sorting the aggregate trace values in the whole-event section
+# TODO: Create documentation for the report tool
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources? Would likely just be a SQL Server thing to copy existing data
 # TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
 
