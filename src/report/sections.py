@@ -83,10 +83,10 @@ class report:
         self.rpt.write('Blunders:'.ljust(EV_LEN, ' '))
         self.rpt.write(f"{int(rs[0][9])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1]))}%" + NL)
         self.rpt.write('ScACPL:'.ljust(EV_LEN, ' '))
-        acpl = outliers.format_cpl('Event', 'ScACPL', rt, rs[0][7], self.conn)
+        acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScACPL', rt, rs[0][7], self.conn)
         self.rpt.write(acpl + NL)
         self.rpt.write('ScSDCPL:'.ljust(EV_LEN, ' '))
-        sdcpl = outliers.format_cpl('Event', 'ScSDCPL', rt, rs[0][8], self.conn)
+        sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScSDCPL', rt, rs[0][8], self.conn)
         self.rpt.write(sdcpl + NL)
 
         if self.typ == 'Event':
@@ -125,7 +125,7 @@ class report:
 
         test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], score_val]
         # hard-coding sourceID since Lichess doesn't have event stats
-        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid)
+        pval = outliers.get_mah_pval(conn=self.conn, score_key=self.score_key, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid)
         self.rpt.write('PValue:'.ljust(EV_LEN, ' '))
         self.rpt.write(pval + NL)
 
@@ -195,7 +195,7 @@ class report:
 
             agg_typ = 'Event'
             evm = str(player['EVM']).ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
-            evmpcnt = outliers.format_evm(agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.conn)
+            evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.conn)
             evm = evm + evmpcnt
             self.rpt.write(evm.ljust(evm_len, ' '))
 
@@ -204,10 +204,10 @@ class report:
             bl = bl + blpcnt
             self.rpt.write(bl.ljust(blun_len, ' '))
 
-            acpl = outliers.format_cpl(agg_typ, 'ScACPL', rt, player['ACPL'], self.conn)
+            acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, player['ACPL'], self.conn)
             self.rpt.write(acpl.ljust(acpl_len, ' '))
 
-            sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.conn)
+            sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.conn)
             self.rpt.write(sdcpl.ljust(sdcpl_len, ' '))
 
             if player[self.score_key] >= 99.995:
@@ -234,7 +234,7 @@ class report:
 
             test_arr = [player['EVM']/player['ScoredMoves'], player['ACPL'], player[self.score_key]]
             # hard-coding sourceID since Lichess doesn't have event stats
-            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
+            pval = outliers.get_mah_pval(conn=self.conn, score_key=self.score_key, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
             self.rpt.write(pval.ljust(pval_len, ' '))
 
             oppevm = str(player['OppEVM']).ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -266,7 +266,7 @@ class report:
 
             # opp p-value
             opp_test_arr = [player['OppEVM']/player['OppScoredMoves'], player['OppACPL'], player[f'Opp{self.score_key}']]
-            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
+            opppval = outliers.get_mah_pval(conn=self.conn, score_key=self.score_key, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
             self.rpt.write(opppval.ljust(pval_len, ' '))
 
             self.rpt.write(NL)
@@ -316,15 +316,15 @@ class report:
 
                 agg_typ = 'Game'
                 evm = str(game['EVM']).ljust(3, ' ') + ' / ' + str(game['ScoredMoves']).ljust(3, ' ') + ' = '
-                evmpcnt = outliers.format_evm(agg_typ, rt, 100*game['EVM']/game['ScoredMoves'], 0, self.conn)
+                evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*game['EVM']/game['ScoredMoves'], 0, self.conn)
                 evm = evm + evmpcnt
                 self.rpt.write(evm.ljust(18, ' '))
 
                 c = 1 if game['Color'] == 'w' else 2
-                acpl = outliers.format_cpl(agg_typ, 'ScACPL', rt, game['ACPL'], self.conn, c)
+                acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, game['ACPL'], self.conn, c)
                 self.rpt.write(acpl.ljust(8, ' '))
 
-                sdcpl = outliers.format_cpl(agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.conn, c)
+                sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.conn, c)
                 self.rpt.write(sdcpl.ljust(8, ' '))
 
                 if game[self.score_key] >= 99.995:
@@ -345,7 +345,7 @@ class report:
                 self.rpt.write(roi.ljust(6, ' '))
 
                 test_arr = [game['EVM']/game['ScoredMoves'], game['ACPL'], game[self.score_key]]
-                pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid, colorid=c)
+                pval = outliers.get_mah_pval(conn=self.conn, score_key=self.score_key, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid, colorid=c)
                 self.rpt.write(pval.ljust(8, ' '))
 
                 # moves

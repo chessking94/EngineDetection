@@ -10,45 +10,45 @@ from scipy.stats import chi2
 import queries as qry
 
 
-def format_cpl(typ, stat, rating, score, conn, colorid=None):  # TODO: Rename Score variable
-    qry_text = qry.cpl_outlier(agg=typ, stat=stat, rating=rating, colorid=colorid)
+def format_cpl(srcid, tcid, typ, stat, rating, value, conn, colorid=None):
+    qry_text = qry.cpl_outlier(srcid=srcid, tcid=tcid, agg=typ, stat=stat, rating=rating, colorid=colorid)
     distribution = pd.read_sql(qry_text, conn).values.tolist()
     if len(distribution) > 0:
-        z_score = (score - distribution[0][0])/distribution[0][1]
+        z_score = (value - distribution[0][0])/distribution[0][1]
         flg = ''
-        if z_score <= -4 or score <= distribution[0][2]:
+        if z_score <= -4 or value <= distribution[0][2]:
             flg = '*'
-        val = '{:.4f}'.format(score) + flg
+        val = '{:.4f}'.format(value) + flg
     else:
-        val = score
+        val = value
 
     return val
 
 
-def format_evm(typ, rating, score, dec, conn, colorid=None):  # TODO: Rename Score variable
-    qry_text = qry.evm_outlier(agg=typ, rating=rating, colorid=colorid)
+def format_evm(srcid, tcid, typ, rating, value, dec, conn, colorid=None):
+    qry_text = qry.evm_outlier(srcid=srcid, tcid=tcid, agg=typ, rating=rating, colorid=colorid)
     distribution = pd.read_sql(qry_text, conn).values.tolist()
     flg = ''
     if len(distribution) > 0:
-        z_score = (score - distribution[0][0])/distribution[0][1]
-        if z_score >= 4 or score >= distribution[0][2]:
+        z_score = (value - distribution[0][0])/distribution[0][1]
+        if z_score >= 4 or value >= distribution[0][2]:
             flg = '*'
-    val = '{:3.{prec}f}'.format(score, prec=dec) + '%' + flg
+    val = '{:3.{prec}f}'.format(value, prec=dec) + '%' + flg
 
     return val
 
 
-def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):  # TODO: Parameterize Score
+def get_mah_pval(conn, score_key, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
     aggid = qry.get_aggid(conn, agg)
     t1_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1')
     cpl_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL')
-    score_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'Score')
+    score_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, score_key)
     t1_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'T1')
     cpl_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', 'ScACPL')
-    score_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'Score', 'Score')
+    score_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, score_key, score_key)
     t1_cpl_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'ScACPL')
-    t1_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'Score')
-    cpl_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', 'Score')
+    t1_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', score_key)
+    cpl_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', score_key)
 
     means = [t1_avg, cpl_avg, score_avg]
     cov_matrix = [
@@ -67,15 +67,6 @@ def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):  
     rtn = '{:.2f}'.format(chisq*100) + '%' + flg
 
     return rtn
-
-
-# def calc_zscore(score, distribution):
-#     if len(distribution) > 0:
-#         z_score = (score - distribution[0][0])/distribution[0][1]
-#     else:
-#         z_score = None
-
-#     return z_score
 
 
 def calc_comp_roi(z_arr):

@@ -806,7 +806,9 @@ AND m.MoveScored = 1
     return qry
 
 
-def cpl_outlier(agg, stat, rating, colorid=None):  # TODO: Source/TimeControl is hardcoded in query
+def cpl_outlier(srcid, tcid, agg, stat, rating, colorid=None):
+    if agg == 'Event':
+        srcid, tcid = 3, 5
     qry = f"""
 SELECT
 ss.Average,
@@ -814,19 +816,15 @@ ss.StandardDeviation,
 ss.MinValue
 
 FROM stat.StatisticsSummary ss
-JOIN dim.Sources s ON
-    ss.SourceID = s.SourceID
 JOIN dim.Aggregations agg ON
     ss.AggregationID = agg.AggregationID
 JOIN dim.Measurements ms ON
     ss.MeasurementID = ms.MeasurementID
-JOIN dim.TimeControls tc ON
-    ss.TimeControlID = tc.TimeControlID
 LEFT JOIN dim.Colors c ON
     ss.ColorID = c.ColorID
 
-WHERE s.SourceName = 'Control'
-AND tc.TimeControlName = 'Classical'
+WHERE ss.SourceID = {srcid}
+AND ss.TimeControlID = {tcid}
 AND agg.AggregationName = '{agg}'
 AND ms.MeasurementName = '{stat}'
 AND ss.RatingID = {rating}
@@ -836,7 +834,9 @@ AND ss.RatingID = {rating}
     return qry
 
 
-def evm_outlier(agg, rating, colorid=None):  # TODO: Source/TimeControl is hardcoded in query
+def evm_outlier(srcid, tcid, agg, rating, colorid=None):
+    if agg == 'Event':
+        srcid, tcid = 3, 5
     qry = f"""
 SELECT
 100*ss.Average AS Average,
@@ -844,19 +844,15 @@ SELECT
 100*ss.MaxValue AS MaxValue
 
 FROM stat.StatisticsSummary ss
-JOIN dim.Sources s ON
-    ss.SourceID = s.SourceID
 JOIN dim.Aggregations agg ON
     ss.AggregationID = agg.AggregationID
 JOIN dim.Measurements ms ON
     ss.MeasurementID = ms.MeasurementID
-JOIN dim.TimeControls tc ON
-    ss.TimeControlID = tc.TimeControlID
 LEFT JOIN dim.Colors c ON
     ss.ColorID = c.ColorID
 
-WHERE s.SourceName = 'Control'
-AND tc.TimeControlName = 'Classical'
+WHERE ss.SourceID = {srcid}
+AND ss.TimeControlID = {tcid}
 AND ms.MeasurementName = 'T1'
 AND agg.AggregationName = '{agg}'
 AND ss.RatingID = {rating}
