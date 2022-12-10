@@ -6,9 +6,8 @@ import pyodbc as sql
 import classes as c
 import queries as q
 
-# TODO: Review delete process when customizing paramters
+# TODO: Review delete process when customizing parameters
 # TODO: Look into adding covariance table write for Evaluation
-# TODO: Considering looping through multiple sources
 
 
 def validate_args(config):
