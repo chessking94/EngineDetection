@@ -82,7 +82,7 @@ def main():
     run_job(job_name, conn, csr)
 
     # step 3: Python script StatisticsWarehouse.py for as many source/time control combinations as necessary
-    script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\generate'
+    script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\scoring'
     script_name = 'StatisticsWarehouse.py'
     parameters = '-aEvent'
     run_script(script_path, script_name, parameters)
