@@ -68,10 +68,22 @@ def main():
     csr = conn.cursor()
 
     # step 0 (optional): Python script create_distribution.py for as many source/time control combinations as necessary
-    # script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\scoring'
-    # script_name = 'create_distributions.py'
-    # parameters = '-sLichess -tBlitz'
-    # run_script(script_path, script_name, parameters)
+    script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\scoring'
+    script_name = 'create_distributions.py'
+    parameters = '-sLichess -tBullet'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-sLichess -tBlitz'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-sLichess -tRapid'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-sLichess -tClassical'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-sLichess -tCorrespondence'
+    run_script(script_path, script_name, parameters)
 
     # step 1: SQL job "Recalculate Move Scores"
     job_name = 'Recalculate Move Scores'
@@ -90,9 +102,8 @@ def main():
     parameters = '-aGame'
     run_script(script_path, script_name, parameters)
 
-    """Not currently using the Evaluation aggregation, going to disable from recalc until it's actually used"""
-    # parameters = '-aEvaluation'
-    # run_script(script_path, script_name, parameters)
+    parameters = '-aEvaluation'
+    run_script(script_path, script_name, parameters)
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
     job_name = 'Recalculate Fact Table Z-Scores'
@@ -102,7 +113,17 @@ def main():
     job_name = 'Index Maintenance.Subplan_1'
     run_job(job_name, conn, csr)
 
+    # # step 6: SQL job "Database Backup.Subplan_1"
+    # job_name = 'Database Backup.Subplan_1'
+    # run_job(job_name, conn, csr)
+
     conn.close()
+
+    # bat_path = r'C:\Users\eehunt\Repository\pc_backup'
+    # if os.getcwd != bat_path:
+    #     os.chdir(bat_path)
+    # cmd_text = 'backup_files.bat'
+    # os.system('cmd /C ' + cmd_text)
 
 
 if __name__ == '__main__':
