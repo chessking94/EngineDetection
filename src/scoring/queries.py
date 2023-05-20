@@ -64,6 +64,8 @@ AND TimeControlID = {tctype}
 AND RatingID = {rating}
 AND EvaluationGroupID = {evalgroup}
 AND ACPL > 0
+AND MoveScored = 1
+AND Berserk = 0
 """
     return qry
 
