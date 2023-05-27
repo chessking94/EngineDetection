@@ -55,6 +55,23 @@ AND FirstName = '{fname}'
     return idval
 
 
+def get_scid(conn, scorename):
+    qry = f"""
+SELECT
+ScoreID
+
+FROM dim.Scores
+
+WHERE ScoreName = '{scorename}'
+"""
+    df = pd.read_sql(qry, conn)
+    if len(df) == 0:
+        idval = None
+    else:
+        idval = int(df.values[0][0])
+    return idval
+
+
 def get_srcid(conn, src):
     qry = f"""
 SELECT
@@ -141,7 +158,7 @@ ORDER BY 2
     return qry
 
 
-def event_playeropp(playerid, eventid):
+def event_playeropp(playerid, eventid, scoreid):
     qry = f"""
 SELECT
 g.GameID,
@@ -164,15 +181,15 @@ COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+END AS Score
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 JOIN dim.Colors c ON
@@ -185,6 +202,7 @@ JOIN dim.Players bp ON
 WHERE g.EventID = {eventid}
 AND (g.WhitePlayerID = {playerid} OR g.BlackPlayerID = {playerid})
 AND (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = {playerid}
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 
 GROUP BY
@@ -208,7 +226,7 @@ ORDER BY 2
     return qry
 
 
-def event_playersummary(eventid):
+def event_playersummary(eventid, scoreid):
     qry = f"""
 SELECT
 CASE
@@ -226,22 +244,21 @@ COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual,
 opp.OppEVM,
 opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore,
-opp.OppScoreEqual
+opp.OppScore
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 JOIN dim.Colors c ON
@@ -276,21 +293,22 @@ LEFT JOIN (
     AVG(m.ScACPL) AS OppACPL,
     ISNULL(STDEV(m.ScACPL), 0) AS OppSDCPL,
     CASE
-        WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-        ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-    END AS OppScore,
-    CASE
-        WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-        ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-    END AS OppScoreEqual
+        WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+    END AS OppScore
 
     FROM lake.Moves m
+    JOIN stat.MoveScores ms ON
+        m.GameID = ms.GameID AND
+        m.MoveNumber = ms.MoveNumber AND
+        m.ColorID = ms.ColorID
     JOIN lake.Games g ON
         m.GameID = g.GameID
     JOIN dim.Colors c ON
         m.ColorID = c.ColorID
 
-    WHERE m.MoveScored = 1
+    WHERE ms.ScoreID = {scoreid}
+    AND m.MoveScored = 1
 
     GROUP BY
     CASE WHEN c.Color = 'White' THEN g.BlackPlayerID ELSE g.WhitePlayerID END,
@@ -300,6 +318,7 @@ LEFT JOIN (
     g.EventID = opp.EventID
 
 WHERE g.EventID = {eventid}
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 
 GROUP BY
@@ -316,8 +335,7 @@ opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore,
-opp.OppScoreEqual
+opp.OppScore
 
 ORDER BY 1
 """
@@ -409,23 +427,24 @@ MoveCount DESC
     return qry
 
 
-def event_totalscore(eventid):
+def event_totalscore(eventid, scoreid):
     qry = f"""
 SELECT
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+END AS Score
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 
 WHERE g.EventID = {eventid}
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 """
     return qry
@@ -530,7 +549,7 @@ ORDER BY 2
     return qry
 
 
-def player_playeropp(playerid, startdate, enddate):
+def player_playeropp(playerid, startdate, enddate, scoreid):
     qry = f"""
 SELECT
 g.GameID,
@@ -553,15 +572,15 @@ COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+END AS Score
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 JOIN dim.Colors c ON
@@ -574,6 +593,7 @@ JOIN dim.Players bp	ON
 WHERE g.GameDate BETWEEN '{startdate}' AND '{enddate}'
 AND (g.WhitePlayerID = {playerid} OR g.BlackPlayerID = {playerid})
 AND (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = {playerid}
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 
 GROUP BY
@@ -597,7 +617,7 @@ ORDER BY 1
     return qry
 
 
-def player_playersummary(playerid, startdate, enddate):
+def player_playersummary(playerid, startdate, enddate, scoreid):
     qry = f"""
 SELECT
 (CASE WHEN c.Color = 'White' THEN wp.FirstName ELSE bp.FirstName END) + ' ' + (CASE WHEN c.Color = 'White' THEN wp.LastName ELSE bp.LastName END) AS Name,
@@ -611,22 +631,21 @@ COUNT(m.MoveNumber) AS ScoredMoves,
 AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual,
 opp.OppEVM,
 opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore,
-opp.OppScoreEqual
+opp.OppScore
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 JOIN dim.Players wp ON
@@ -663,15 +682,15 @@ JOIN (
     AVG(m.ScACPL) AS OppACPL,
     ISNULL(STDEV(m.ScACPL), 0) AS OppSDCPL,
     CASE
-        WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-        ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-    END AS OppScore,
-    CASE
-        WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-        ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-    END AS OppScoreEqual
+        WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+        ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+    END AS OppScore
 
     FROM lake.Moves m
+    JOIN stat.MoveScores ms ON
+        m.GameID = ms.GameID AND
+        m.MoveNumber = ms.MoveNumber AND
+        m.ColorID = ms.ColorID
     JOIN lake.Games g ON
         m.GameID = g.GameID
     JOIN dim.Colors c ON
@@ -682,6 +701,7 @@ JOIN (
         (g.BlackPlayerID = '{playerid}' AND c.Color = 'White')
     )
     AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
+    AND ms.ScoreID = {scoreid}
     AND m.MoveScored = 1
 
     GROUP BY
@@ -691,6 +711,7 @@ JOIN (
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
 AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 
 GROUP BY
@@ -703,8 +724,7 @@ opp.OppBlunders,
 opp.OppScoredMoves,
 opp.OppACPL,
 opp.OppSDCPL,
-opp.OppScore,
-opp.OppScoreEqual
+opp.OppScore
 """
     return qry
 
@@ -781,19 +801,19 @@ COUNT(m.MoveNumber) DESC
     return qry
 
 
-def player_totalscore(playerid, startdate, enddate):
+def player_totalscore(playerid, startdate, enddate, scoreid):
     qry = f"""
 SELECT
 CASE
-    WHEN ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.Score)/NULLIF(SUM(m.MaxScore), 0), 100)
-END AS Score,
-CASE
-    WHEN ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100) > 100 THEN 100
-    ELSE ISNULL(100*SUM(m.ScoreEqual)/NULLIF(SUM(m.MaxScoreEqual), 0), 100)
-END AS ScoreEqual
+    WHEN ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100) > 100 THEN 100
+    ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
+END AS Score
 
 FROM lake.Moves m
+JOIN stat.MoveScores ms ON
+    m.GameID = ms.GameID AND
+    m.MoveNumber = ms.MoveNumber AND
+    m.ColorID = ms.ColorID
 JOIN lake.Games g ON
     m.GameID = g.GameID
 JOIN dim.Colors c ON
@@ -801,6 +821,7 @@ JOIN dim.Colors c ON
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
 AND g.GameDate BETWEEN '{startdate}' AND '{enddate}'
+AND ms.ScoreID = {scoreid}
 AND m.MoveScored = 1
 """
     return qry
@@ -830,7 +851,7 @@ AND ms.MeasurementName = '{stat}'
 AND ss.RatingID = {rating}
 """
     if colorid:
-        qry = qry + f"AND c.ColorID = {colorid}"
+        qry = qry + f'AND c.ColorID = {colorid}'
     return qry
 
 
@@ -858,7 +879,7 @@ AND agg.AggregationName = '{agg}'
 AND ss.RatingID = {rating}
 """
     if colorid:
-        qry = qry + f"AND c.ColorID = '{colorid}'"
+        qry = qry + f'AND c.ColorID = {colorid}'
     return qry
 
 
@@ -903,7 +924,6 @@ AND cv.EvaluationGroupID = {egid}
 AND m1.MeasurementName = '{typ1}'
 AND m2.MeasurementName = '{typ2}'
 """
-    # print(qry)
     val = pd.read_sql(qry, conn).values[0][0]
     return val
 
@@ -928,11 +948,11 @@ LEFT JOIN dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE agg.AggregationName = '{agg}'
-AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score', 'ScoreEqual')
+AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score')
 AND ss.SourceID = {srcid}
 AND ss.TimeControlID = {tcid}
 AND ss.RatingID = {rating}
 """
     if colorid:
-        qry = qry + f"AND c.ColorID = {colorid}"
+        qry = qry + f'AND c.ColorID = {colorid}'
     return qry

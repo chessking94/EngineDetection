@@ -1,8 +1,8 @@
 {
 	"reportPath": "C:/Users/eehunt/Repository/EngineDetection/output",
 	"reportSource": "Control",
-	"reportType": "Event",
-	"eventName": "81st Tata Steel GpA",
+	"reportType": "Player",
+	"eventName": "2022 Minnesota Chess Championship",
 	"firstName": "Magnus",
 	"lastName": "Carlsen",
 	"startDate": "01/01/2019",
@@ -12,9 +12,9 @@
 	"depth": 11,
 	"maxEval": 3,
 	"compareStats": {
-		"sourceName": "Control",
-		"timeControlName": "Classical",
+		"sourceName": "",
+		"timeControlName": "",
 		"ratingID": false,
-		"useScoreEqual": false
+		"scoreName": "WinProbabilityLost"
 	}
 }

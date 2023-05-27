@@ -15,6 +15,6 @@
 		"sourceName": "Value from dim.Sources.SourceName to compare against; used exclusively for ROI and PValue calculations in individual games",
 		"timeControlName": "Value from dim.TimeControls.TimeControlName to compare against; used in all ROI and PValue calculations",
 		"ratingID": "Rating rounded to the nearest 100 or false to ignore; used in all outlier, ROI, and PValue calculations",
-		"useScoreEqual": "true/false value whether to use the Score values relative to the same Source/TimeControl or against OTB Classical"
+		"scoreName": "Value from dim.Scores.ScoreName; scoring mechanism for the report to use"
 	}
 }

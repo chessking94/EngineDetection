@@ -38,17 +38,17 @@ def format_evm(srcid, tcid, typ, rating, value, dec, conn, colorid=None):
     return val
 
 
-def get_mah_pval(conn, score_key, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
+def get_mah_pval(conn, test_arr, srcid, agg, rating, tcid, colorid=0, egid=0):
     aggid = qry.get_aggid(conn, agg)
     t1_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1')
     cpl_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL')
-    score_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, score_key)
+    score_avg = qry.get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, 'Score')
     t1_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'T1')
     cpl_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', 'ScACPL')
-    score_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, score_key, score_key)
+    score_var = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'Score', 'Score')
     t1_cpl_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'ScACPL')
-    t1_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', score_key)
-    cpl_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', score_key)
+    t1_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'T1', 'Score')
+    cpl_score_cov = qry.get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, 'ScACPL', 'Score')
 
     means = [t1_avg, cpl_avg, score_avg]
     cov_matrix = [

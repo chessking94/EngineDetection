@@ -24,7 +24,9 @@ def parse_stats(compare_stats, conn):
     def_srcname, def_srcid = 'Control', 3
     def_tcname, def_tcid = 'Classical', 5
 
-    screq = True if compare_stats.get('useScoreEqual') else False
+    scrid = None
+    scrname = compare_stats.get('scoreName')
+    scrid = q.get_scid(conn, scrname)
 
     srcid = None
     src_name = compare_stats.get('sourceName')
@@ -43,7 +45,8 @@ def parse_stats(compare_stats, conn):
     rid = ratingid if ratingid is not None else rid
 
     rtn_dict = {
-        'scoreEqual': screq,
+        'scoreId': scrid,
+        'scoreName': scrname,
         'srcId': srcid,
         'srcName': src_name,
         'tcId': tcid,
