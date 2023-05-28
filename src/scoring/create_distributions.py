@@ -6,10 +6,17 @@ from statistics import NormalDist
 import numpy as np
 import pandas as pd
 import pyodbc as sql
-from scipy import stats, optimize
+from scipy import stats, optimize as opt
+
+import queries as q
 
 SRC_CHOICES = ['Personal', 'PersonalOnline', 'Control', 'Lichess', 'Test']
 TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
+MDL_CHOICES = ['Evaluation', 'CP_Loss']
+RATING_CHOICES = [str(100*i) for i in range(34)]
+EVALGROUP_CHOICES = [str(i+1) for i in range(9)]
+
+# TODO: Convert some or all of this into a class
 
 
 def convert_names(conn, src, tc):
@@ -18,7 +25,7 @@ SELECT
 SourceID,
 TimeControlID
 FROM dim.Sources s
-CROSS APPLY dim.TimeControls t
+CROSS JOIN dim.TimeControls t
 WHERE s.SourceName = '{src}'
 AND t.TimeControlName = '{tc}'
 """
@@ -34,8 +41,9 @@ def get_conf(key):
     return val
 
 
-def get_curr_parameters(conn, srcid, tcid):
-    qry_text = f"""
+def get_curr_parameters(conn, mdl, srcid, tcid, ratingid, egid):
+    if mdl == 'Evaluation':
+        qry_text = f'''
 SELECT
 Mean,
 StandardDeviation
@@ -44,58 +52,84 @@ FROM stat.EvalDistributionParameters
 
 WHERE SourceID = {srcid}
 AND TimeControlID = {tcid}
-"""
-    return pd.read_sql(qry_text, conn).to_numpy()[0]
-
-
-def get_parameters(conn, srcid, tcid, recalc=False):
-    if recalc:
-        actual = observed_values(conn, srcid, tcid)
-        params = optimize.curve_fit(f=stats.norm.cdf, xdata=actual['Evaluation'], ydata=actual['Win_Percentage'], p0=[0, 1])[0]
-
-        qry_text = f'SELECT SourceID, TimeControlID FROM stat.EvalDistributionParameters WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
-        ct = len(pd.read_sql(qry_text, conn))
-
-        csr = conn.cursor()
-        if ct == 0:
-            sql_ins = 'INSERT INTO stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
-            sql_ins = sql_ins + f"VALUES ({srcid}, {tcid}, {params[0]}, {params[1]})"
-            logging.debug(f'Insert query|{sql_ins}')
-            csr.execute(sql_ins)
-            conn.commit()
-        else:
-            sql_upd = f'''
-UPDATE new_p
-SET new_p.Mean = {params[0]},
-    new_p.StandardDeviation = {params[1]},
-    new_p.PrevMean = old_p.Mean,
-    new_p.PrevStandardDeviation = old_p.StandardDeviation,
-    new_p.UpdateDate = GETDATE()
-FROM stat.EvalDistributionParameters new_p
-JOIN stat.EvalDistributionParameters old_p ON
-    new_p.SourceID = old_p.SourceID AND
-    new_p.TimeControlID = old_p.TimeControlID
-WHERE new_p.SourceID = {srcid}
-AND new_p.TimeControlID = {tcid}
 '''
-            logging.debug(f'Update query|{sql_upd}')
-            csr = conn.cursor()
-            csr.execute(sql_upd)
-            conn.commit()
+    elif mdl == 'CP_Loss':
+        qry_text = f'''
+SELECT
+Alpha,
+Beta
+
+FROM stat.CPLossDistributionParameters
+
+WHERE SourceID = {srcid}
+AND TimeControlID = {tcid}
+AND RatingID = {ratingid}
+AND EvaluationGroupID = {egid}
+'''
+    df = pd.read_sql(qry_text, conn)
+    if len(df) == 0:
+        df = [None, None]
     else:
-        params = get_curr_parameters(conn, srcid, tcid)
+        df = df.to_numpy()[0]
+    return df
+
+
+def get_distid(conn, disttype):
+    qry = f"""
+SELECT
+DistributionID
+
+FROM stat.DistributionTypes
+
+WHERE DistributionType = '{disttype}'
+"""
+    idval = int(pd.read_sql(qry, conn).values[0][0])
+    return idval
+
+
+def get_parameters(conn, mdl, srcid, tcid, ratingid, egid, recalc=False):
+    if recalc:
+        actual = observed_values(conn, mdl, srcid, tcid, ratingid, egid)
+        if actual is None:
+            params = [None, None]
+        else:
+            func, p_naught = get_optimizations(conn, mdl, srcid, tcid, ratingid, egid)
+            # TODO: make sure params is returning [None, None] if no records are found
+            if mdl == 'Evaluation':
+                params = opt.curve_fit(f=func, xdata=actual['xdata'], ydata=actual['ydata'], p0=p_naught)[0]
+            elif mdl == 'CP_Loss':
+                params = p_naught  # TODO: Not sure why trying to fit a curve like this returns bogus values for a gamma function
+
+            qry_text = q.parameter_stuff('Count', mdl, srcid, tcid, ratingid, egid, params)
+            ct = len(pd.read_sql(qry_text, conn))
+
+            csr = conn.cursor()
+            if ct == 0:
+                sql_ins = q.parameter_stuff('Insert', mdl, srcid, tcid, ratingid, egid, params)
+                logging.debug(f'Insert query|{sql_ins}')
+                csr.execute(sql_ins)
+                conn.commit()
+            else:
+                sql_upd = q.parameter_stuff('Update', mdl, srcid, tcid, ratingid, egid, params)
+                logging.debug(f'Update query|{sql_upd}')
+                csr = conn.cursor()
+                csr.execute(sql_upd)
+                conn.commit()
+    else:
+        params = get_curr_parameters(conn, mdl, srcid, tcid, ratingid, egid)
     dict = {
-        'Mean': params[0],
-        'StandardDeviation': params[1]
+        'p0': params[0],
+        'p1': params[1]
     }
     return dict
 
 
-def observed_values(conn, srcid, tcid):
-    qry_text = f"""
+def observed_values(conn, mdl, srcid, tcid, ratingid, egid):
+    if mdl == 'Evaluation':
+        qry_text = f'''
 SELECT
-ROUND(CAST(m.T1_Eval AS float), 1) AS Evaluation,
-AVG(g.Result) AS Win_Percentage
+ROUND(CAST(m.T1_Eval AS float), 1) AS xdata, --Evaluation
+AVG(g.Result) AS ydata --Win_Percentage
 
 FROM lake.Moves m
 JOIN lake.Games g ON
@@ -107,17 +141,60 @@ JOIN dim.TimeControlDetail td ON
 
 WHERE g.SourceID = {srcid}
 AND td.TimeControlID = {tcid}
-AND (CASE WHEN m.T1_Eval LIKE '#%' THEN 100 ELSE ROUND(CAST(m.T1_Eval AS float), 1) END) BETWEEN -3 AND 3
+AND m.T1_Eval_POV BETWEEN -3 AND 3
 
 GROUP BY
 ROUND(CAST(m.T1_Eval AS float), 1)
+'''
+    elif mdl == 'CP_Loss':
+        qry_text = f"""
+SELECT
+100*CP_Loss AS xdata, --CP_Loss
+COUNT(m.MoveNumber) AS Move_Count
+
+FROM lake.Moves m
+JOIN lake.Games g ON
+    m.GameID = g.GameID
+JOIN dim.Colors c ON
+    m.ColorID = c.ColorID
+JOIN dim.Sources s ON
+    g.SourceID = s.SourceID
+JOIN dim.TimeControlDetail td ON
+    g.TimeControlDetailID = td.TimeControlDetailID
+JOIN dim.Ratings r ON
+    (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) >= r.RatingID AND
+    (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) <= r.RatingUpperBound
+JOIN dim.EvaluationGroups eg ON
+    m.T1_Eval_POV >= eg.LBound AND
+    m.T1_Eval_POV <= eg.UBound
+
+WHERE m.CP_Loss > 0
+AND m.MoveScored = 1
+AND (CASE WHEN c.Color = 'White' THEN g.WhiteBerserk ELSE g.BlackBerserk END) = 0
+AND g.SourceID = {srcid}
+AND td.TimeControlID = {tcid}
+AND r.RatingID = {ratingid}
+AND eg.EvaluationGroupID = {egid}
+
+GROUP BY
+100*CP_Loss
 """
-    return pd.read_sql(qry_text, conn)
+    df = pd.read_sql(qry_text, conn)
+    if len(df) == 0:
+        return None
+    else:
+        if mdl == 'CP_Loss':
+            col_total = df['Move_Count'].sum()
+            df['ydata'] = df['Move_Count'] / col_total
+        return df
 
 
-def validate_args(src, tc):
+def validate_args(mdl, src, tc, ratingid, egid):
+    val_mdl = mdl
     val_src = src
     val_tc = tc
+    val_ratingid = ratingid
+    val_egid = egid
     if tc == 'Ultrabullet':
         logging.critical(f'Process not developed for {tc}, process terminated')
         raise SystemExit
@@ -128,7 +205,47 @@ def validate_args(src, tc):
     if tc in ['Bullet', 'Blitz', 'Rapid']:
         val_src = 'Lichess'
 
-    return [val_src, val_tc]
+    return [val_mdl, val_src, val_tc, val_ratingid, val_egid]
+
+
+def get_optimizations(conn, mdl, srcid, tcid, ratingid, egid):
+    if mdl == 'Evaluation':
+        func = stats.norm.cdf
+        p_naught = [0, 1]
+    elif mdl == 'CP_Loss':
+        func = stats.gamma.pdf
+        qry_text = f"""
+SELECT
+st.RecordCount,
+st.Average*100 AS Average,
+st.StandardDeviation*100 AS StandardDeviation
+
+FROM stat.StatisticsSummary st
+JOIN dim.Aggregations agg ON
+    st.AggregationID = agg.AggregationID
+JOIN dim.Measurements m ON
+    st.MeasurementID = m.MeasurementID
+
+WHERE agg.AggregationName = 'Evaluation'
+AND m.MeasurementName = 'ACPL'
+AND st.SourceID = {srcid}
+AND st.TimeControlID = {tcid}
+AND st.RatingID = {ratingid}
+AND st.EvaluationGroupID = {egid}
+"""
+        df = pd.read_sql(qry_text, conn)
+        col_total = df['RecordCount'].sum()
+        if col_total > 0:
+            df['Weights'] = df['RecordCount'] / col_total
+
+            m = np.average(df['Average'], weights=df['Weights'])
+            sd = np.average(df['StandardDeviation'], weights=df['Weights'])
+            alpha = (m/sd)**2
+            beta = m/(sd**2)
+            p_naught = [alpha, beta]
+        else:
+            pass  # TODO: Add null handling when there are no records, likely need it elsewhere as well
+    return [func, p_naught]
 
 
 def main():
@@ -137,9 +254,9 @@ def main():
         level=logging.INFO
     )
 
-    vrs_num = '2.0'
+    vrs_num = '3.0'
     parser = argparse.ArgumentParser(
-        description='Evalation Distribution Calculator',
+        description='Distribution Calculator',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         usage=argparse.SUPPRESS
     )
@@ -149,6 +266,12 @@ def main():
         version='%(prog)s ' + vrs_num
     )
     parser.add_argument(
+        '-m', '--model',
+        default='CP_Loss',
+        choices=MDL_CHOICES,
+        help='Model Type'
+    )
+    parser.add_argument(
         '-s', '--source',
         default='Lichess',
         choices=SRC_CHOICES,
@@ -156,47 +279,100 @@ def main():
     )
     parser.add_argument(
         '-t', '--timecontrol',
-        default='Rapid',
+        default='Blitz',
         choices=TC_CHOICES,
         help='Time control'
+    )
+    parser.add_argument(
+        '-r', '--rating',
+        default=2300,
+        choices=RATING_CHOICES,
+        help='Rating'
+    )
+    parser.add_argument(
+        '-e', '--evalgroup',
+        default=5,
+        choices=EVALGROUP_CHOICES,
+        help='Evaluation Group'
     )
 
     args = parser.parse_args()
     config = vars(args)
+    mdl = config['model']
     src = config['source']
     tc = config['timecontrol']
+    ratingid = config['rating']
+    egid = config['evalgroup']
     logging.debug(f'Arguments|{config}')
-    val_src, val_tc = validate_args(src, tc)
+    val_mdl, val_src, val_tc, val_ratingid, val_egid = validate_args(mdl, src, tc, ratingid, egid)
 
     conn_str = get_conf('SqlServerConnectionStringTrusted')
     conn = sql.connect(conn_str)
 
     srcid, tcid = convert_names(conn, src, tc)
-    val_srcid, val_tcid = convert_names(conn, val_src, val_tc)
+    val_srcid, val_tcid = convert_names(conn, val_src, val_tc)  # These values may be different from prior line if validation changed them
 
     recalc = True
-    param_dict = get_parameters(conn, val_srcid, val_tcid, recalc)
+    param_dict = get_parameters(conn, val_mdl, val_srcid, val_tcid, val_ratingid, val_egid, recalc)
+    if param_dict['p0'] is None:
+        logging.critical(f'No data available! {mdl}|{src}|{tc}|{ratingid}|{egid}')
+        raise SystemExit
+    dist_dict = {
+        'Evaluation': 'Normal',
+        'CP_Loss': 'Gamma'
+    }
+    dist_id = get_distid(conn, dist_dict[val_mdl])
 
-    csr = conn.cursor()
-    sql_del = f'DELETE FROM stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
-    logging.debug(f'Delete query|{sql_del}')
-    csr.execute(sql_del)
-    conn.commit()
-
-    m = param_dict['Mean']
-    sd = param_dict['StandardDeviation']
-    pdf_f = sd*np.sqrt(2*np.pi)
-
-    rng = np.linspace(start=-15, stop=15, num=3001)
-    for x in rng:
-        pdf_val = NormalDist(mu=m, sigma=sd).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
-        cdf_val = NormalDist(mu=m, sigma=sd).cdf(x)
-
-        sql_cmd = 'INSERT INTO stat.EvalDistributions (SourceID, TimeControlID, Evaluation, PDF, CDF) '
-        sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {pdf_val}, {cdf_val})'
-        logging.debug(f'Insert query|{sql_cmd}')
-        csr.execute(sql_cmd)
+    if val_mdl == 'Evaluation':
+        csr = conn.cursor()
+        sql_del = f'DELETE FROM stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND DistributionID = {dist_id}'
+        logging.debug(f'Delete query|{sql_del}')
+        csr.execute(sql_del)
         conn.commit()
+
+        p0 = param_dict['p0']
+        p1 = param_dict['p1']
+        pdf_f = p1*np.sqrt(2*np.pi)
+
+        rng = np.linspace(start=-15, stop=15, num=3001)
+        for x in rng:
+            pdf_val = NormalDist(mu=p0, sigma=p1).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
+            cdf_val = NormalDist(mu=p0, sigma=p1).cdf(x)
+
+            sql_cmd = 'INSERT INTO stat.EvalDistributions (SourceID, TimeControlID, Evaluation, DistributionID, PDF, CDF) '
+            sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {dist_id}, {pdf_val}, {cdf_val})'
+            logging.debug(f'Insert query|{sql_cmd}')
+            csr.execute(sql_cmd)
+            conn.commit()
+    elif mdl == 'CP_Loss':
+        # TODO: rework this so it's not so duplicative
+        csr = conn.cursor()
+        sql_del = f'''
+DELETE FROM stat.CPLossDistributions
+WHERE SourceID = {srcid}
+AND TimeControlID = {tcid}
+AND RatingID = {ratingid}
+AND EvaluationGroupID = {egid}
+AND DistributionID = {dist_id}
+'''
+        logging.debug(f'Delete query|{sql_del}')
+        csr.execute(sql_del)
+        conn.commit()
+
+        p0 = param_dict['p0']
+        p1 = param_dict['p1']
+        loc = ((p0-1)*p1)/p0
+
+        rng = np.linspace(start=1, stop=300, num=300)
+        for x in rng:
+            pdf_val = stats.gamma.pdf(x, p0, loc, 1/p1)
+            cdf_val = stats.gamma.cdf(x, p0, loc, 1/p1)
+
+            sql_cmd = 'INSERT INTO stat.CPLossDistributions (SourceID, TimeControlID, RatingID, EvaluationGroupID, CP_Loss, DistributionID, PDF, CDF) '
+            sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {ratingid}, {egid}, {x/100}, {dist_id}, {pdf_val}, {cdf_val})'
+            logging.debug(f'Insert query|{sql_cmd}')
+            csr.execute(sql_cmd)
+            conn.commit()
 
     conn.close()
 
