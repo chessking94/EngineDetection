@@ -15,6 +15,12 @@ def validate_args(config):
         logging.critical(f"Invalid aggregation level|{config['agg']}")
         raise SystemExit
 
+    # convert singletons to lists
+    list_checks = ['src', 'fld', 'timecontrol', 'rating', 'evalgroup', 'color']
+    for i in list_checks:
+        if not isinstance(config[i], list) and config[i] is not None:
+            config[i] = [config[i]]
+
     # modifiers
     if config['agg'] == 'Evaluation':
         rmv_list = ['T1', 'T2', 'T3', 'T4', 'T5', 'SDCPL', 'WinProbabilityLost', 'ScSDCPL', 'EvaluationGroupComparison']
