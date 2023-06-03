@@ -15,18 +15,21 @@ def get_conf(key):
 def game_qry(src, tctype, rating, color):
     qry = f"""
 SELECT
-T1, T2, T3, T4, T5,
-ACPL, ScACPL,
-SDCPL, ScSDCPL,
-Score
+fg.T1, fg.T2, fg.T3, fg.T4, fg.T5,
+fg.ACPL, fg.ScACPL,
+fg.SDCPL, fg.ScSDCPL,
+gs.WinProbabilityLost, gs.EvaluationGroupComparison
 
-FROM fact.Game
+FROM fact.Game fg
+JOIN fact.vwGameScoresPivot gs ON
+    fg.GameID = gs.GameID AND
+    fg.ColorID = gs.ColorID
 
-WHERE SourceID = {src}
-AND TimeControlID = {tctype}
-AND RatingID = {rating}
-AND ColorID = {color}
-AND MovesAnalyzed > 0
+WHERE fg.SourceID = {src}
+AND fg.TimeControlID = {tctype}
+AND fg.RatingID = {rating}
+AND fg.ColorID = {color}
+AND fg.MovesAnalyzed > 0
 """
     return qry
 
@@ -35,17 +38,21 @@ AND MovesAnalyzed > 0
 def event_qry(src, tctype, rating):
     qry = f'''
 SELECT
-T1, T2, T3, T4, T5,
-ACPL, ScACPL,
-SDCPL, ScSDCPL,
-Score
+fe.T1, fe.T2, fe.T3, fe.T4, fe.T5,
+fe.ACPL, fe.ScACPL,
+fe.SDCPL, fe.ScSDCPL,
+es.WinProbabilityLost, es.EvaluationGroupComparison
 
-FROM fact.Event
+FROM fact.Event fe
+JOIN fact.vwEventScoresPivot es ON
+    fe.EventID = es.EventID AND
+    fe.PlayerID = es.PlayerID AND
+    fe.TimeControlID = es.TimeControlID
 
-WHERE SourceID = {src}
-AND TimeControlID = {tctype}
-AND RatingID = {rating}
-AND MovesAnalyzed > 0
+WHERE fe.SourceID = {src}
+AND fe.TimeControlID = {tctype}
+AND fe.RatingID = {rating}
+AND fe.MovesAnalyzed > 0
 '''
     return qry
 

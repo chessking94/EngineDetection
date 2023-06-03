@@ -8,7 +8,7 @@ import queries as q
 NL = '\n'
 AGG_CHOICES = ['Game', 'Event', 'Evaluation']
 SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'Score', 'ScACPL', 'ScSDCPL']
+FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'WinProbabilityLost', 'ScACPL', 'ScSDCPL', 'EvaluationGroupComparison']
 TIMECONTROL_CHOICES = ['Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [100*i for i in range(34)]
 EVALGROUP_CHOICES = [i+1 for i in range(9)]
@@ -38,8 +38,8 @@ class aggregator:
             ct = len(data_arr)
             av = np.mean(data_arr)
             sd = np.std(data_arr)
-            mn = min(data_arr)
-            mx = max(data_arr)
+            mn = np.nanmin(data_arr)
+            mx = np.nanmax(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
@@ -63,12 +63,14 @@ class aggregator:
         data = pd.read_sql(qry_text, self.conn)
         if len(data) > 0:
             data_arr = data[fld]
-
-            ct = len(data_arr)
+            ct = data_arr.count()
+        else:
+            ct = 0
+        if ct > 0:
             av = np.mean(data_arr)
             sd = np.std(data_arr)
-            mn = min(data_arr)
-            mx = max(data_arr)
+            mn = np.nanmin(data_arr)
+            mx = np.nanmax(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
@@ -90,7 +92,6 @@ class aggregator:
                         csr.execute(sql_cmd)
                         self.conn.commit()
         else:
-            ct = 0
             av = 'NULL'
             sd = 'NULL'
             mn = 'NULL'
@@ -109,19 +110,22 @@ class aggregator:
         data = pd.read_sql(qry_text, self.conn)
         if len(data) > 0:
             data_arr = data[fld]
-
-            ct = len(data_arr)
+            ct = data_arr.count()
+        else:
+            ct = 0
+        if ct > 0:
             av = np.mean(data_arr)
             sd = np.std(data_arr)
-            mn = min(data_arr)
-            mx = max(data_arr)
+            mn = np.nanmin(data_arr)
+            mx = np.nanmax(data_arr)
 
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
-            if fld == 'Score' and qtr3 > 100:
+            score_list = ['WinProbabilityLost', 'EvaluationGroupComparison']
+            if fld in score_list and qtr3 > 100:
                 qtr3 = 100
-            if fld == 'Score' and upper_pcnt > 100:
+            if fld in score_list and upper_pcnt > 100:
                 upper_pcnt = 100
 
             csr = self.conn.cursor()
@@ -141,7 +145,6 @@ class aggregator:
                         csr.execute(sql_cmd)
                         self.conn.commit()
         else:
-            ct = 0
             av = 'NULL'
             sd = 'NULL'
             mn = 'NULL'
