@@ -11,7 +11,7 @@ SRC_CHOICES = ['Control', 'Lichess']
 FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'WinProbabilityLost', 'ScACPL', 'ScSDCPL', 'EvaluationGroupComparison']
 TIMECONTROL_CHOICES = ['Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [100*i for i in range(34)]
-EVALGROUP_CHOICES = [i+1 for i in range(9)]
+EVALGROUP_CHOICES = [i+1 for i in range(11)]
 COLOR_CHOICES = ['White', 'Black']
 
 
@@ -76,7 +76,7 @@ class aggregator:
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
             csr = self.conn.cursor()
-            dfcov = data.cov()
+            dfcov = data.cov()  # throws a debug error when len(data) = 1, ignoring for now
             stats = dfcov.columns
             for r in stats:
                 m1 = self.fld_dict[r]
@@ -168,30 +168,34 @@ AND AggregationID = {self.agg}
 
     def delete_stats(self):
         sql_del = f'''
-DELETE FROM stat.StatisticsSummary
-WHERE SourceID = {self.src}
-AND AggregationID = {self.agg}
+DELETE ss
+FROM stat.StatisticsSummary ss
+JOIN dim.Measurements m ON ss.MeasurementID = m.MeasurementID
+JOIN dim.TimeControls tc ON ss.TimeControlID = tc.TimeControlID
+JOIN dim.Colors c ON ss.ColorID = c.ColorID
+WHERE ss.SourceID = {self.src}
+AND ss.AggregationID = {self.agg}
 '''
 
-        # if self.fld and len(self.fld) < len(FLD_CHOICES):
-        #     fld_list = ','.join(f"'{i}'" for i in self.fld)
-        #     sql_del = sql_del + f'AND Field IN ({fld_list})' + NL
+        if self.fld is not None:
+            fld_list = ','.join(f"'{i}'" for i in self.fld)
+            sql_del = sql_del + f'AND m.MeasurementName IN ({fld_list})' + NL
 
-        # if self.timecontrol and len(self.timecontrol) < len(TIMECONTROL_CHOICES):
-        #     timecontrol_list = ','.join(f"'{i}'" for i in self.timecontrol)
-        #     sql_del = sql_del + f'AND TimeControlType IN ({timecontrol_list})' + NL
+        if self.timecontrol is not None:
+            timecontrol_list = ','.join(f"'{i}'" for i in self.timecontrol)
+            sql_del = sql_del + f'AND tc.TimeControlName IN ({timecontrol_list})' + NL
 
-        # if self.rating and len(self.rating) < len(RATING_CHOICES):
-        #     rating_list = ','.join(str(i) for i in self.rating)
-        #     sql_del = sql_del + f'AND Rating IN ({rating_list})' + NL
+        if self.rating is not None:
+            rating_list = ','.join(str(i) for i in self.rating)
+            sql_del = sql_del + f'AND ss.RatingID IN ({rating_list})' + NL
 
-        # if self.evalgroup and len(self.evalgroup) < len(EVALGROUP_CHOICES):
-        #     evalgroup_list = ','.join(str(i) for i in self.evalgroup)
-        #     sql_del = sql_del + f'AND EvalGroup IN ({evalgroup_list})' + NL
+        if self.evalgroup is not None:
+            evalgroup_list = ','.join(str(i) for i in self.evalgroup)
+            sql_del = sql_del + f'AND ss.EvaluationGroupID IN ({evalgroup_list})' + NL
 
-        # if self.color and len(self.color) < len(COLOR_CHOICES):
-        #     color_list = ','.join(f"'{i}'" for i in self.color)
-        #     sql_del = sql_del + f'AND Color IN ({color_list})' + NL
+        if self.color is not None and len(self.color) < 2:
+            color_list = ','.join(f"'{i}'" for i in self.color)
+            sql_del = sql_del + f'AND c.Color IN ({color_list})' + NL
 
         logging.debug(f"Delete query|{sql_del.replace(NL, ' ')}")
         return sql_del
@@ -200,6 +204,7 @@ AND AggregationID = {self.agg}
         csr = self.conn.cursor()
 
         sql_cmd = self.delete_stats()
+        logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
         self.conn.commit()
 
@@ -227,10 +232,12 @@ AND AggregationID = {self.agg}
         csr = self.conn.cursor()
 
         sql_cmd = self.delete_stats()
+        logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
         self.conn.commit()
 
         sql_cmd = self.delete_cov()
+        logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
         self.conn.commit()
 
@@ -253,10 +260,12 @@ AND AggregationID = {self.agg}
         csr = self.conn.cursor()
 
         sql_cmd = self.delete_stats()
+        logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
         self.conn.commit()
 
         sql_cmd = self.delete_cov()
+        logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
         self.conn.commit()
 
