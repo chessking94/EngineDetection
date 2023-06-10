@@ -14,7 +14,7 @@ SRC_CHOICES = ['Personal', 'PersonalOnline', 'Control', 'Lichess', 'Test']
 TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 MDL_CHOICES = ['Evaluation', 'CP_Loss']
 RATING_CHOICES = [str(100*i) for i in range(34)]
-EVALGROUP_CHOICES = [str(i+1) for i in range(9)]
+EVALGROUP_CHOICES = [str(i+1) for i in range(11)]
 
 # TODO: Convert some or all of this into a class
 
@@ -228,6 +228,7 @@ JOIN dim.Measurements m ON
 
 WHERE agg.AggregationName = 'Evaluation'
 AND m.MeasurementName = 'ACPL'
+AND st.RecordCount > 0
 AND st.SourceID = {srcid}
 AND st.TimeControlID = {tcid}
 AND st.RatingID = {ratingid}
@@ -244,7 +245,8 @@ AND st.EvaluationGroupID = {egid}
             beta = m/(sd**2)
             p_naught = [alpha, beta]
         else:
-            pass  # TODO: Add null handling when there are no records, likely need it elsewhere as well
+            # TODO: Review null handling when there are no records, likely need it elsewhere as well
+            p_naught = [1, 0]
     return [func, p_naught]
 
 
@@ -291,7 +293,7 @@ def main():
     )
     parser.add_argument(
         '-e', '--evalgroup',
-        default=5,
+        default=6,
         choices=EVALGROUP_CHOICES,
         help='Evaluation Group'
     )
