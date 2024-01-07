@@ -1,5 +1,7 @@
-__pycache__/
+.venv
+.vscode
+__pycache__
 plots/
-.vscode/
 output/
 working_files/
+config.json
