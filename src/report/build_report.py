@@ -1,14 +1,19 @@
 import logging
 import os
+from pathlib import Path
 
 import pyodbc as sql
 
-from func import get_conf, get_config, parse_stats
+from automation import misc
+from func import parse_stats
 from queries import get_evid, get_plid, get_srcid
 import sections
 
+CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
+
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources? Would likely just be a SQL Server thing to copy existing data
 # TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
+# TODO: Make ROI_Equal be entirely on equal ground; T1, ScACPL, and Score. Currently it is just for Score
 
 
 def main():
@@ -17,37 +22,33 @@ def main():
         level=logging.INFO
     )
 
-    config_path = os.path.dirname(__file__)
-    for _ in range(2):
-        config_path = os.path.dirname(config_path)
-
-    conn_str = get_conf('SqlServerConnectionStringTrusted')
+    conn_str = misc.get_config('', CONFIG_FILE)
     conn = sql.connect(conn_str)
 
-    src = get_config(config_path, 'reportSource')
+    src = misc.get_config('reportSource', CONFIG_FILE)
     srcid = get_srcid(conn, src)
-    rpt = get_config(config_path, 'reportType')
+    rpt = misc.get_config('reportType', CONFIG_FILE)
 
-    engine_name = get_config(config_path, 'engineName')
-    depth = get_config(config_path, 'depth')
+    engine_name = misc.get_config('engineName', CONFIG_FILE)
+    depth = misc.get_config('depth', CONFIG_FILE)
 
-    max_eval = get_config(config_path, 'maxEval')
+    max_eval = misc.get_config('maxEval', CONFIG_FILE)
 
-    compare_stats = get_config(config_path, 'compareStats')
+    compare_stats = misc.get_config('compareStats', CONFIG_FILE)
     compare_stats = parse_stats(compare_stats, conn)
 
     if rpt == 'Event':
-        ev = get_config(config_path, 'eventName')
+        ev = misc.get_config('eventName', CONFIG_FILE)
         evid = get_evid(conn, srcid, ev)
         full_name, plid, start_date, end_date = ['', ''], '', '', ''
     elif rpt == 'Player':
         ev, evid = '', ''
-        first_name, last_name = get_config(config_path, 'firstName'), get_config(config_path, 'lastName')
+        first_name, last_name = misc.get_config('firstName', CONFIG_FILE), misc.get_config('lastName', CONFIG_FILE)
         full_name = [first_name, last_name]
         plid = get_plid(conn, srcid, last_name, first_name)
-        start_date, end_date = get_config(config_path, 'startDate'), get_config(config_path, 'endDate')
+        start_date, end_date = misc.get_config('startDate', CONFIG_FILE), misc.get_config('endDate', CONFIG_FILE)
 
-    report_path = get_config(config_path, 'reportPath')
+    report_path = misc.get_config('reportPath', CONFIG_FILE)
     if rpt == 'Event':
         report_name = ev.replace("/", "").replace("\\", "") + '_report.txt'
     elif rpt == 'Player':
