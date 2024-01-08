@@ -24,8 +24,8 @@ def convert_names(conn, src, tc):
 SELECT
 SourceID,
 TimeControlID
-FROM dim.Sources s
-CROSS JOIN dim.TimeControls t
+FROM ChessWarehouse.dim.Sources s
+CROSS JOIN ChessWarehouse.dim.TimeControls t
 WHERE s.SourceName = '{src}'
 AND t.TimeControlName = '{tc}'
 """
@@ -48,7 +48,7 @@ SELECT
 Mean,
 StandardDeviation
 
-FROM stat.EvalDistributionParameters
+FROM ChessWarehouse.stat.EvalDistributionParameters
 
 WHERE SourceID = {srcid}
 AND TimeControlID = {tcid}
@@ -59,7 +59,7 @@ SELECT
 Alpha,
 Beta
 
-FROM stat.CPLossDistributionParameters
+FROM ChessWarehouse.stat.CPLossDistributionParameters
 
 WHERE SourceID = {srcid}
 AND TimeControlID = {tcid}
@@ -79,7 +79,7 @@ def get_distid(conn, disttype):
 SELECT
 DistributionID
 
-FROM stat.DistributionTypes
+FROM ChessWarehouse.stat.DistributionTypes
 
 WHERE DistributionType = '{disttype}'
 """
@@ -131,12 +131,12 @@ SELECT
 ROUND(CAST(m.T1_Eval AS float), 1) AS xdata, --Evaluation
 AVG(g.Result) AS ydata --Win_Percentage
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Sources s ON
+JOIN ChessWarehouse.dim.Sources s ON
     g.SourceID = s.SourceID
-JOIN dim.TimeControlDetail td ON
+JOIN ChessWarehouse.dim.TimeControlDetail td ON
     g.TimeControlDetailID = td.TimeControlDetailID
 
 WHERE g.SourceID = {srcid}
@@ -152,19 +152,19 @@ SELECT
 100*CP_Loss AS xdata, --CP_Loss
 COUNT(m.MoveNumber) AS Move_Count
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Sources s ON
+JOIN ChessWarehouse.dim.Sources s ON
     g.SourceID = s.SourceID
-JOIN dim.TimeControlDetail td ON
+JOIN ChessWarehouse.dim.TimeControlDetail td ON
     g.TimeControlDetailID = td.TimeControlDetailID
-JOIN dim.Ratings r ON
+JOIN ChessWarehouse.dim.Ratings r ON
     (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) >= r.RatingID AND
     (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) <= r.RatingUpperBound
-JOIN dim.EvaluationGroups eg ON
+JOIN ChessWarehouse.dim.EvaluationGroups eg ON
     m.T1_Eval_POV >= eg.LBound AND
     m.T1_Eval_POV <= eg.UBound
 
@@ -220,10 +220,10 @@ st.RecordCount,
 st.Average*100 AS Average,
 st.StandardDeviation*100 AS StandardDeviation
 
-FROM stat.StatisticsSummary st
-JOIN dim.Aggregations agg ON
+FROM ChessWarehouse.stat.StatisticsSummary st
+JOIN ChessWarehouse.dim.Aggregations agg ON
     st.AggregationID = agg.AggregationID
-JOIN dim.Measurements m ON
+JOIN ChessWarehouse.dim.Measurements m ON
     st.MeasurementID = m.MeasurementID
 
 WHERE agg.AggregationName = 'Evaluation'
@@ -327,7 +327,7 @@ def main():
 
     if val_mdl == 'Evaluation':
         csr = conn.cursor()
-        sql_del = f'DELETE FROM stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND DistributionID = {dist_id}'
+        sql_del = f'DELETE FROM ChessWarehouse.stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND DistributionID = {dist_id}'
         logging.debug(f'Delete query|{sql_del}')
         csr.execute(sql_del)
         conn.commit()
@@ -341,7 +341,7 @@ def main():
             pdf_val = NormalDist(mu=p0, sigma=p1).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
             cdf_val = NormalDist(mu=p0, sigma=p1).cdf(x)
 
-            sql_cmd = 'INSERT INTO stat.EvalDistributions (SourceID, TimeControlID, Evaluation, DistributionID, PDF, CDF) '
+            sql_cmd = 'INSERT INTO ChessWarehouse.stat.EvalDistributions (SourceID, TimeControlID, Evaluation, DistributionID, PDF, CDF) '
             sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {dist_id}, {pdf_val}, {cdf_val})'
             logging.debug(f'Insert query|{sql_cmd}')
             csr.execute(sql_cmd)
@@ -350,7 +350,7 @@ def main():
         # TODO: rework this so it's not so duplicative
         csr = conn.cursor()
         sql_del = f'''
-DELETE FROM stat.CPLossDistributions
+DELETE FROM ChessWarehouse.stat.CPLossDistributions
 WHERE SourceID = {srcid}
 AND TimeControlID = {tcid}
 AND RatingID = {ratingid}
@@ -370,7 +370,7 @@ AND DistributionID = {dist_id}
             pdf_val = stats.gamma.pdf(x, p0, loc, 1/p1)
             cdf_val = stats.gamma.cdf(x, p0, loc, 1/p1)
 
-            sql_cmd = 'INSERT INTO stat.CPLossDistributions (SourceID, TimeControlID, RatingID, EvaluationGroupID, CP_Loss, DistributionID, PDF, CDF) '
+            sql_cmd = 'INSERT INTO ChessWarehouse.stat.CPLossDistributions (SourceID, TimeControlID, RatingID, EvaluationGroupID, CP_Loss, DistributionID, PDF, CDF) '
             sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {ratingid}, {egid}, {x/100}, {dist_id}, {pdf_val}, {cdf_val})'
             logging.debug(f'Insert query|{sql_cmd}')
             csr.execute(sql_cmd)

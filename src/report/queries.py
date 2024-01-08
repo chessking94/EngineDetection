@@ -6,7 +6,7 @@ def get_aggid(conn, agg):
 SELECT
 AggregationID
 
-FROM dim.Aggregations
+FROM ChessWarehouse.dim.Aggregations
 
 WHERE AggregationName = '{agg}'
 """
@@ -23,7 +23,7 @@ def get_evid(conn, srcid, event):
 SELECT
 EventID
 
-FROM dim.Events
+FROM ChessWarehouse.dim.Events
 
 WHERE SourceID = {srcid}
 AND EventName = '{event}'
@@ -41,7 +41,7 @@ def get_plid(conn, srcid, lname, fname):
 SELECT
 PlayerID
 
-FROM dim.Players
+FROM ChessWarehouse.dim.Players
 
 WHERE SourceID = {srcid}
 AND LastName = '{lname}'
@@ -60,7 +60,7 @@ def get_scid(conn, scorename):
 SELECT
 ScoreID
 
-FROM dim.Scores
+FROM ChessWarehouse.dim.Scores
 
 WHERE ScoreName = '{scorename}'
 """
@@ -77,7 +77,7 @@ def get_srcid(conn, src):
 SELECT
 SourceID
 
-FROM dim.Sources
+FROM ChessWarehouse.dim.Sources
 
 WHERE SourceName = '{src}'
 """
@@ -94,7 +94,7 @@ def get_tcid(conn, tc):
 SELECT
 TimeControlID
 
-FROM dim.TimeControls
+FROM ChessWarehouse.dim.TimeControls
 
 WHERE TimeControlName = '{tc}'
 """
@@ -113,7 +113,7 @@ ROUND(AVG((WhiteElo + BlackElo)/2), 0) AS AvgGameRating,
 ROUND(MIN((WhiteElo + BlackElo)/2), 0) AS AvgGameRatingMin,
 ROUND(MAX((WhiteElo + BlackElo)/2), 0) AS AvgGameRatingMax
 
-FROM lake.Games
+FROM ChessWarehouse.lake.Games
 
 WHERE EventID = {eventid}
 """
@@ -132,14 +132,14 @@ END AS Name,
 AVG(CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) Rating,
 COUNT(m.MoveNumber) AS ScoredMoves
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp ON
+JOIN ChessWarehouse.dim.Players bp ON
     g.BlackPlayerID = bp.PlayerID
 
 WHERE g.EventID = {eventid}
@@ -185,18 +185,18 @@ CASE
     ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp ON
+JOIN ChessWarehouse.dim.Players bp ON
     g.BlackPlayerID = bp.PlayerID
 
 WHERE g.EventID = {eventid}
@@ -254,18 +254,18 @@ opp.OppACPL,
 opp.OppSDCPL,
 opp.OppScore
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp ON
+JOIN ChessWarehouse.dim.Players bp ON
     g.BlackPlayerID = bp.PlayerID
 JOIN (
     SELECT
@@ -275,7 +275,7 @@ JOIN (
     COUNT(GameID) AS GamesPlayed,
     dbo.GetPerfRating(AVG(OppElo), SUM(ColorResult)/COUNT(GameID)) - AVG(Elo) AS Perf
 
-    FROM lake.vwEventBreakdown
+    FROM ChessWarehouse.lake.vwEventBreakdown
 
     GROUP BY
     EventID,
@@ -297,14 +297,14 @@ LEFT JOIN (
         ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
     END AS OppScore
 
-    FROM lake.Moves m
-    JOIN stat.MoveScores ms ON
+    FROM ChessWarehouse.lake.Moves m
+    JOIN ChessWarehouse.stat.MoveScores ms ON
         m.GameID = ms.GameID AND
         m.MoveNumber = ms.MoveNumber AND
         m.ColorID = ms.ColorID
-    JOIN lake.Games g ON
+    JOIN ChessWarehouse.lake.Games g ON
         m.GameID = g.GameID
-    JOIN dim.Colors c ON
+    JOIN ChessWarehouse.dim.Colors c ON
         m.ColorID = c.ColorID
 
     WHERE ms.ScoreID = {scoreid}
@@ -356,10 +356,10 @@ AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 SUM(CASE WHEN m.CP_Loss > 2 THEN 1 ELSE 0 END) AS Blunders
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 
 WHERE g.EventID = {eventid}
@@ -376,8 +376,8 @@ CONVERT(varchar(10), MIN(g.GameDate), 101) + ' - ' + CONVERT(varchar(10), MAX(g.
 MAX(g.RoundNum) AS Rounds,
 (COUNT(DISTINCT g.WhitePlayerID) + COUNT(DISTINCT g.BlackPlayerID))/2 AS Players
 
-FROM lake.Games g
-JOIN dim.Events e ON
+FROM ChessWarehouse.lake.Games g
+JOIN ChessWarehouse.dim.Events e ON
     g.EventID = e.EventID
 
 WHERE e.EventName = '{event}'
@@ -395,8 +395,8 @@ SELECT
 'Total Moves' AS TraceDescription,
 COUNT(m.MoveNumber) AS MoveCount
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
 
 WHERE g.EventID = {eventid}
@@ -408,10 +408,10 @@ t.TraceKey,
 t.TraceDescription,
 COUNT(m.MoveNumber) AS MoveCount
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Traces t ON
+JOIN ChessWarehouse.dim.Traces t ON
     m.TraceKey = t.TraceKey
 
 WHERE g.EventID = {eventid}
@@ -435,12 +435,12 @@ CASE
     ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
 
 WHERE g.EventID = {eventid}
@@ -456,7 +456,7 @@ SELECT
 m.MoveNumber,
 m.TraceKey AS MoveTrace
 
-FROM lake.Moves m
+FROM ChessWarehouse.lake.Moves m
 
 WHERE m.GameID = {gameid}
 AND m.ColorID = {colorid}
@@ -471,7 +471,7 @@ def max_eval():
 SELECT
 CAST(Value AS decimal(5,2))*100 AS Max_Eval
 
-FROM Settings
+FROM ChessWarehouse.dbo.Settings
 
 WHERE ID = 3
 """
@@ -491,7 +491,7 @@ FROM (
     NULLIF(NULLIF(WhiteElo, ''), 0) AS Elo,
     NULLIF(NULLIF(BlackElo, ''), 0) AS OppElo
 
-    FROM lake.Games
+    FROM ChessWarehouse.lake.Games
 
     WHERE WhitePlayerID = '{playerid}'
     AND GameDate BETWEEN '{startdate}' AND '{enddate}'
@@ -502,7 +502,8 @@ FROM (
     NULLIF(NULLIF(BlackElo, ''), 0) AS Elo,
     NULLIF(NULLIF(WhiteElo, ''), 0) AS OppElo
 
-    FROM lake.Games
+    FROM ChessWarehouse.lake.Games
+
     WHERE BlackPlayerID = '{playerid}'
     AND GameDate BETWEEN '{startdate}' AND '{enddate}'
 ) r
@@ -522,14 +523,14 @@ END AS Name,
 AVG(CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) Rating,
 COUNT(m.MoveNumber) AS ScoredMoves
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp ON
+JOIN ChessWarehouse.dim.Players bp ON
     g.BlackPlayerID = bp.PlayerID
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
@@ -576,18 +577,18 @@ CASE
     ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp	ON
+JOIN ChessWarehouse.dim.Players bp	ON
     g.BlackPlayerID = bp.PlayerID
 
 WHERE g.GameDate BETWEEN '{startdate}' AND '{enddate}'
@@ -641,18 +642,18 @@ opp.OppACPL,
 opp.OppSDCPL,
 opp.OppScore
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Players wp ON
+JOIN ChessWarehouse.dim.Players wp ON
     g.WhitePlayerID = wp.PlayerID
-JOIN dim.Players bp ON
+JOIN ChessWarehouse.dim.Players bp ON
     g.BlackPlayerID = bp.PlayerID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 JOIN (
     SELECT
@@ -664,7 +665,7 @@ JOIN (
         SUM(CASE WHEN BlackPlayerID = '{playerid}' THEN 1 - Result ELSE Result END)/COUNT(GameID)
     ) - AVG(CASE WHEN WhitePlayerID = '{playerid}' THEN WhiteElo ELSE BlackElo END) AS Perf
 
-    FROM lake.Games
+    FROM ChessWarehouse.lake.Games
 
     WHERE (WhitePlayerID = '{playerid}' OR BlackPlayerID = '{playerid}')
     AND GameDate BETWEEN '{startdate}' AND '{enddate}'
@@ -686,14 +687,14 @@ JOIN (
         ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
     END AS OppScore
 
-    FROM lake.Moves m
-    JOIN stat.MoveScores ms ON
+    FROM ChessWarehouse.lake.Moves m
+    JOIN ChessWarehouse.stat.MoveScores ms ON
         m.GameID = ms.GameID AND
         m.MoveNumber = ms.MoveNumber AND
         m.ColorID = ms.ColorID
-    JOIN lake.Games g ON
+    JOIN ChessWarehouse.lake.Games g ON
         m.GameID = g.GameID
-    JOIN dim.Colors c ON
+    JOIN ChessWarehouse.dim.Colors c ON
         m.ColorID = c.ColorID
 
     WHERE (
@@ -743,10 +744,10 @@ AVG(m.ScACPL) AS ACPL,
 ISNULL(STDEV(m.ScACPL), 0) AS SDCPL,
 SUM(CASE WHEN m.CP_Loss > 2 THEN 1 ELSE 0 END) AS Blunders
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
@@ -763,10 +764,10 @@ SELECT
 'Total Moves' AS TraceDescription,
 COUNT(m.MoveNumber) AS MoveCount
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
@@ -779,12 +780,12 @@ t.TraceKey,
 t.TraceDescription,
 COUNT(m.MoveNumber) AS MoveCount
 
-FROM lake.Moves m
-JOIN lake.Games g ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Traces t ON
+JOIN ChessWarehouse.dim.Traces t ON
     m.TraceKey = t.TraceKey
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
@@ -809,14 +810,14 @@ CASE
     ELSE ISNULL(100*SUM(ms.ScoreValue)/NULLIF(SUM(ms.MaxScoreValue), 0), 100)
 END AS Score
 
-FROM lake.Moves m
-JOIN stat.MoveScores ms ON
+FROM ChessWarehouse.lake.Moves m
+JOIN ChessWarehouse.stat.MoveScores ms ON
     m.GameID = ms.GameID AND
     m.MoveNumber = ms.MoveNumber AND
     m.ColorID = ms.ColorID
-JOIN lake.Games g ON
+JOIN ChessWarehouse.lake.Games g ON
     m.GameID = g.GameID
-JOIN dim.Colors c ON
+JOIN ChessWarehouse.dim.Colors c ON
     m.ColorID = c.ColorID
 
 WHERE (CASE WHEN c.Color = 'White' THEN g.WhitePlayerID ELSE g.BlackPlayerID END) = '{playerid}'
@@ -836,12 +837,12 @@ ss.Average,
 ss.StandardDeviation,
 ss.MinValue
 
-FROM stat.StatisticsSummary ss
-JOIN dim.Aggregations agg ON
+FROM ChessWarehouse.stat.StatisticsSummary ss
+JOIN ChessWarehouse.dim.Aggregations agg ON
     ss.AggregationID = agg.AggregationID
-JOIN dim.Measurements ms ON
+JOIN ChessWarehouse.dim.Measurements ms ON
     ss.MeasurementID = ms.MeasurementID
-LEFT JOIN dim.Colors c ON
+LEFT JOIN ChessWarehouse.dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE ss.SourceID = {srcid}
@@ -864,12 +865,12 @@ SELECT
 100*ss.StandardDevIation AS StandardDeviation,
 100*ss.MaxValue AS MaxValue
 
-FROM stat.StatisticsSummary ss
-JOIN dim.Aggregations agg ON
+FROM ChessWarehouse.stat.StatisticsSummary ss
+JOIN ChessWarehouse.dim.Aggregations agg ON
     ss.AggregationID = agg.AggregationID
-JOIN dim.Measurements ms ON
+JOIN ChessWarehouse.dim.Measurements ms ON
     ss.MeasurementID = ms.MeasurementID
-LEFT JOIN dim.Colors c ON
+LEFT JOIN ChessWarehouse.dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE ss.SourceID = {srcid}
@@ -888,8 +889,8 @@ def get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, typ):
 SELECT
 ss.Average
 
-FROM stat.StatisticsSummary ss
-JOIN dim.Measurements m ON
+FROM ChessWarehouse.stat.StatisticsSummary ss
+JOIN ChessWarehouse.dim.Measurements m ON
     ss.MeasurementID = m.MeasurementID
 
 WHERE ss.SourceID = {srcid}
@@ -909,10 +910,10 @@ def get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, typ1, typ2):
 SELECT
 cv.Covariance
 
-FROM stat.Covariances cv
-JOIN dim.Measurements m1 ON
+FROM ChessWarehouse.stat.Covariances cv
+JOIN ChessWarehouse.dim.Measurements m1 ON
     cv.MeasurementID1 = m1.MeasurementID
-JOIN dim.Measurements m2 ON
+JOIN ChessWarehouse.dim.Measurements m2 ON
     cv.MeasurementID2 = m2.MeasurementID
 
 WHERE cv.SourceID = {srcid}
@@ -935,16 +936,16 @@ ms.MeasurementName,
 ss.Average,
 ss.StandardDeviation
 
-FROM stat.StatisticsSummary ss
-JOIN dim.Sources s ON
+FROM ChessWarehouse.stat.StatisticsSummary ss
+JOIN ChessWarehouse.dim.Sources s ON
     ss.SourceID = s.SourceID
-JOIN dim.Aggregations agg ON
+JOIN ChessWarehouse.dim.Aggregations agg ON
     ss.AggregationID = agg.AggregationID
-JOIN dim.Measurements ms ON
+JOIN ChessWarehouse.dim.Measurements ms ON
     ss.MeasurementID = ms.MeasurementID
-JOIN dim.TimeControls tc ON
+JOIN ChessWarehouse.dim.TimeControls tc ON
     ss.TimeControlID = tc.TimeControlID
-LEFT JOIN dim.Colors c ON
+LEFT JOIN ChessWarehouse.dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE agg.AggregationName = '{agg}'

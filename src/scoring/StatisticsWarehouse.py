@@ -1,13 +1,17 @@
 import argparse
 import logging
+import os
+from pathlib import Path
 
+from automation import misc
 import pyodbc as sql
 
 import classes as c
-import queries as q
 
 # TODO: Review delete process when customizing parameters
 # TODO: Look into adding covariance table write for Evaluation
+
+CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
 
 
 def validate_args(config):
@@ -115,7 +119,7 @@ def main():
     data = validate_args(config)
     logging.debug(f'Arguments|{data}')
 
-    conn_str = q.get_conf('SqlServerConnectionStringTrusted')
+    conn_str = misc.get_conf('connectionString_chessDB', CONFIG_FILE)
     conn = sql.connect(conn_str)
 
     agg = data['agg']

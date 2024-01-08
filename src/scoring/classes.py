@@ -85,7 +85,7 @@ class aggregator:
                     cov = 0 if np.isnan(cov) else cov
                     m2 = self.fld_dict[c]
                     if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, 0, 0, m1, m2):
-                        sql_cmd = 'INSERT INTO stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
+                        sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
                         sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
                         sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, 0, 0, {m1}, {m2}, {cov})'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
@@ -138,7 +138,7 @@ class aggregator:
                     cov = 0 if np.isnan(cov) else cov
                     m2 = self.fld_dict[c]
                     if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, colorid, 0, m1, m2):
-                        sql_cmd = 'INSERT INTO stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
+                        sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
                         sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
                         sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, {colorid}, 0, {m1}, {m2}, {cov})'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
@@ -159,7 +159,7 @@ class aggregator:
 
     def delete_cov(self):
         sql_del = f'''
-DELETE FROM stat.Covariances
+DELETE FROM ChessWarehouse.stat.Covariances
 WHERE SourceID = {self.src}
 AND AggregationID = {self.agg}
 '''
@@ -169,10 +169,10 @@ AND AggregationID = {self.agg}
     def delete_stats(self):
         sql_del = f'''
 DELETE ss
-FROM stat.StatisticsSummary ss
-JOIN dim.Measurements m ON ss.MeasurementID = m.MeasurementID
-JOIN dim.TimeControls tc ON ss.TimeControlID = tc.TimeControlID
-JOIN dim.Colors c ON ss.ColorID = c.ColorID
+FROM ChessWarehouse.stat.StatisticsSummary ss
+JOIN ChessWarehouse.dim.Measurements m ON ss.MeasurementID = m.MeasurementID
+JOIN ChessWarehouse.dim.TimeControls tc ON ss.TimeControlID = tc.TimeControlID
+JOIN ChessWarehouse.dim.Colors c ON ss.ColorID = c.ColorID
 WHERE ss.SourceID = {self.src}
 AND ss.AggregationID = {self.agg}
 '''
@@ -217,7 +217,7 @@ AND ss.AggregationID = {self.agg}
                         colorid = q.get_colorid(self.conn, color)
                         for evalgroup in self.evalgroup:
                             ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_evals(fld, tcid, rating, evalgroup, colorid)
-                            sql_cmd = 'INSERT INTO stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
+                            sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
                             sql_cmd = sql_cmd + 'EvaluationGroupID, RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
                             sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
                             sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, "
@@ -247,7 +247,7 @@ AND ss.AggregationID = {self.agg}
                 for tctype in self.timecontrol:
                     tcid = q.get_tcid(self.conn, tctype)
                     ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_event(fld, tcid, rating)
-                    sql_cmd = 'INSERT INTO stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
+                    sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                     sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MaxValue) '
                     sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, 0, 0, "
                     sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mx})"
@@ -277,7 +277,7 @@ AND ss.AggregationID = {self.agg}
                     for color in self.color:
                         colorid = q.get_colorid(self.conn, color)
                         ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_game(fld, tcid, rating, colorid)
-                        sql_cmd = 'INSERT INTO stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
+                        sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                         sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
                         sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
                         sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, 0, "

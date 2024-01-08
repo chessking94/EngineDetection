@@ -1,14 +1,4 @@
-import json
-
 import pandas as pd
-
-
-def get_conf(key):
-    fname = r'C:\Users\eehunt\Repository\confidential.json'
-    with open(fname, 'r') as t:
-        key_data = json.load(t)
-    val = key_data.get(key)
-    return val
 
 
 # game level
@@ -20,8 +10,8 @@ fg.ACPL, fg.ScACPL,
 fg.SDCPL, fg.ScSDCPL,
 gs.WinProbabilityLost, gs.EvaluationGroupComparison
 
-FROM fact.Game fg
-JOIN fact.vwGameScoresPivot gs ON
+FROM ChessWarehouse.fact.Game fg
+JOIN ChessWarehouse.fact.vwGameScoresPivot gs ON
     fg.GameID = gs.GameID AND
     fg.ColorID = gs.ColorID
 
@@ -43,8 +33,8 @@ fe.ACPL, fe.ScACPL,
 fe.SDCPL, fe.ScSDCPL,
 es.WinProbabilityLost, es.EvaluationGroupComparison
 
-FROM fact.Event fe
-JOIN fact.vwEventScoresPivot es ON
+FROM ChessWarehouse.fact.Event fe
+JOIN ChessWarehouse.fact.vwEventScoresPivot es ON
     fe.EventID = es.EventID AND
     fe.PlayerID = es.PlayerID AND
     fe.TimeControlID = es.TimeControlID
@@ -63,7 +53,7 @@ def eval_qry(fld, src, tctype, rating, evalgroup, color):
 SELECT
 {fld}
 
-FROM lake.vwEvaluationSummary
+FROM ChessWarehouse.lake.vwEvaluationSummary
 
 WHERE SourceID = {src}
 AND ColorID = {color}
@@ -94,37 +84,37 @@ AND Color = '{color}'
 
 
 def get_aggid(conn, agg):
-    qry = f"SELECT AggregationID FROM dim.Aggregations WHERE AggregationName = '{agg}'"
+    qry = f"SELECT AggregationID FROM ChessWarehouse.dim.Aggregations WHERE AggregationName = '{agg}'"
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
 
 
 def get_srcid(conn, src):
-    qry = f"SELECT SourceID FROM dim.Sources WHERE SourceName = '{src}'"
+    qry = f"SELECT SourceID FROM ChessWarehouse.dim.Sources WHERE SourceName = '{src}'"
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
 
 
 def get_fldid(conn, fld):
-    qry = f"SELECT MeasurementID FROM dim.Measurements WHERE MeasurementName = '{fld}'"
+    qry = f"SELECT MeasurementID FROM ChessWarehouse.dim.Measurements WHERE MeasurementName = '{fld}'"
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
 
 
 def get_tcid(conn, tc):
-    qry = f"SELECT TimeControlID FROM dim.TimeControls WHERE TimeControlName = '{tc}'"
+    qry = f"SELECT TimeControlID FROM ChessWarehouse.dim.TimeControls WHERE TimeControlName = '{tc}'"
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
 
 
 def get_colorid(conn, color):
-    qry = f"SELECT ColorID FROM dim.Colors WHERE Color = '{color}'"
+    qry = f"SELECT ColorID FROM ChessWarehouse.dim.Colors WHERE Color = '{color}'"
     idval = int(pd.read_sql(qry, conn).values[0][0])
     return idval
 
 
 def get_flddict(conn):
-    qry = 'SELECT MeasurementID, MeasurementName FROM dim.Measurements'
+    qry = 'SELECT MeasurementID, MeasurementName FROM ChessWarehouse.dim.Measurements'
     rs = pd.read_sql(qry, conn)
     return dict(zip(rs['MeasurementName'], rs['MeasurementID']))
 
@@ -135,7 +125,7 @@ def check_cov(conn, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
 SELECT
 Covariance
 
-FROM stat.Covariances
+FROM ChessWarehouse.stat.Covariances
 
 WHERE SourceID = {srcid}
 AND AggregationID = {aggid}
@@ -155,19 +145,19 @@ AND MeasurementID2 = {mid2}
 def parameter_stuff(typ, mdl, srcid, tcid, ratingid, egid, params):
     if typ == 'Count':
         if mdl == 'Evaluation':
-            return f'SELECT SourceID, TimeControlID FROM stat.EvalDistributionParameters WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
+            return f'SELECT SourceID, TimeControlID FROM ChessWarehouse.stat.EvalDistributionParameters WHERE SourceID = {srcid} AND TimeControlID = {tcid}'
         elif mdl == 'CP_Loss':
             return f'''
-SELECT SourceID, TimeControlID, RatingID, EvaluationGroupID FROM stat.CPLossDistributionParameters
+SELECT SourceID, TimeControlID, RatingID, EvaluationGroupID FROM ChessWarehouse.stat.CPLossDistributionParameters
 WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND RatingID = {ratingid} AND EvaluationGroupID = {egid}
 '''
     elif typ == 'Insert':
         if mdl == 'Evaluation':
-            sql_ins = 'INSERT INTO stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
+            sql_ins = 'INSERT INTO ChessWarehouse.stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
             sql_ins = sql_ins + f"VALUES ({srcid}, {tcid}, {params[0]}, {params[1]})"
             return sql_ins
         elif mdl == 'CP_Loss':
-            sql_ins = 'INSERT INTO stat.CPLossDistributionParameters (SourceID, TimeControlID, RatingID, EvaluationGroupID, Alpha, Beta) '
+            sql_ins = 'INSERT INTO ChessWarehouse.stat.CPLossDistributionParameters (SourceID, TimeControlID, RatingID, EvaluationGroupID, Alpha, Beta) '
             sql_ins = sql_ins + f'VALUES ({srcid}, {tcid}, {ratingid}, {egid}, {params[0]}, {params[1]})'
             return sql_ins
     elif typ == 'Update':
@@ -179,10 +169,12 @@ new_p.StandardDeviation = {params[1]},
 new_p.PrevMean = old_p.Mean,
 new_p.PrevStandardDeviation = old_p.StandardDeviation,
 new_p.UpdateDate = GETDATE()
-FROM stat.EvalDistributionParameters new_p
-JOIN stat.EvalDistributionParameters old_p ON
-new_p.SourceID = old_p.SourceID AND
-new_p.TimeControlID = old_p.TimeControlID
+
+FROM ChessWarehouse.stat.EvalDistributionParameters new_p
+JOIN ChessWarehouse.stat.EvalDistributionParameters old_p ON
+    new_p.SourceID = old_p.SourceID AND
+    new_p.TimeControlID = old_p.TimeControlID
+
 WHERE new_p.SourceID = {srcid}
 AND new_p.TimeControlID = {tcid}
 '''
@@ -195,12 +187,14 @@ new_p.Beta = {params[1]},
 new_p.PrevAlpha = old_p.Alpha,
 new_p.PrevBeta = old_p.Beta,
 new_p.UpdateDate = GETDATE()
-FROM stat.CPLossDistributionParameters new_p
-JOIN stat.CPLossDistributionParameters old_p ON
-new_p.SourceID = old_p.SourceID AND
-new_p.TimeControlID = old_p.TimeControlID AND
-new_p.RatingID = old_p.RatingID AND
-new_p.EvaluationGroupID = old_p.EvaluationGroupID
+
+FROM ChessWarehouse.stat.CPLossDistributionParameters new_p
+JOIN ChessWarehouse.stat.CPLossDistributionParameters old_p ON
+    new_p.SourceID = old_p.SourceID AND
+    new_p.TimeControlID = old_p.TimeControlID AND
+    new_p.RatingID = old_p.RatingID AND
+    new_p.EvaluationGroupID = old_p.EvaluationGroupID
+
 WHERE new_p.SourceID = {srcid}
 AND new_p.TimeControlID = {tcid}
 AND new_p.RatingID = {ratingid}
