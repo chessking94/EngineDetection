@@ -1,4 +1,5 @@
 {
+	"connectionString_chessDB": "Driver={ODBC Driver 17 for SQL Server};Server=localhost;Database=chessDB;UID=username;PWD=password;",
 	"reportPath": "C:/EngineDetection/output",
 	"reportSource": "Control",
 	"reportType": "Player",

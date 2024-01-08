@@ -22,7 +22,7 @@ def main():
         level=logging.INFO
     )
 
-    conn_str = misc.get_config('', CONFIG_FILE)
+    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
     conn = sql.connect(conn_str)
 
     src = misc.get_config('reportSource', CONFIG_FILE)
