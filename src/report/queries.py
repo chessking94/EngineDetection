@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def get_aggid(conn, agg):
+def get_aggid(engine, agg):
     qry = f"""
 SELECT
 AggregationID
@@ -10,7 +10,7 @@ FROM ChessWarehouse.dim.Aggregations
 
 WHERE AggregationName = '{agg}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -18,7 +18,7 @@ WHERE AggregationName = '{agg}'
     return idval
 
 
-def get_evid(conn, srcid, event):
+def get_evid(engine, srcid, event):
     qry = f"""
 SELECT
 EventID
@@ -28,7 +28,7 @@ FROM ChessWarehouse.dim.Events
 WHERE SourceID = {srcid}
 AND EventName = '{event}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -36,7 +36,7 @@ AND EventName = '{event}'
     return idval
 
 
-def get_plid(conn, srcid, lname, fname):
+def get_plid(engine, srcid, lname, fname):
     qry = f"""
 SELECT
 PlayerID
@@ -47,7 +47,7 @@ WHERE SourceID = {srcid}
 AND LastName = '{lname}'
 AND FirstName = '{fname}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -55,7 +55,7 @@ AND FirstName = '{fname}'
     return idval
 
 
-def get_scid(conn, scorename):
+def get_scid(engine, scorename):
     qry = f"""
 SELECT
 ScoreID
@@ -64,7 +64,7 @@ FROM ChessWarehouse.dim.Scores
 
 WHERE ScoreName = '{scorename}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -72,7 +72,7 @@ WHERE ScoreName = '{scorename}'
     return idval
 
 
-def get_srcid(conn, src):
+def get_srcid(engine, src):
     qry = f"""
 SELECT
 SourceID
@@ -81,7 +81,7 @@ FROM ChessWarehouse.dim.Sources
 
 WHERE SourceName = '{src}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -89,7 +89,7 @@ WHERE SourceName = '{src}'
     return idval
 
 
-def get_tcid(conn, tc):
+def get_tcid(engine, tc):
     qry = f"""
 SELECT
 TimeControlID
@@ -98,7 +98,7 @@ FROM ChessWarehouse.dim.TimeControls
 
 WHERE TimeControlName = '{tc}'
 """
-    df = pd.read_sql(qry, conn)
+    df = pd.read_sql(qry, engine)
     if len(df) == 0:
         idval = None
     else:
@@ -884,7 +884,7 @@ AND ss.RatingID = {rating}
     return qry
 
 
-def get_statavg(conn, srcid, aggid, rating, tcid, colorid, egid, typ):
+def get_statavg(engine, srcid, aggid, rating, tcid, colorid, egid, typ):
     qry = f"""
 SELECT
 ss.Average
@@ -901,11 +901,11 @@ AND ss.ColorID = {colorid}
 AND ss.EvaluationGroupID = {egid}
 AND m.MeasurementName = '{typ}'
 """
-    val = pd.read_sql(qry, conn).values[0][0]
+    val = pd.read_sql(qry, engine).values[0][0]
     return val
 
 
-def get_statcovar(conn, srcid, aggid, rating, tcid, colorid, egid, typ1, typ2):
+def get_statcovar(engine, srcid, aggid, rating, tcid, colorid, egid, typ1, typ2):
     qry = f"""
 SELECT
 cv.Covariance
@@ -925,11 +925,12 @@ AND cv.EvaluationGroupID = {egid}
 AND m1.MeasurementName = '{typ1}'
 AND m2.MeasurementName = '{typ2}'
 """
-    val = pd.read_sql(qry, conn).values[0][0]
+    val = pd.read_sql(qry, engine).values[0][0]
     return val
 
 
-def zscore_data(agg, srcid, tcid, rating, colorid=None):
+def zscore_data(agg, scorename, srcid, tcid, rating, colorid=None):
+    # TODO: Need to pass in the score measure somehow, can't have it hard-coded now that there are multiple score types
     qry = f"""
 SELECT
 ms.MeasurementName,
@@ -949,7 +950,7 @@ LEFT JOIN ChessWarehouse.dim.Colors c ON
     ss.ColorID = c.ColorID
 
 WHERE agg.AggregationName = '{agg}'
-AND ms.MeasurementName IN ('T1', 'ScACPL', 'Score')
+AND ms.MeasurementName IN ('T1', 'ScACPL', '{scorename}')
 AND ss.SourceID = {srcid}
 AND ss.TimeControlID = {tcid}
 AND ss.RatingID = {rating}

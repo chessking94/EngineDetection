@@ -14,14 +14,15 @@ PK_LEN = 10
 
 
 class report:
-    def __init__(self, rpt, compare_stats, typ, conn, eventid, playerid, startdate, enddate):
+    def __init__(self, rpt, compare_stats, typ, engine, eventid, playerid, startdate, enddate):
         self.rpt = rpt
         self.comp_srcid = compare_stats.get('srcId')
         self.comp_tcid = compare_stats.get('tcId')
         self.comp_rid = compare_stats.get('rId')
         self.scoreid = compare_stats.get('scoreId')
+        self.scorename = compare_stats.get('scoreName')
         self.typ = typ
-        self.conn = conn
+        self.engine = engine
         self.eventid = eventid
         self.playerid = playerid
         self.startdate = startdate
@@ -41,7 +42,7 @@ class report:
         else:
             self.rpt.write('Average opponent rating:'.ljust(EV_LEN, ' '))
             qry_text = qry.player_avgrating(self.playerid, self.startdate, self.enddate)
-        rs = pd.read_sql(qry_text, self.conn).values.tolist()
+        rs = pd.read_sql(qry_text, self.engine).values.tolist()
 
         if self.comp_rid:
             rt = self.comp_rid
@@ -59,14 +60,14 @@ class report:
             qry_text = qry.event_totalmoves(self.eventid)
         else:
             qry_text = qry.player_totalmoves(self.playerid, self.startdate, self.enddate)
-        totrs = pd.read_sql(qry_text, self.conn)
+        totrs = pd.read_sql(qry_text, self.engine)
         totrs = totrs.set_index('TraceKey')
 
         if self.typ == 'Event':
             qry_text = qry.event_scoredmoves(self.eventid)
         else:
             qry_text = qry.player_scoredmoves(self.playerid, self.startdate, self.enddate)
-        rs = pd.read_sql(qry_text, self.conn).values.tolist()
+        rs = pd.read_sql(qry_text, self.engine).values.tolist()
 
         self.rpt.write('Scored Moves:'.ljust(EV_LEN, ' '))
         self.rpt.write(f"{int(rs[0][1])} / {totrs.loc['Total', 'MoveCount']} = {'{:.2f}'.format(100*int(rs[0][1])/totrs.loc['Total', 'MoveCount'])}%" + NL)
@@ -82,17 +83,17 @@ class report:
         self.rpt.write('Blunders:'.ljust(EV_LEN, ' '))
         self.rpt.write(f"{int(rs[0][9])} / {int(rs[0][1])} = {'{:.2f}'.format(100*int(rs[0][9])/int(rs[0][1]))}%" + NL)
         self.rpt.write('ScACPL:'.ljust(EV_LEN, ' '))
-        acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScACPL', rt, rs[0][7], self.conn)
+        acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScACPL', rt, rs[0][7], self.engine)
         self.rpt.write(acpl + NL)
         self.rpt.write('ScSDCPL:'.ljust(EV_LEN, ' '))
-        sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScSDCPL', rt, rs[0][8], self.conn)
+        sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, 'Event', 'ScSDCPL', rt, rs[0][8], self.engine)
         self.rpt.write(sdcpl + NL)
 
         if self.typ == 'Event':
             qry_text = qry.event_totalscore(self.eventid, self.scoreid)
         else:
             qry_text = qry.player_totalscore(self.playerid, self.startdate, self.enddate, self.scoreid)
-        rss = pd.read_sql(qry_text, self.conn).values.tolist()[0]
+        rss = pd.read_sql(qry_text, self.engine).values.tolist()[0]
         score_val = rss[0]
 
         self.rpt.write('Score:'.ljust(EV_LEN, ' '))
@@ -108,20 +109,20 @@ class report:
             key_tcid = self.comp_tcid
 
         # hard-coding sourceID since Lichess doesn't have event stats
-        z_qry = qry.zscore_data(agg='Event', srcid=3, tcid=key_tcid, rating=rt)
-        z_rs = pd.read_sql(z_qry, self.conn)
+        z_qry = qry.zscore_data(agg='Event', scorename=self.scorename, srcid=3, tcid=key_tcid, rating=rt)
+        z_rs = pd.read_sql(z_qry, self.engine)
         z_rs = z_rs.set_index('MeasurementName')
 
         t1_z = ((int(rs[0][2])/int(rs[0][1])) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
         scacpl_z = -1*(rs[0][7] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
-        score_z = (score_val - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+        score_z = (score_val - z_rs.loc[self.scorename, 'Average'])/z_rs.loc[self.scorename, 'StandardDeviation']
         roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
         self.rpt.write('ROI:'.ljust(EV_LEN, ' '))
         self.rpt.write(roi + NL)
 
         test_arr = [int(rs[0][2])/int(rs[0][1]), rs[0][7], score_val]
         # hard-coding sourceID since Lichess doesn't have event stats
-        pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid)
+        pval = outliers.get_mah_pval(engine=self.engine, test_arr=test_arr, srcid=3, agg='Event', rating=rt, tcid=key_tcid, scorename=self.scorename)
         self.rpt.write('PValue:'.ljust(EV_LEN, ' '))
         self.rpt.write(pval + NL)
 
@@ -167,7 +168,7 @@ class report:
             qry_text = qry.event_playersummary(self.eventid, self.scoreid)
         else:
             qry_text = qry.player_playersummary(self.playerid, self.startdate, self.enddate, self.scoreid)
-        rs = pd.read_sql(qry_text, self.conn)
+        rs = pd.read_sql(qry_text, self.engine)
         for idx, player in rs.iterrows():
             self.rpt.write(player['Name'][0:player_len].ljust(player_len, ' '))
             if self.comp_rid:
@@ -191,7 +192,7 @@ class report:
 
             agg_typ = 'Event'
             evm = str(player['EVM']).ljust(4, ' ') + ' / ' + str(player['ScoredMoves']).ljust(4, ' ') + ' = '
-            evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.conn)
+            evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*player['EVM']/player['ScoredMoves'], 1, self.engine)
             evm = evm + evmpcnt
             self.rpt.write(evm.ljust(evm_len, ' '))
 
@@ -200,10 +201,10 @@ class report:
             bl = bl + blpcnt
             self.rpt.write(bl.ljust(blun_len, ' '))
 
-            acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, player['ACPL'], self.conn)
+            acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, player['ACPL'], self.engine)
             self.rpt.write(acpl.ljust(acpl_len, ' '))
 
-            sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.conn)
+            sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, player['SDCPL'], self.engine)
             self.rpt.write(sdcpl.ljust(sdcpl_len, ' '))
 
             if player['Score'] >= 99.995:
@@ -218,19 +219,19 @@ class report:
                 sum_tcid = self.comp_tcid
 
             # hard-coding sourceID since Lichess doesn't have event stats
-            z_qry = qry.zscore_data(agg=agg_typ, srcid=3, tcid=sum_tcid, rating=rt)
-            z_rs = pd.read_sql(z_qry, self.conn)
+            z_qry = qry.zscore_data(agg=agg_typ, scorename=self.scorename, srcid=3, tcid=sum_tcid, rating=rt)
+            z_rs = pd.read_sql(z_qry, self.engine)
             z_rs = z_rs.set_index('MeasurementName')
 
             t1_z = ((player['EVM']/player['ScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
             scacpl_z = -1*(player['ACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
-            score_z = (player['Score'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+            score_z = (player['Score'] - z_rs.loc[self.scorename, 'Average'])/z_rs.loc[self.scorename, 'StandardDeviation']
             roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
             self.rpt.write(roi.ljust(roi_len, ' '))
 
             test_arr = [player['EVM']/player['ScoredMoves'], player['ACPL'], player['Score']]
             # hard-coding sourceID since Lichess doesn't have event stats
-            pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
+            pval = outliers.get_mah_pval(engine=self.engine, test_arr=test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid, scorename=self.scorename)
             self.rpt.write(pval.ljust(pval_len, ' '))
 
             oppevm = str(player['OppEVM']).ljust(4, ' ') + ' / ' + str(player['OppScoredMoves']).ljust(4, ' ') + ' = '
@@ -256,13 +257,13 @@ class report:
 
             opp_t1_z = ((player['OppEVM']/player['OppScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
             opp_scacpl_z = -1*(player['OppACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
-            opp_score_z = (player['OppScore'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+            opp_score_z = (player['OppScore'] - z_rs.loc[self.scorename, 'Average'])/z_rs.loc[self.scorename, 'StandardDeviation']
             opproi = outliers.calc_comp_roi([opp_t1_z, opp_scacpl_z, opp_score_z])
             self.rpt.write(opproi.ljust(roi_len, ' '))
 
             # opp p-value
             opp_test_arr = [player['OppEVM']/player['OppScoredMoves'], player['OppACPL'], player['OppScore']]
-            opppval = outliers.get_mah_pval(conn=self.conn, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid)
+            opppval = outliers.get_mah_pval(engine=self.engine, test_arr=opp_test_arr, srcid=3, agg=agg_typ, rating=rt, tcid=sum_tcid, scorename=self.scorename)
             self.rpt.write(opppval.ljust(pval_len, ' '))
 
             self.rpt.write(NL)
@@ -278,7 +279,7 @@ class report:
             qry_text = qry.event_playergames(self.eventid)
         else:
             qry_text = qry.player_playergames(self.playerid, self.startdate, self.enddate)
-        player_rs = pd.read_sql(qry_text, self.conn)
+        player_rs = pd.read_sql(qry_text, self.engine)
         for i, player in player_rs.iterrows():
             self.rpt.write(player['Name'])
             if self.comp_rid:
@@ -293,7 +294,7 @@ class report:
                 qry_text = qry.event_playeropp(player['PlayerID'], self.eventid, self.scoreid)
             else:
                 qry_text = qry.player_playeropp(player['PlayerID'], self.startdate, self.enddate, self.scoreid)
-            game_rs = pd.read_sql(qry_text, self.conn)
+            game_rs = pd.read_sql(qry_text, self.engine)
             for ii, game in game_rs.iterrows():
                 g_id = int(game['GameID'])
                 rd = str(int(game['RoundNum'])) if game['RoundNum'] else ''
@@ -312,15 +313,15 @@ class report:
 
                 agg_typ = 'Game'
                 evm = str(game['EVM']).ljust(3, ' ') + ' / ' + str(game['ScoredMoves']).ljust(3, ' ') + ' = '
-                evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*game['EVM']/game['ScoredMoves'], 0, self.conn)
+                evmpcnt = outliers.format_evm(self.comp_srcid, self.comp_tcid, agg_typ, rt, 100*game['EVM']/game['ScoredMoves'], 0, self.engine)
                 evm = evm + evmpcnt
                 self.rpt.write(evm.ljust(18, ' '))
 
                 c = 1 if game['Color'] == 'w' else 2
-                acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, game['ACPL'], self.conn, c)
+                acpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScACPL', rt, game['ACPL'], self.engine, c)
                 self.rpt.write(acpl.ljust(8, ' '))
 
-                sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.conn, c)
+                sdcpl = outliers.format_cpl(self.comp_srcid, self.comp_tcid, agg_typ, 'ScSDCPL', rt, game['SDCPL'], self.engine, c)
                 self.rpt.write(sdcpl.ljust(8, ' '))
 
                 if game['Score'] >= 99.995:
@@ -329,24 +330,24 @@ class report:
                     score = '{:.2f}'.format(game['Score'])
                 self.rpt.write(score.ljust(7, ' '))
 
-                z_qry = qry.zscore_data(agg=agg_typ, srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt, colorid=c)
-                z_rs = pd.read_sql(z_qry, self.conn)
+                z_qry = qry.zscore_data(agg=agg_typ, scorename=self.scorename, srcid=self.comp_srcid, tcid=self.comp_tcid, rating=rt, colorid=c)
+                z_rs = pd.read_sql(z_qry, self.engine)
                 z_rs = z_rs.set_index('MeasurementName')
 
                 t1_z = ((game['EVM']/game['ScoredMoves']) - z_rs.loc['T1', 'Average'])/z_rs.loc['T1', 'StandardDeviation']
                 scacpl_z = -1*(game['ACPL'] - z_rs.loc['ScACPL', 'Average'])/z_rs.loc['ScACPL', 'StandardDeviation']
-                score_z = (game['Score'] - z_rs.loc['Score', 'Average'])/z_rs.loc['Score', 'StandardDeviation']
+                score_z = (game['Score'] - z_rs.loc[self.scorename, 'Average'])/z_rs.loc[self.scorename, 'StandardDeviation']
 
                 roi = outliers.calc_comp_roi([t1_z, scacpl_z, score_z])
                 self.rpt.write(roi.ljust(6, ' '))
 
                 test_arr = [game['EVM']/game['ScoredMoves'], game['ACPL'], game['Score']]
-                pval = outliers.get_mah_pval(conn=self.conn, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid, colorid=c)
+                pval = outliers.get_mah_pval(engine=self.engine, test_arr=test_arr, srcid=self.comp_srcid, agg=agg_typ, rating=rt, tcid=self.comp_tcid, scorename=self.scorename, colorid=c)
                 self.rpt.write(pval.ljust(8, ' '))
 
                 # moves
                 qry_text = qry.game_trace(g_id, c)
-                moves_rs = pd.read_sql(qry_text, self.conn)
+                moves_rs = pd.read_sql(qry_text, self.engine)
                 ctr = 0
                 for iii, mv in moves_rs.iterrows():
                     if ctr == 60:
@@ -372,7 +373,7 @@ class general:
         self.rating = compare_stats.get('rId')
         self.scorename = compare_stats.get('scoreName')
 
-    def header_type(self, rpt_typ, conn, event, name, startdate, enddate):
+    def header_type(self, rpt_typ, engine, event, name, startdate, enddate):
         self.rpt.write('-'*100 + NL)
         self.rpt.write('Analysis Type:'.ljust(HDR_LEN, ' ') + rpt_typ + NL)
         self.rpt.write('Compared Source:'.ljust(HDR_LEN, ' ') + self.srcname + NL)
@@ -387,7 +388,7 @@ class general:
 
         if rpt_typ == 'Event':
             qry_text = qry.event_summary(event)
-            rs = pd.read_sql(qry_text, conn).values.tolist()
+            rs = pd.read_sql(qry_text, engine).values.tolist()
             self.rpt.write('Event Name:'.ljust(HDR_LEN, ' ') + event + NL)
             self.rpt.write('Event Date:'.ljust(HDR_LEN, ' ') + rs[0][1] + NL)
             rd = str(int(rs[0][2])) if rs[0][2] else ''
@@ -406,9 +407,9 @@ class general:
         self.rpt.write(NL)
         self.rpt.write(NL)
 
-    def scoring_desc(self, conn):
+    def scoring_desc(self, engine):
         qry_text = qry.max_eval()
-        mx_ev = pd.read_sql(qry_text, conn).values.tolist()
+        mx_ev = pd.read_sql(qry_text, engine).values.tolist()
         mx_ev = str(int(mx_ev[0][0]))
         self.rpt.write('MOVE SCORING' + NL)
         self.rpt.write('-'*25 + NL)
@@ -452,7 +453,7 @@ class general:
         self.rpt.write(NL)
 
 
-def update_maxeval(conn, maxeval):
+def update_maxeval(engine, maxeval):
     go = False
     try:
         float(maxeval)
@@ -461,15 +462,17 @@ def update_maxeval(conn, maxeval):
         logging.warning(f'Non-numeric max eval|{maxeval}')
 
     if go:
+        conn = engine.connect().connection
         csr = conn.cursor()
         sql_cmd = f"UPDATE Settings SET Value = '{maxeval}' WHERE ID = 3"
         logging.debug(f"Update query|{sql_cmd}")
         csr.execute(sql_cmd)
         conn.commit()
         rtn = maxeval
+        conn.close()
     else:
         qry_text = 'SELECT Value FROM Settings WHERE ID = 3'
-        rs = pd.read_sql(qry_text, conn).values.tolist()
+        rs = pd.read_sql(qry_text, engine).values.tolist()
         rtn = rs[0][0]
 
     return rtn
