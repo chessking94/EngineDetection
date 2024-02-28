@@ -11,7 +11,6 @@ import sections
 
 CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
 
-# TODO: This needs some major refactoring after the introduction of multiple score types
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources? Would likely just be a SQL Server thing to copy existing data
 # TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
 # TODO: Make ROI_Equal be entirely on equal ground; T1, ScACPL, and Score. Currently it is just for Score
