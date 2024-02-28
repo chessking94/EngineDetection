@@ -4,10 +4,11 @@ import os
 from pathlib import Path
 
 from automation import misc
-import pyodbc as sql
+import sqlalchemy as sa
 
 import classes as c
 
+# TODO: Is there a way to make this more efficient? i.e. fewer queries and do calculations in-script?
 # TODO: Review delete process when customizing parameters
 # TODO: Look into adding covariance table write for Evaluation
 
@@ -119,8 +120,12 @@ def main():
     data = validate_args(config)
     logging.debug(f'Arguments|{data}')
 
-    conn_str = misc.get_conf('connectionString_chessDB', CONFIG_FILE)
-    conn = sql.connect(conn_str)
+    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    connection_url = sa.engine.URL.create(
+        drivername='mssql+pyodbc',
+        query={"odbc_connect": conn_str}
+    )
+    engine = sa.create_engine(connection_url)
 
     agg = data['agg']
     for src in data['src']:
@@ -130,16 +135,15 @@ def main():
         evalgroup = data['evalgroup'][src]
         color = data['color'][src]
 
-        req = c.aggregator(conn, agg, src, fld, timecontrol, rating, evalgroup, color)
+        with c.aggregator(engine, agg, src, fld, timecontrol, rating, evalgroup, color) as req:
+            if agg == 'Evaluation':
+                req.evaluation()
+            elif agg == 'Event':
+                req.event()
+            elif agg == 'Game':
+                req.game()
 
-        if agg == 'Evaluation':
-            req.evaluation()
-        elif agg == 'Event':
-            req.event()
-        elif agg == 'Game':
-            req.game()
-
-    conn.close()
+    engine.dispose()
 
 
 if __name__ == '__main__':

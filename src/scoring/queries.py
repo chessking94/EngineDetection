@@ -83,43 +83,43 @@ AND Color = '{color}'
     return qry
 
 
-def get_aggid(conn, agg):
+def get_aggid(engine, agg):
     qry = f"SELECT AggregationID FROM ChessWarehouse.dim.Aggregations WHERE AggregationName = '{agg}'"
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_srcid(conn, src):
+def get_srcid(engine, src):
     qry = f"SELECT SourceID FROM ChessWarehouse.dim.Sources WHERE SourceName = '{src}'"
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_fldid(conn, fld):
+def get_fldid(engine, fld):
     qry = f"SELECT MeasurementID FROM ChessWarehouse.dim.Measurements WHERE MeasurementName = '{fld}'"
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_tcid(conn, tc):
+def get_tcid(engine, tc):
     qry = f"SELECT TimeControlID FROM ChessWarehouse.dim.TimeControls WHERE TimeControlName = '{tc}'"
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_colorid(conn, color):
+def get_colorid(engine, color):
     qry = f"SELECT ColorID FROM ChessWarehouse.dim.Colors WHERE Color = '{color}'"
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_flddict(conn):
+def get_flddict(engine):
     qry = 'SELECT MeasurementID, MeasurementName FROM ChessWarehouse.dim.Measurements'
-    rs = pd.read_sql(qry, conn)
+    rs = pd.read_sql(qry, engine)
     return dict(zip(rs['MeasurementName'], rs['MeasurementID']))
 
 
-def check_cov(conn, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
+def check_cov(engine, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
     rtn = False
     qry = f'''
 SELECT
@@ -136,7 +136,7 @@ AND EvaluationGroupID = {egid}
 AND MeasurementID1 = {mid1}
 AND MeasurementID2 = {mid2}
 '''
-    rs = pd.read_sql(qry, conn)
+    rs = pd.read_sql(qry, engine)
     if len(rs) > 0:
         rtn = True
     return rtn

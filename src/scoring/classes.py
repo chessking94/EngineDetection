@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+# import sqlalchemy as sa
 
 import queries as q
 
@@ -16,22 +17,22 @@ COLOR_CHOICES = ['White', 'Black']
 
 
 class aggregator:
-    def __init__(self, conn, agg, src, fld, timecontrol, rating, evalgroup, color):
-        self.conn = conn
-        self.agg = q.get_aggid(conn, agg)
-        self.src = q.get_srcid(conn, src)
+    def __init__(self, engine, agg, src, fld, timecontrol, rating, evalgroup, color):
+        self.engine = engine
+        self.agg = q.get_aggid(engine, agg)
+        self.src = q.get_srcid(engine, src)
         self.fld = fld
         self.timecontrol = timecontrol
         self.rating = rating
         self.evalgroup = evalgroup
         self.color = color
         self.ci_min = 1
-        self.fld_dict = q.get_flddict(conn)
+        self.fld_dict = q.get_flddict(engine)
 
     def aggregate_evals(self, fld, tctype, rating, evalgroup, color):
         qry_text = q.eval_qry(fld, self.src, tctype, rating, evalgroup, color)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
-        data_np = pd.read_sql(qry_text, self.conn).to_numpy()
+        data_np = pd.read_sql(qry_text, self.engine).to_numpy()
         if len(data_np) > 0:
             data_arr = np.concatenate(data_np)
 
@@ -60,7 +61,7 @@ class aggregator:
     def aggregate_event(self, fld, tcid, rating):
         qry_text = q.event_qry(self.src, tcid, rating)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
-        data = pd.read_sql(qry_text, self.conn)
+        data = pd.read_sql(qry_text, self.engine)
         if len(data) > 0:
             data_arr = data[fld]
             ct = data_arr.count()
@@ -75,7 +76,8 @@ class aggregator:
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
-            csr = self.conn.cursor()
+            conn = self.engine.connect().connection
+            csr = conn.cursor()
             dfcov = data.cov()  # throws a debug error when len(data) = 1, ignoring for now
             stats = dfcov.columns
             for r in stats:
@@ -84,13 +86,14 @@ class aggregator:
                     cov = dfcov[r][c]
                     cov = 0 if np.isnan(cov) else cov
                     m2 = self.fld_dict[c]
-                    if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, 0, 0, m1, m2):
+                    if not q.check_cov(self.engine, self.src, self.agg, rating, tcid, 0, 0, m1, m2):
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
                         sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
                         sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, 0, 0, {m1}, {m2}, {cov})'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
-                        self.conn.commit()
+                        conn.commit()
+            conn.close()
         else:
             av = 'NULL'
             sd = 'NULL'
@@ -107,7 +110,7 @@ class aggregator:
     def aggregate_game(self, fld, tcid, rating, colorid):
         qry_text = q.game_qry(self.src, tcid, rating, colorid)
         logging.debug(f"Select query|{qry_text.replace(NL, ' ')}")
-        data = pd.read_sql(qry_text, self.conn)
+        data = pd.read_sql(qry_text, self.engine)
         if len(data) > 0:
             data_arr = data[fld]
             ct = data_arr.count()
@@ -128,7 +131,8 @@ class aggregator:
             if fld in score_list and upper_pcnt > 100:
                 upper_pcnt = 100
 
-            csr = self.conn.cursor()
+            conn = self.engine.connect().connection
+            csr = conn.cursor()
             dfcov = data.cov()
             stats = dfcov.columns
             for r in stats:
@@ -137,13 +141,14 @@ class aggregator:
                     cov = dfcov[r][c]
                     cov = 0 if np.isnan(cov) else cov
                     m2 = self.fld_dict[c]
-                    if not q.check_cov(self.conn, self.src, self.agg, rating, tcid, colorid, 0, m1, m2):
+                    if not q.check_cov(self.engine, self.src, self.agg, rating, tcid, colorid, 0, m1, m2):
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
                         sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
                         sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, {colorid}, 0, {m1}, {m2}, {cov})'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
-                        self.conn.commit()
+                        conn.commit()
+            conn.close()
         else:
             av = 'NULL'
             sd = 'NULL'
@@ -201,20 +206,21 @@ AND ss.AggregationID = {self.agg}
         return sql_del
 
     def evaluation(self):
-        csr = self.conn.cursor()
+        conn = self.engine.connect().connection
+        csr = conn.cursor()
 
         sql_cmd = self.delete_stats()
         logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
-        self.conn.commit()
+        conn.commit()
 
         for fld in self.fld:
-            fldid = q.get_fldid(self.conn, fld)
+            fldid = q.get_fldid(self.engine, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    tcid = q.get_tcid(self.conn, tctype)
+                    tcid = q.get_tcid(self.engine, tctype)
                     for color in self.color:
-                        colorid = q.get_colorid(self.conn, color)
+                        colorid = q.get_colorid(self.engine, color)
                         for evalgroup in self.evalgroup:
                             ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_evals(fld, tcid, rating, evalgroup, colorid)
                             sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
@@ -225,27 +231,29 @@ AND ss.AggregationID = {self.agg}
                             sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                             csr.execute(sql_cmd)
-                            self.conn.commit()
+                            conn.commit()
                             logging.info(f'Done with {self.src}|{fld}|{rating}|{evalgroup}|{color}|{tctype}')
+        conn.close()
 
     def event(self):
-        csr = self.conn.cursor()
+        conn = self.engine.connect().connection
+        csr = conn.cursor()
 
         sql_cmd = self.delete_stats()
         logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
-        self.conn.commit()
+        conn.commit()
 
         sql_cmd = self.delete_cov()
         logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
-        self.conn.commit()
+        conn.commit()
 
         for fld in self.fld:
-            fldid = q.get_fldid(self.conn, fld)
+            fldid = q.get_fldid(self.engine, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    tcid = q.get_tcid(self.conn, tctype)
+                    tcid = q.get_tcid(self.engine, tctype)
                     ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_event(fld, tcid, rating)
                     sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                     sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MaxValue) '
@@ -253,29 +261,31 @@ AND ss.AggregationID = {self.agg}
                     sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mx})"
                     logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                     csr.execute(sql_cmd)
-                    self.conn.commit()
+                    conn.commit()
                     logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}')
+        conn.close()
 
     def game(self):
-        csr = self.conn.cursor()
+        conn = self.engine.connect().connection
+        csr = conn.cursor()
 
         sql_cmd = self.delete_stats()
         logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
-        self.conn.commit()
+        conn.commit()
 
         sql_cmd = self.delete_cov()
         logging.debug(f"Delete query|{sql_cmd.replace(NL, ' ')}")
         csr.execute(sql_cmd)
-        self.conn.commit()
+        conn.commit()
 
         for fld in self.fld:
-            fldid = q.get_fldid(self.conn, fld)
+            fldid = q.get_fldid(self.engine, fld)
             for rating in self.rating:
                 for tctype in self.timecontrol:
-                    tcid = q.get_tcid(self.conn, tctype)
+                    tcid = q.get_tcid(self.engine, tctype)
                     for color in self.color:
-                        colorid = q.get_colorid(self.conn, color)
+                        colorid = q.get_colorid(self.engine, color)
                         ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_game(fld, tcid, rating, colorid)
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                         sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
@@ -285,5 +295,6 @@ AND ss.AggregationID = {self.agg}
                         sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
                         csr.execute(sql_cmd)
-                        self.conn.commit()
+                        conn.commit()
                         logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}|{color}')
+        conn.close()

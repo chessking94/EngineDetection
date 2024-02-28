@@ -1,12 +1,14 @@
 import argparse
-import json
 import logging
+import os
+from pathlib import Path
 from statistics import NormalDist
 
+from automation import misc
 import numpy as np
 import pandas as pd
-import pyodbc as sql
 from scipy import stats, optimize as opt
+import sqlalchemy as sa
 
 import queries as q
 
@@ -15,11 +17,12 @@ TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspon
 MDL_CHOICES = ['Evaluation', 'CP_Loss']
 RATING_CHOICES = [str(100*i) for i in range(34)]
 EVALGROUP_CHOICES = [str(i+1) for i in range(11)]
+CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
 
 # TODO: Convert some or all of this into a class
 
 
-def convert_names(conn, src, tc):
+def convert_names(engine, src, tc):
     qry_text = f"""
 SELECT
 SourceID,
@@ -30,18 +33,10 @@ WHERE s.SourceName = '{src}'
 AND t.TimeControlName = '{tc}'
 """
     logging.debug(f'Select query|{qry_text}')
-    return pd.read_sql(qry_text, conn).values[0].tolist()
+    return pd.read_sql(qry_text, engine).values[0].tolist()
 
 
-def get_conf(key):
-    fname = r'C:\Users\eehunt\Repository\confidential.json'
-    with open(fname, 'r') as t:
-        key_data = json.load(t)
-    val = key_data.get(key)
-    return val
-
-
-def get_curr_parameters(conn, mdl, srcid, tcid, ratingid, egid):
+def get_curr_parameters(engine, mdl, srcid, tcid, ratingid, egid):
     if mdl == 'Evaluation':
         qry_text = f'''
 SELECT
@@ -66,7 +61,7 @@ AND TimeControlID = {tcid}
 AND RatingID = {ratingid}
 AND EvaluationGroupID = {egid}
 '''
-    df = pd.read_sql(qry_text, conn)
+    df = pd.read_sql(qry_text, engine)
     if len(df) == 0:
         df = [None, None]
     else:
@@ -74,7 +69,7 @@ AND EvaluationGroupID = {egid}
     return df
 
 
-def get_distid(conn, disttype):
+def get_distid(engine, disttype):
     qry = f"""
 SELECT
 DistributionID
@@ -83,17 +78,17 @@ FROM ChessWarehouse.stat.DistributionTypes
 
 WHERE DistributionType = '{disttype}'
 """
-    idval = int(pd.read_sql(qry, conn).values[0][0])
+    idval = int(pd.read_sql(qry, engine).values[0][0])
     return idval
 
 
-def get_parameters(conn, mdl, srcid, tcid, ratingid, egid, recalc=False):
+def get_parameters(engine, mdl, srcid, tcid, ratingid, egid, recalc=False):
     if recalc:
-        actual = observed_values(conn, mdl, srcid, tcid, ratingid, egid)
+        actual = observed_values(engine, mdl, srcid, tcid, ratingid, egid)
         if actual is None:
             params = [None, None]
         else:
-            func, p_naught = get_optimizations(conn, mdl, srcid, tcid, ratingid, egid)
+            func, p_naught = get_optimizations(engine, mdl, srcid, tcid, ratingid, egid)
             # TODO: make sure params is returning [None, None] if no records are found
             if mdl == 'Evaluation':
                 params = opt.curve_fit(f=func, xdata=actual['xdata'], ydata=actual['ydata'], p0=p_naught)[0]
@@ -101,8 +96,9 @@ def get_parameters(conn, mdl, srcid, tcid, ratingid, egid, recalc=False):
                 params = p_naught  # TODO: Not sure why trying to fit a curve like this returns bogus values for a gamma function
 
             qry_text = q.parameter_stuff('Count', mdl, srcid, tcid, ratingid, egid, params)
-            ct = len(pd.read_sql(qry_text, conn))
+            ct = len(pd.read_sql(qry_text, engine))
 
+            conn = engine.connect().connection
             csr = conn.cursor()
             if ct == 0:
                 sql_ins = q.parameter_stuff('Insert', mdl, srcid, tcid, ratingid, egid, params)
@@ -115,8 +111,9 @@ def get_parameters(conn, mdl, srcid, tcid, ratingid, egid, recalc=False):
                 csr = conn.cursor()
                 csr.execute(sql_upd)
                 conn.commit()
+            conn.close()
     else:
-        params = get_curr_parameters(conn, mdl, srcid, tcid, ratingid, egid)
+        params = get_curr_parameters(engine, mdl, srcid, tcid, ratingid, egid)
     dict = {
         'p0': params[0],
         'p1': params[1]
@@ -124,7 +121,7 @@ def get_parameters(conn, mdl, srcid, tcid, ratingid, egid, recalc=False):
     return dict
 
 
-def observed_values(conn, mdl, srcid, tcid, ratingid, egid):
+def observed_values(engine, mdl, srcid, tcid, ratingid, egid):
     if mdl == 'Evaluation':
         qry_text = f'''
 SELECT
@@ -179,7 +176,7 @@ AND eg.EvaluationGroupID = {egid}
 GROUP BY
 100*CP_Loss
 """
-    df = pd.read_sql(qry_text, conn)
+    df = pd.read_sql(qry_text, engine)
     if len(df) == 0:
         return None
     else:
@@ -208,7 +205,7 @@ def validate_args(mdl, src, tc, ratingid, egid):
     return [val_mdl, val_src, val_tc, val_ratingid, val_egid]
 
 
-def get_optimizations(conn, mdl, srcid, tcid, ratingid, egid):
+def get_optimizations(engine, mdl, srcid, tcid, ratingid, egid):
     if mdl == 'Evaluation':
         func = stats.norm.cdf
         p_naught = [0, 1]
@@ -234,7 +231,7 @@ AND st.TimeControlID = {tcid}
 AND st.RatingID = {ratingid}
 AND st.EvaluationGroupID = {egid}
 """
-        df = pd.read_sql(qry_text, conn)
+        df = pd.read_sql(qry_text, engine)
         col_total = df['RecordCount'].sum()
         if col_total > 0:
             df['Weights'] = df['RecordCount'] / col_total
@@ -308,14 +305,19 @@ def main():
     logging.debug(f'Arguments|{config}')
     val_mdl, val_src, val_tc, val_ratingid, val_egid = validate_args(mdl, src, tc, ratingid, egid)
 
-    conn_str = get_conf('SqlServerConnectionStringTrusted')
-    conn = sql.connect(conn_str)
+    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    connection_url = sa.engine.URL.create(
+        drivername='mssql+pyodbc',
+        query={"odbc_connect": conn_str}
+    )
+    engine = sa.create_engine(connection_url)
+    conn = engine.connect().connection
 
-    srcid, tcid = convert_names(conn, src, tc)
-    val_srcid, val_tcid = convert_names(conn, val_src, val_tc)  # These values may be different from prior line if validation changed them
+    srcid, tcid = convert_names(engine, src, tc)
+    val_srcid, val_tcid = convert_names(engine, val_src, val_tc)  # These values may be different from prior line if validation changed them
 
     recalc = True
-    param_dict = get_parameters(conn, val_mdl, val_srcid, val_tcid, val_ratingid, val_egid, recalc)
+    param_dict = get_parameters(engine, val_mdl, val_srcid, val_tcid, val_ratingid, val_egid, recalc)
     if param_dict['p0'] is None:
         logging.critical(f'No data available! {mdl}|{src}|{tc}|{ratingid}|{egid}')
         raise SystemExit
@@ -323,7 +325,7 @@ def main():
         'Evaluation': 'Normal',
         'CP_Loss': 'Gamma'
     }
-    dist_id = get_distid(conn, dist_dict[val_mdl])
+    dist_id = get_distid(engine, dist_dict[val_mdl])
 
     if val_mdl == 'Evaluation':
         csr = conn.cursor()
@@ -377,6 +379,7 @@ AND DistributionID = {dist_id}
             conn.commit()
 
     conn.close()
+    engine.dispose()
 
 
 if __name__ == '__main__':

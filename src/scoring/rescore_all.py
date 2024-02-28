@@ -1,21 +1,16 @@
-import json
 import logging
 import os
+from pathlib import Path
 import time
 
+from automation import misc
 import pandas as pd
-import pyodbc as sql
+import sqlalchemy as sa
+
+CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
 
 
-def get_conf(key):
-    fname = r'C:\Users\eehunt\Repository\confidential.json'
-    with open(fname, 'r') as t:
-        key_data = json.load(t)
-    val = key_data.get(key)
-    return val
-
-
-def is_job_running(job_name, conn):
+def is_job_running(job_name, engine):
     qry_text = f"""
 SELECT
 CASE WHEN act.stop_execution_date IS NULL THEN 1 ELSE 0 END AS is_running
@@ -34,17 +29,20 @@ JOIN (
 
 WHERE job.name = '{job_name}'
 """
-    return pd.read_sql(qry_text, conn).values[0][0]
+    return pd.read_sql(qry_text, engine).values[0][0]
 
 
-def run_job(job_name, conn, csr):
+def run_job(job_name, engine):
+    conn = engine.connect().connection
+    csr = conn.cursor()
     csr.execute(f"EXEC msdb.dbo.sp_start_job @job_name = '{job_name}'")
     logging.info(f'SQL job "{job_name}" started')
     is_running = 1
     while is_running:
         time.sleep(10)
-        is_running = is_job_running(job_name, conn)
+        is_running = is_job_running(job_name, engine)
     logging.info(f'SQL job "{job_name}" ended')
+    conn.close()
 
 
 def run_script(script_path, script_name, parameters=None):
@@ -63,38 +61,47 @@ def main():
         level=logging.INFO
     )
 
-    conn_str = get_conf('SqlServerConnectionStringTrusted')
-    conn = sql.connect(conn_str)
-    csr = conn.cursor()
+    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    connection_url = sa.engine.URL.create(
+        drivername='mssql+pyodbc',
+        query={"odbc_connect": conn_str}
+    )
+    engine = sa.create_engine(connection_url)
 
     # step 0 (optional): Python script create_distribution.py for as many source/time control combinations as necessary
-    script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\scoring'
+    script_path = os.path.dirname(__file__)
     script_name = 'create_distributions.py'
-    parameters = '-sLichess -tBullet'
+    parameters = '-mEvaluation -sControl -tClassical'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-sLichess -tBlitz'
+    parameters = '-mEvaluation -sControl -tCorrespondence'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-sLichess -tRapid'
+    parameters = '-mEvaluation -sLichess -tBullet'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-sLichess -tClassical'
+    parameters = '-mEvaluation -sLichess -tBlitz'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-sLichess -tCorrespondence'
+    parameters = '-mEvaluation -sLichess -tRapid'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-mEvaluation -sLichess -tClassical'
+    run_script(script_path, script_name, parameters)
+
+    parameters = '-mEvaluation -sLichess -tCorrespondence'
     run_script(script_path, script_name, parameters)
 
     # step 1: SQL job "Recalculate Move Scores"
     job_name = 'Recalculate Move Scores'
-    run_job(job_name, conn, csr)
+    run_job(job_name, engine)
 
     # step 2: SQL job "Recalculate Fact Tables"
     job_name = 'Recalculate Fact Tables'
-    run_job(job_name, conn, csr)
+    run_job(job_name, engine)
 
     # step 3: Python script StatisticsWarehouse.py for as many source/time control combinations as necessary
-    script_path = r'C:\Users\eehunt\Repository\EngineDetection\src\scoring'
+    script_path = os.path.dirname(__file__)
     script_name = 'StatisticsWarehouse.py'
     parameters = '-aEvent'
     run_script(script_path, script_name, parameters)
@@ -107,23 +114,9 @@ def main():
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
     job_name = 'Recalculate Fact Table Z-Scores'
-    run_job(job_name, conn, csr)
+    run_job(job_name, engine)
 
-    # step 5: SQL job "Index Maintenance.Subplan_1"
-    job_name = 'Index Maintenance.Subplan_1'
-    run_job(job_name, conn, csr)
-
-    # # step 6: SQL job "Database Backup.Subplan_1"
-    # job_name = 'Database Backup.Subplan_1'
-    # run_job(job_name, conn, csr)
-
-    conn.close()
-
-    # bat_path = r'C:\Users\eehunt\Repository\pc_backup'
-    # if os.getcwd != bat_path:
-    #     os.chdir(bat_path)
-    # cmd_text = 'backup_files.bat'
-    # os.system('cmd /C ' + cmd_text)
+    engine.dispose()
 
 
 if __name__ == '__main__':
