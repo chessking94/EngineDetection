@@ -93,11 +93,11 @@ def main():
     run_script(script_path, script_name, parameters)
 
     # step 1: SQL job "Recalculate Move Scores"
-    job_name = 'Recalculate Move Scores'
+    job_name = 'ChessWarehouse - Recalculate Move Scores'
     run_job(job_name, engine)
 
     # step 2: SQL job "Recalculate Fact Tables"
-    job_name = 'Recalculate Fact Tables'
+    job_name = 'ChessWarehouse - Recalculate Fact Tables'
     run_job(job_name, engine)
 
     # step 3: Python script StatisticsWarehouse.py for as many source/time control combinations as necessary
@@ -113,7 +113,7 @@ def main():
     run_script(script_path, script_name, parameters)
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
-    job_name = 'Recalculate Fact Table Z-Scores'
+    job_name = 'ChessWarehouse - Recalculate Z-Scores'
     run_job(job_name, engine)
 
     engine.dispose()

@@ -135,13 +135,14 @@ def main():
         evalgroup = data['evalgroup'][src]
         color = data['color'][src]
 
-        with c.aggregator(engine, agg, src, fld, timecontrol, rating, evalgroup, color) as req:
-            if agg == 'Evaluation':
-                req.evaluation()
-            elif agg == 'Event':
-                req.event()
-            elif agg == 'Game':
-                req.game()
+        req = c.aggregator(engine, agg, src, fld, timecontrol, rating, evalgroup, color)
+
+        if agg == 'Evaluation':
+            req.evaluation()
+        elif agg == 'Event':
+            req.event()
+        elif agg == 'Game':
+            req.game()
 
     engine.dispose()
 
