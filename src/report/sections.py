@@ -440,7 +440,9 @@ class general:
         self.rpt.write('Raw Outlier Index; standardized value where 50 represents the mean for that rating level and each increment of 5 is one standard deviation' + NL)
         self.rpt.write('PValue:'.ljust(PK_LEN, ' '))
         self.rpt.write('Chi-square statistic associated with the Mahalanobis distance of the test point (T1, ScACPL, Score)' + NL)
-        self.rpt.write(' '*PK_LEN + 'An asterisk (*) following any statistic indicates an outlier that should be reviewed more closely' + NL)
+        self.rpt.write(NL)
+        self.rpt.write('An asterisk (*) following any statistic indicates an outlier that should be reviewed more closely' + NL)
+        self.rpt.write(NL)
         self.rpt.write(NL)
 
     def game_key(self):
