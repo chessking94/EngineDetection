@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import sqlalchemy as sa
-from Utilities_Python import misc
 
 import classes as c
 
@@ -12,7 +11,7 @@ import classes as c
 # TODO: Review delete process when customizing parameters
 # TODO: Look into adding covariance table write for Evaluation
 
-CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
+CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
 
 
 def validate_args(config):
@@ -120,7 +119,7 @@ def main():
     data = validate_args(config)
     logging.debug(f'Arguments|{data}')
 
-    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={"odbc_connect": conn_str}

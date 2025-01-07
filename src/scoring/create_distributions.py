@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats, optimize as opt
 import sqlalchemy as sa
-from Utilities_Python import misc
 
 import queries as q
 
@@ -17,7 +16,7 @@ TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspon
 MDL_CHOICES = ['Evaluation', 'CP_Loss']
 RATING_CHOICES = [str(100*i) for i in range(34)]
 EVALGROUP_CHOICES = [str(i+1) for i in range(11)]
-CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
+CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
 
 # TODO: Convert some or all of this into a class
 
@@ -305,7 +304,7 @@ def main():
     logging.debug(f'Arguments|{config}')
     val_mdl, val_src, val_tc, val_ratingid, val_egid = validate_args(mdl, src, tc, ratingid, egid)
 
-    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={"odbc_connect": conn_str}

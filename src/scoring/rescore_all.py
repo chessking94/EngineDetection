@@ -5,9 +5,8 @@ import time
 
 import pandas as pd
 import sqlalchemy as sa
-from Utilities_Python import misc
 
-CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
+CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
 
 
 def is_job_running(job_name, engine):
@@ -61,7 +60,7 @@ def main():
         level=logging.INFO
     )
 
-    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={"odbc_connect": conn_str}

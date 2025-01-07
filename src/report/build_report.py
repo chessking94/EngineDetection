@@ -9,7 +9,7 @@ from func import parse_stats
 from queries import get_evid, get_plid, get_srcid
 import sections
 
-CONFIG_FILE = os.path.join(Path(os.path.dirname(__file__)).parents[1], 'config.json')
+CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
 
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources? Would likely just be a SQL Server thing to copy existing data
 # TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
@@ -22,7 +22,7 @@ def main():
         level=logging.INFO
     )
 
-    conn_str = misc.get_config('connectionString_chessDB', CONFIG_FILE)
+    conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={"odbc_connect": conn_str}
