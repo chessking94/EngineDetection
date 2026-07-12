@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 from pathlib import Path
-from statistics import NormalDist
 
 import numpy as np
 import pandas as pd
@@ -206,7 +205,7 @@ def validate_args(mdl, src, tc, ratingid, egid):
 
 def get_optimizations(engine, mdl, srcid, tcid, ratingid, egid):
     if mdl == 'Evaluation':
-        func = stats.norm.cdf
+        func = stats.logistic.cdf
         p_naught = [0, 1]
     elif mdl == 'CP_Loss':
         func = stats.gamma.pdf
@@ -265,7 +264,7 @@ def main():
     )
     parser.add_argument(
         '-m', '--model',
-        default='CP_Loss',
+        default='Evaluation',
         choices=MDL_CHOICES,
         help='Model Type'
     )
@@ -321,7 +320,7 @@ def main():
         logging.critical(f'No data available! {mdl}|{src}|{tc}|{ratingid}|{egid}')
         raise SystemExit
     dist_dict = {
-        'Evaluation': 'Normal',
+        'Evaluation': 'Logistic',
         'CP_Loss': 'Gamma'
     }
     dist_id = get_distid(engine, dist_dict[val_mdl])
@@ -335,12 +334,12 @@ def main():
 
         p0 = param_dict['p0']
         p1 = param_dict['p1']
-        pdf_f = p1*np.sqrt(2*np.pi)
+        pdf_f = 4*p1
 
         rng = np.linspace(start=-15, stop=15, num=3001)
         for x in rng:
-            pdf_val = NormalDist(mu=p0, sigma=p1).pdf(x)*pdf_f  # this extra factor is to force f(0) = 1
-            cdf_val = NormalDist(mu=p0, sigma=p1).cdf(x)
+            pdf_val = stats.logistic.pdf(x, loc=p0, scale=p1)*pdf_f  # this extra factor is to force f(0) = 1
+            cdf_val = stats.logistic.cdf(x, loc=p0, scale=p1)
 
             sql_cmd = 'INSERT INTO ChessWarehouse.stat.EvalDistributions (SourceID, TimeControlID, Evaluation, DistributionID, PDF, CDF) '
             sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {dist_id}, {pdf_val}, {cdf_val})'
