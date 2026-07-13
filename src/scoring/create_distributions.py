@@ -38,8 +38,8 @@ def get_curr_parameters(engine, mdl, srcid, tcid, ratingid, egid):
     if mdl == 'Evaluation':
         qry_text = f'''
 SELECT
-Mean,
-StandardDeviation
+p_0,
+p_1
 
 FROM ChessWarehouse.stat.EvalDistributionParameters
 

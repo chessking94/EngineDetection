@@ -153,7 +153,7 @@ WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND RatingID = {ratingid} AN
 '''
     elif typ == 'Insert':
         if mdl == 'Evaluation':
-            sql_ins = 'INSERT INTO ChessWarehouse.stat.EvalDistributionParameters (SourceID, TimeControlID, Mean, StandardDeviation) '
+            sql_ins = 'INSERT INTO ChessWarehouse.stat.EvalDistributionParameters (SourceID, TimeControlID, p_0, p_1) '
             sql_ins = sql_ins + f"VALUES ({srcid}, {tcid}, {params[0]}, {params[1]})"
             return sql_ins
         elif mdl == 'CP_Loss':
@@ -164,10 +164,10 @@ WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND RatingID = {ratingid} AN
         if mdl == 'Evaluation':
             sql_upd = f'''
 UPDATE new_p
-SET new_p.Mean = {params[0]},
-new_p.StandardDeviation = {params[1]},
-new_p.PrevMean = old_p.Mean,
-new_p.PrevStandardDeviation = old_p.StandardDeviation,
+SET new_p.p_0 = {params[0]},
+new_p.p_1 = {params[1]},
+new_p.Prev_p_0 = old_p.p_0,
+new_p.Prevp_1 = old_p.p_1,
 new_p.UpdateDate = GETDATE()
 
 FROM ChessWarehouse.stat.EvalDistributionParameters new_p
