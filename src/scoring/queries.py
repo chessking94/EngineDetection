@@ -8,7 +8,7 @@ SELECT
 fg.T1, fg.T2, fg.T3, fg.T4, fg.T5,
 fg.ACPL, fg.ScACPL,
 fg.SDCPL, fg.ScSDCPL,
-gs.WinProbabilityLost, gs.EvaluationGroupComparison
+gs.WinProbabilityLost, gs.EvaluationGroupComparison, gs.ContextualMoveQuality
 
 FROM ChessWarehouse.fact.Game fg
 JOIN ChessWarehouse.fact.vwGameScoresPivot gs ON
@@ -31,7 +31,7 @@ SELECT
 fe.T1, fe.T2, fe.T3, fe.T4, fe.T5,
 fe.ACPL, fe.ScACPL,
 fe.SDCPL, fe.ScSDCPL,
-es.WinProbabilityLost, es.EvaluationGroupComparison
+es.WinProbabilityLost, es.EvaluationGroupComparison, es.ContextualMoveQuality
 
 FROM ChessWarehouse.fact.Event fe
 JOIN ChessWarehouse.fact.vwEventScoresPivot es ON
