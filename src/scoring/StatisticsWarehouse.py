@@ -119,6 +119,7 @@ def main():
     data = validate_args(config)
     logging.debug(f'Arguments|{data}')
 
+    # conn_str = os.getenv('ConnectionStringOdbcDebug')
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',

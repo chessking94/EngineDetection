@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+import subprocess
 import time
 
 import pandas as pd
@@ -45,12 +46,13 @@ def run_job(job_name, engine):
 
 
 def run_script(script_path, script_name, parameters=None):
-    cmd_text = f'py {script_name}'
+    cmd_text = fr'"C:\Users\eehunt\code\src\EngineDetection\.venv\Scripts\python.exe" {script_name}'
     cmd_text = f'{cmd_text} {parameters}' if parameters else cmd_text
     logging.info(f'Begin command "{cmd_text}"')
-    if os.getcwd != script_path:
-        os.chdir(script_path)
-    os.system('cmd /C ' + cmd_text)
+    result = subprocess.run(cmd_text, cwd=script_path, capture_output=True, text=True, shell=True)
+    if result.returncode != 0:
+        logging.critical(f'Error executing command: {result.stderr}')
+        raise SystemExit
     logging.info(f'End command "{cmd_text}"')
 
 
@@ -60,6 +62,7 @@ def main():
         level=logging.INFO
     )
 
+    # conn_str = os.getenv('ConnectionStringOdbcDebug')
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
@@ -108,11 +111,15 @@ def main():
     parameters = '-aGame'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-aEvaluation'
-    run_script(script_path, script_name, parameters)
+    # parameters = '-aEvaluation'
+    # run_script(script_path, script_name, parameters)  # TODO: this is taking forever now
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
     job_name = 'ChessWarehouse - Recalculate Z-Scores'
+    run_job(job_name, engine)
+
+    # step 5: SQL job "ChessWarehouse - Update [rpt] Schema Tables"
+    job_name = 'ChessWarehouse - Update [rpt] Schema Tables'
     run_job(job_name, engine)
 
     engine.dispose()

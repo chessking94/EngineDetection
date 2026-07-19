@@ -303,6 +303,7 @@ def main():
     logging.debug(f'Arguments|{config}')
     val_mdl, val_src, val_tc, val_ratingid, val_egid = validate_args(mdl, src, tc, ratingid, egid)
 
+    # conn_str = os.getenv('ConnectionStringOdbcDebug')
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',

@@ -466,14 +466,14 @@ def update_maxeval(engine, maxeval):
     if go:
         conn = engine.connect().connection
         csr = conn.cursor()
-        sql_cmd = f"UPDATE Settings SET Value = '{maxeval}' WHERE ID = 3"
+        sql_cmd = f"UPDATE ChessWarehouse.dbo.Settings SET Value = '{maxeval}' WHERE ID = 3"
         logging.debug(f"Update query|{sql_cmd}")
         csr.execute(sql_cmd)
         conn.commit()
         rtn = maxeval
         conn.close()
     else:
-        qry_text = 'SELECT Value FROM Settings WHERE ID = 3'
+        qry_text = 'SELECT Value FROM ChessWarehouse.dbo.Settings WHERE ID = 3'
         rs = pd.read_sql(qry_text, engine).values.tolist()
         rtn = rs[0][0]
 

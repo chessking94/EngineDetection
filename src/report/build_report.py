@@ -9,7 +9,7 @@ from func import parse_stats
 from queries import get_evid, get_plid, get_srcid
 import sections
 
-CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
+CONFIG_FILE = os.path.join(Path(__file__).parents[2], 'config.json')
 
 # TODO: Populate stat.StatisticsSummary for Personal and PersonalOnline sources? Would likely just be a SQL Server thing to copy existing data
 # TODO: Consider switching Mahalanobis calculation from (T1, ScACPL, Score) to (EVM, Moves, ScACPL, Score)
