@@ -27,7 +27,7 @@ def validate_args(config):
 
     # modifiers
     if config['agg'] == 'Evaluation':
-        rmv_list = ['T1', 'T2', 'T3', 'T4', 'T5', 'SDCPL', 'WinProbabilityLost', 'ScSDCPL', 'EvaluationGroupComparison', 'ContextualMoveQuality']
+        rmv_list = ['T1', 'T2', 'T3', 'T4', 'T5', 'SDCPL', 'WinProbabilityLost', 'ScSDCPL', 'ContextualMoveQuality']
         config['fld'] = [e for e in config['fld'] if e not in rmv_list]
         config['evalgroup'] = c.EVALGROUP_CHOICES if not config['evalgroup'] else config['evalgroup']
     elif config['agg'] == 'Event':
@@ -123,7 +123,7 @@ def main():
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
-        query={"odbc_connect": conn_str}
+        query={'odbc_connect': conn_str}
     )
     engine = sa.create_engine(connection_url)
 
@@ -137,12 +137,15 @@ def main():
 
         req = c.aggregator(engine, agg, src, fld, timecontrol, rating, evalgroup, color)
 
-        if agg == 'Evaluation':
-            req.evaluation()
-        elif agg == 'Event':
-            req.event()
-        elif agg == 'Game':
-            req.game()
+        match agg:
+            case 'Evaluation':
+                req.evaluation()
+            case 'Event':
+                req.event()
+            case 'Game':
+                req.game()
+            case _:
+                raise ValueError('Unexpected aggregation type')  # not possible to reach this
 
     engine.dispose()
 

@@ -2,14 +2,13 @@ import logging
 
 import numpy as np
 import pandas as pd
-# import sqlalchemy as sa
 
 import queries as q
 
 NL = '\n'
 AGG_CHOICES = ['Game', 'Event', 'Evaluation']
 SRC_CHOICES = ['Control', 'Lichess']
-FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'WinProbabilityLost', 'ScACPL', 'ScSDCPL', 'EvaluationGroupComparison', 'ContextualMoveQuality']
+FLD_CHOICES = ['T1', 'T2', 'T3', 'T4', 'T5', 'ACPL', 'SDCPL', 'WinProbabilityLost', 'ScACPL', 'ScSDCPL', 'ContextualMoveQuality']
 TIMECONTROL_CHOICES = ['Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 RATING_CHOICES = [100*i for i in range(34)]
 EVALGROUP_CHOICES = [i+1 for i in range(11)]
@@ -88,10 +87,10 @@ class aggregator:
                     m2 = self.fld_dict[c]
                     if not q.check_cov(self.engine, self.src, self.agg, rating, tcid, 0, 0, m1, m2):
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
-                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
-                        sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, 0, 0, {m1}, {m2}, {cov})'
+                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) '
+                        sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
-                        csr.execute(sql_cmd)
+                        csr.execute(sql_cmd, parameters=[self.src, self.agg, rating, tcid, 0, 0, m1, m2, cov])
                         conn.commit()
             conn.close()
         else:
@@ -125,7 +124,7 @@ class aggregator:
             ci_max = 100 - self.ci_min
             lower_pcnt, qtr1, qtr2, qtr3, upper_pcnt = np.nanpercentile(data_arr, [self.ci_min, 25, 50, 75, ci_max])
 
-            score_list = ['WinProbabilityLost', 'EvaluationGroupComparison']
+            score_list = ['WinProbabilityLost', 'ContextualMoveQuality']
             if fld in score_list and qtr3 > 100:
                 qtr3 = 100
             if fld in score_list and upper_pcnt > 100:
@@ -143,10 +142,10 @@ class aggregator:
                     m2 = self.fld_dict[c]
                     if not q.check_cov(self.engine, self.src, self.agg, rating, tcid, colorid, 0, m1, m2):
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.Covariances (SourceID, AggregationID, RatingID, TimeControlID, ColorID, '
-                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) VALUES ('
-                        sql_cmd = sql_cmd + f'{self.src}, {self.agg}, {rating}, {tcid}, {colorid}, 0, {m1}, {m2}, {cov})'
+                        sql_cmd = sql_cmd + 'EvaluationGroupID, MeasurementID1, MeasurementID2, Covariance) '
+                        sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
-                        csr.execute(sql_cmd)
+                        csr.execute(sql_cmd, parameters=[self.src, self.agg, rating, tcid, colorid, 0, m1, m2, cov])
                         conn.commit()
             conn.close()
         else:
@@ -174,10 +173,10 @@ AND AggregationID = {self.agg}
     def delete_stats(self):
         sql_del = f'''
 DELETE ss
-FROM ChessWarehouse.stat.StatisticsSummary ss
-JOIN ChessWarehouse.dim.Measurements m ON ss.MeasurementID = m.MeasurementID
-JOIN ChessWarehouse.dim.TimeControls tc ON ss.TimeControlID = tc.TimeControlID
-JOIN ChessWarehouse.dim.Colors c ON ss.ColorID = c.ColorID
+FROM ChessWarehouse.stat.StatisticsSummary AS ss
+INNER JOIN ChessWarehouse.dim.Measurements AS m ON ss.MeasurementID = m.MeasurementID
+INNER JOIN ChessWarehouse.dim.TimeControls AS tc ON ss.TimeControlID = tc.TimeControlID
+INNER JOIN ChessWarehouse.dim.Colors AS c ON ss.ColorID = c.ColorID
 WHERE ss.SourceID = {self.src}
 AND ss.AggregationID = {self.agg}
 '''
@@ -226,11 +225,9 @@ AND ss.AggregationID = {self.agg}
                             sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, '
                             sql_cmd = sql_cmd + 'EvaluationGroupID, RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
                             sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
-                            sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, "
-                            sql_cmd = sql_cmd + f"{evalgroup}, {ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, "
-                            sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
+                            sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                             logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
-                            csr.execute(sql_cmd)
+                            csr.execute(sql_cmd, parameters=[self.src, self.agg, fldid, rating, tcid, colorid, evalgroup, ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx])
                             conn.commit()
                             logging.info(f'Done with {self.src}|{fld}|{rating}|{evalgroup}|{color}|{tctype}')
         conn.close()
@@ -257,10 +254,9 @@ AND ss.AggregationID = {self.agg}
                     ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx = self.aggregate_event(fld, tcid, rating)
                     sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                     sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, UpperQuartile, UpperPcnt, MaxValue) '
-                    sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, 0, 0, "
-                    sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, {qt3}, {upper}, {mx})"
+                    sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                     logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
-                    csr.execute(sql_cmd)
+                    csr.execute(sql_cmd, parameters=[self.src, self.agg, fldid, rating, tcid, 0, 0, ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx])
                     conn.commit()
                     logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}')
         conn.close()
@@ -290,11 +286,9 @@ AND ss.AggregationID = {self.agg}
                         sql_cmd = 'INSERT INTO ChessWarehouse.stat.StatisticsSummary (SourceID, AggregationID, MeasurementID, RatingID, TimeControlID, ColorID, EvaluationGroupID, '
                         sql_cmd = sql_cmd + 'RecordCount, Average, StandardDeviation, MinValue, LowerPcnt, LowerQuartile, Median, '
                         sql_cmd = sql_cmd + 'UpperQuartile, UpperPcnt, MaxValue) '
-                        sql_cmd = sql_cmd + f"VALUES ({self.src}, {self.agg}, {fldid}, {rating}, {tcid}, {colorid}, 0, "
-                        sql_cmd = sql_cmd + f"{ct}, {av}, {sd}, {mn}, {lower}, {qt1}, {qt2}, "
-                        sql_cmd = sql_cmd + f"{qt3}, {upper}, {mx})"
+                        sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                         logging.debug(f"Insert query|{sql_cmd.replace(NL, ' ')}")
-                        csr.execute(sql_cmd)
+                        csr.execute(sql_cmd, parameters=[self.src, self.agg, fldid, rating, tcid, colorid, 0, ct, av, sd, mn, lower, qt1, qt2, qt3, upper, mx])
                         conn.commit()
                         logging.info(f'Done with {self.src}|{fld}|{rating}|{tctype}|{color}')
         conn.close()

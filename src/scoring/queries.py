@@ -3,24 +3,23 @@ import pandas as pd
 
 # game level
 def game_qry(src, tctype, rating, color):
-    qry = f"""
+    qry = f'''
 SELECT
 fg.T1, fg.T2, fg.T3, fg.T4, fg.T5,
 fg.ACPL, fg.ScACPL,
 fg.SDCPL, fg.ScSDCPL,
-gs.WinProbabilityLost, gs.EvaluationGroupComparison, gs.ContextualMoveQuality
+gs.WinProbabilityLost, gs.ContextualMoveQuality
 
-FROM ChessWarehouse.fact.Game fg
-JOIN ChessWarehouse.fact.vwGameScoresPivot gs ON
-    fg.GameID = gs.GameID AND
-    fg.ColorID = gs.ColorID
+FROM ChessWarehouse.fact.Game AS fg
+INNER JOIN ChessWarehouse.fact.vwGameScoresPivot AS gs ON fg.GameID = gs.GameID
+    AND fg.ColorID = gs.ColorID
 
 WHERE fg.SourceID = {src}
 AND fg.TimeControlID = {tctype}
 AND fg.RatingID = {rating}
 AND fg.ColorID = {color}
 AND fg.MovesAnalyzed > 0
-"""
+'''
     return qry
 
 
@@ -31,13 +30,12 @@ SELECT
 fe.T1, fe.T2, fe.T3, fe.T4, fe.T5,
 fe.ACPL, fe.ScACPL,
 fe.SDCPL, fe.ScSDCPL,
-es.WinProbabilityLost, es.EvaluationGroupComparison, es.ContextualMoveQuality
+es.WinProbabilityLost, es.ContextualMoveQuality
 
-FROM ChessWarehouse.fact.Event fe
-JOIN ChessWarehouse.fact.vwEventScoresPivot es ON
-    fe.EventID = es.EventID AND
-    fe.PlayerID = es.PlayerID AND
-    fe.TimeControlID = es.TimeControlID
+FROM ChessWarehouse.fact.Event AS fe
+INNER JOIN ChessWarehouse.fact.vwEventScoresPivot AS es ON fe.EventID = es.EventID
+    AND fe.PlayerID = es.PlayerID
+    AND fe.TimeControlID = es.TimeControlID
 
 WHERE fe.SourceID = {src}
 AND fe.TimeControlID = {tctype}
@@ -49,7 +47,7 @@ AND fe.MovesAnalyzed > 0
 
 # eval level
 def eval_qry(fld, src, tctype, rating, evalgroup, color):
-    qry = f"""
+    qry = f'''
 SELECT
 {fld}
 
@@ -63,7 +61,7 @@ AND EvaluationGroupID = {evalgroup}
 AND ACPL > 0
 AND MoveScored = 1
 AND Berserk = 0
-"""
+'''
     return qry
 
 
@@ -71,10 +69,11 @@ AND Berserk = 0
 def eval_score(tctype, rating, evalgroup, color):
     qry = f"""
 SELECT
-PointsGained,
-TotalPoints
+    PointsGained
+    ,TotalPoints
 
 FROM vwControlEvalSummary
+
 WHERE TimeControlType = {tctype}
 AND RatingGroup = {rating}
 AND GroupID = {evalgroup}
@@ -84,32 +83,32 @@ AND Color = '{color}'
 
 
 def get_aggid(engine, agg):
-    qry = f"SELECT AggregationID FROM ChessWarehouse.dim.Aggregations WHERE AggregationName = '{agg}'"
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+    qry = 'SELECT AggregationID FROM ChessWarehouse.dim.Aggregations WHERE AggregationName = ?'
+    idval = int(pd.read_sql(qry, engine, params=[agg]).values[0][0])
     return idval
 
 
 def get_srcid(engine, src):
-    qry = f"SELECT SourceID FROM ChessWarehouse.dim.Sources WHERE SourceName = '{src}'"
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+    qry = 'SELECT SourceID FROM ChessWarehouse.dim.Sources WHERE SourceName = ?'
+    idval = int(pd.read_sql(qry, engine, params=[src]).values[0][0])
     return idval
 
 
 def get_fldid(engine, fld):
-    qry = f"SELECT MeasurementID FROM ChessWarehouse.dim.Measurements WHERE MeasurementName = '{fld}'"
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+    qry = 'SELECT MeasurementID FROM ChessWarehouse.dim.Measurements WHERE MeasurementName = ?'
+    idval = int(pd.read_sql(qry, engine, params=[fld]).values[0][0])
     return idval
 
 
 def get_tcid(engine, tc):
-    qry = f"SELECT TimeControlID FROM ChessWarehouse.dim.TimeControls WHERE TimeControlName = '{tc}'"
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+    qry = 'SELECT TimeControlID FROM ChessWarehouse.dim.TimeControls WHERE TimeControlName = ?'
+    idval = int(pd.read_sql(qry, engine, params=[tc]).values[0][0])
     return idval
 
 
 def get_colorid(engine, color):
-    qry = f"SELECT ColorID FROM ChessWarehouse.dim.Colors WHERE Color = '{color}'"
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+    qry = 'SELECT ColorID FROM ChessWarehouse.dim.Colors WHERE Color = ?'
+    idval = int(pd.read_sql(qry, engine, params=[color]).values[0][0])
     return idval
 
 
@@ -121,22 +120,22 @@ def get_flddict(engine):
 
 def check_cov(engine, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
     rtn = False
-    qry = f'''
+    qry = '''
 SELECT
 Covariance
 
 FROM ChessWarehouse.stat.Covariances
 
-WHERE SourceID = {srcid}
-AND AggregationID = {aggid}
-AND RatingID = {rating}
-AND TimeControlID = {tcid}
-AND ColorID = {colorid}
-AND EvaluationGroupID = {egid}
-AND MeasurementID1 = {mid1}
-AND MeasurementID2 = {mid2}
+WHERE SourceID = ?
+AND AggregationID = ?
+AND RatingID = ?
+AND TimeControlID = ?
+AND ColorID = ?
+AND EvaluationGroupID = ?
+AND MeasurementID1 = ?
+AND MeasurementID2 = ?
 '''
-    rs = pd.read_sql(qry, engine)
+    rs = pd.read_sql(qry, engine, params=[srcid, aggid, rating, tcid, colorid, egid, mid1, mid2])
     if len(rs) > 0:
         rtn = True
     return rtn
@@ -164,16 +163,16 @@ WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND RatingID = {ratingid} AN
         if mdl == 'Evaluation':
             sql_upd = f'''
 UPDATE new_p
-SET new_p.p_0 = {params[0]},
-new_p.p_1 = {params[1]},
-new_p.Prev_p_0 = old_p.p_0,
-new_p.Prevp_1 = old_p.p_1,
-new_p.UpdateDate = GETDATE()
 
-FROM ChessWarehouse.stat.EvalDistributionParameters new_p
-JOIN ChessWarehouse.stat.EvalDistributionParameters old_p ON
-    new_p.SourceID = old_p.SourceID AND
-    new_p.TimeControlID = old_p.TimeControlID
+SET new_p.p_0 = {params[0]}
+    ,new_p.p_1 = {params[1]}
+    ,new_p.Prev_p_0 = old_p.p_0
+    ,new_p.Prev_p_1 = old_p.p_1
+    ,new_p.UpdateDate = GETDATE()
+
+FROM ChessWarehouse.stat.EvalDistributionParameters AS new_p
+INNER JOIN ChessWarehouse.stat.EvalDistributionParameters AS old_p ON new_p.SourceID = old_p.SourceID
+    AND new_p.TimeControlID = old_p.TimeControlID
 
 WHERE new_p.SourceID = {srcid}
 AND new_p.TimeControlID = {tcid}
@@ -182,18 +181,18 @@ AND new_p.TimeControlID = {tcid}
         elif mdl == 'CP_Loss':
             sql_upd = f'''
 UPDATE new_p
-SET new_p.Alpha = {params[0]},
-new_p.Beta = {params[1]},
-new_p.PrevAlpha = old_p.Alpha,
-new_p.PrevBeta = old_p.Beta,
-new_p.UpdateDate = GETDATE()
 
-FROM ChessWarehouse.stat.CPLossDistributionParameters new_p
-JOIN ChessWarehouse.stat.CPLossDistributionParameters old_p ON
-    new_p.SourceID = old_p.SourceID AND
-    new_p.TimeControlID = old_p.TimeControlID AND
-    new_p.RatingID = old_p.RatingID AND
-    new_p.EvaluationGroupID = old_p.EvaluationGroupID
+SET new_p.Alpha = {params[0]}
+    ,new_p.Beta = {params[1]}
+    ,new_p.PrevAlpha = old_p.Alpha
+    ,new_p.PrevBeta = old_p.Beta
+    ,new_p.UpdateDate = GETDATE()
+
+FROM ChessWarehouse.stat.CPLossDistributionParameters AS new_p
+INNER JOIN ChessWarehouse.stat.CPLossDistributionParameters AS old_p ON new_p.SourceID = old_p.SourceID
+    AND new_p.TimeControlID = old_p.TimeControlID
+    AND new_p.RatingID = old_p.RatingID
+    AND new_p.EvaluationGroupID = old_p.EvaluationGroupID
 
 WHERE new_p.SourceID = {srcid}
 AND new_p.TimeControlID = {tcid}

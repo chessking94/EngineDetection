@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 import queries as q
 
-SRC_CHOICES = ['Personal', 'PersonalOnline', 'Control', 'Lichess', 'Test']
+SRC_CHOICES = ['Personal', 'PersonalOnline', 'Control', 'Lichess']
 TC_CHOICES = ['Ultrabullet', 'Bullet', 'Blitz', 'Rapid', 'Classical', 'Correspondence']
 MDL_CHOICES = ['Evaluation', 'CP_Loss']
 RATING_CHOICES = [str(100*i) for i in range(34)]
@@ -21,45 +21,49 @@ CONFIG_FILE = os.path.join(Path(__file__).parents[1], 'config.json')
 
 
 def convert_names(engine, src, tc):
-    qry_text = f"""
+    qry_text = '''
 SELECT
-SourceID,
-TimeControlID
-FROM ChessWarehouse.dim.Sources s
-CROSS JOIN ChessWarehouse.dim.TimeControls t
-WHERE s.SourceName = '{src}'
-AND t.TimeControlName = '{tc}'
-"""
-    logging.debug(f'Select query|{qry_text}')
-    return pd.read_sql(qry_text, engine).values[0].tolist()
+    SourceID
+    ,TimeControlID
+
+FROM ChessWarehouse.dim.Sources AS s
+CROSS JOIN ChessWarehouse.dim.TimeControls AS t
+
+WHERE s.SourceName = ?
+AND t.TimeControlName = ?
+'''
+    return pd.read_sql(qry_text, engine, params=[src, tc]).values[0].tolist()
 
 
 def get_curr_parameters(engine, mdl, srcid, tcid, ratingid, egid):
+    params = []
     if mdl == 'Evaluation':
-        qry_text = f'''
+        qry_text = '''
 SELECT
-p_0,
-p_1
+    p_0
+    ,p_1
 
 FROM ChessWarehouse.stat.EvalDistributionParameters
 
-WHERE SourceID = {srcid}
-AND TimeControlID = {tcid}
+WHERE SourceID = ?
+AND TimeControlID = ?
 '''
+        params = [srcid, tcid]
     elif mdl == 'CP_Loss':
-        qry_text = f'''
+        qry_text = '''
 SELECT
-Alpha,
-Beta
+    Alpha
+    ,Beta
 
 FROM ChessWarehouse.stat.CPLossDistributionParameters
 
-WHERE SourceID = {srcid}
-AND TimeControlID = {tcid}
-AND RatingID = {ratingid}
-AND EvaluationGroupID = {egid}
+WHERE SourceID = ?
+AND TimeControlID = ?
+AND RatingID = ?
+AND EvaluationGroupID = ?
 '''
-    df = pd.read_sql(qry_text, engine)
+        params = [srcid, tcid, ratingid, egid]
+    df = pd.read_sql(qry_text, engine, params=params)
     if len(df) == 0:
         df = [None, None]
     else:
@@ -68,15 +72,15 @@ AND EvaluationGroupID = {egid}
 
 
 def get_distid(engine, disttype):
-    qry = f"""
+    qry = '''
 SELECT
 DistributionID
 
 FROM ChessWarehouse.stat.DistributionTypes
 
-WHERE DistributionType = '{disttype}'
-"""
-    idval = int(pd.read_sql(qry, engine).values[0][0])
+WHERE DistributionType = ?
+'''
+    idval = int(pd.read_sql(qry, engine, params=[disttype]).values[0][0])
     return idval
 
 
@@ -100,12 +104,10 @@ def get_parameters(engine, mdl, srcid, tcid, ratingid, egid, recalc=False):
             csr = conn.cursor()
             if ct == 0:
                 sql_ins = q.parameter_stuff('Insert', mdl, srcid, tcid, ratingid, egid, params)
-                logging.debug(f'Insert query|{sql_ins}')
                 csr.execute(sql_ins)
                 conn.commit()
             else:
                 sql_upd = q.parameter_stuff('Update', mdl, srcid, tcid, ratingid, egid, params)
-                logging.debug(f'Update query|{sql_upd}')
                 csr = conn.cursor()
                 csr.execute(sql_upd)
                 conn.commit()
@@ -120,61 +122,55 @@ def get_parameters(engine, mdl, srcid, tcid, ratingid, egid, recalc=False):
 
 
 def observed_values(engine, mdl, srcid, tcid, ratingid, egid):
+    params = []
     if mdl == 'Evaluation':
-        qry_text = f'''
+        qry_text = '''
 SELECT
-ROUND(CAST(m.T1_Eval AS float), 1) AS xdata, --Evaluation
-AVG(g.Result) AS ydata --Win_Percentage
+    ROUND(CAST(m.T1_Eval AS float), 1) AS xdata  --Evaluation
+    ,AVG(g.Result) AS ydata  --Win_Percentage
 
-FROM ChessWarehouse.lake.Moves m
-JOIN ChessWarehouse.lake.Games g ON
-    m.GameID = g.GameID
-JOIN ChessWarehouse.dim.Sources s ON
-    g.SourceID = s.SourceID
-JOIN ChessWarehouse.dim.TimeControlDetail td ON
-    g.TimeControlDetailID = td.TimeControlDetailID
+FROM ChessWarehouse.lake.Moves AS m
+INNER JOIN ChessWarehouse.lake.Games AS g ON m.GameID = g.GameID
+INNER JOIN ChessWarehouse.dim.Sources AS s ON g.SourceID = s.SourceID
+INNER JOIN ChessWarehouse.dim.TimeControlDetail AS td ON g.TimeControlDetailID = td.TimeControlDetailID
 
-WHERE g.SourceID = {srcid}
-AND td.TimeControlID = {tcid}
+WHERE g.SourceID = ?
+AND td.TimeControlID = ?
 AND m.T1_Eval_POV BETWEEN -3 AND 3
 
 GROUP BY
-ROUND(CAST(m.T1_Eval AS float), 1)
+    ROUND(CAST(m.T1_Eval AS float), 1)
 '''
+        params = [srcid, tcid]
     elif mdl == 'CP_Loss':
-        qry_text = f"""
+        qry_text = """
 SELECT
-100*CP_Loss AS xdata, --CP_Loss
-COUNT(m.MoveNumber) AS Move_Count
+    100*CP_Loss AS xdata  --CP_Loss
+    ,COUNT(m.MoveNumber) AS Move_Count
 
-FROM ChessWarehouse.lake.Moves m
-JOIN ChessWarehouse.lake.Games g ON
-    m.GameID = g.GameID
-JOIN ChessWarehouse.dim.Colors c ON
-    m.ColorID = c.ColorID
-JOIN ChessWarehouse.dim.Sources s ON
-    g.SourceID = s.SourceID
-JOIN ChessWarehouse.dim.TimeControlDetail td ON
-    g.TimeControlDetailID = td.TimeControlDetailID
-JOIN ChessWarehouse.dim.Ratings r ON
-    (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) >= r.RatingID AND
-    (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) <= r.RatingUpperBound
-JOIN ChessWarehouse.dim.EvaluationGroups eg ON
-    m.T1_Eval_POV >= eg.LBound AND
-    m.T1_Eval_POV <= eg.UBound
+FROM ChessWarehouse.lake.Moves AS m
+INNER JOIN ChessWarehouse.lake.Games AS g ON m.GameID = g.GameID
+INNER JOIN ChessWarehouse.dim.Colors AS c ON m.ColorID = c.ColorID
+INNER JOIN ChessWarehouse.dim.Sources AS s ON g.SourceID = s.SourceID
+INNER JOIN ChessWarehouse.dim.TimeControlDetail AS td ON g.TimeControlDetailID = td.TimeControlDetailID
+INNER JOIN ChessWarehouse.dim.Ratings AS r ON (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) >= r.RatingID
+    AND (CASE WHEN c.Color = 'White' THEN g.WhiteElo ELSE g.BlackElo END) <= r.RatingUpperBound
+INNER JOIN ChessWarehouse.dim.EvaluationGroups AS eg ON m.T1_Eval_POV >= eg.LBound
+    AND m.T1_Eval_POV <= eg.UBound
 
 WHERE m.CP_Loss > 0
 AND m.MoveScored = 1
 AND (CASE WHEN c.Color = 'White' THEN g.WhiteBerserk ELSE g.BlackBerserk END) = 0
-AND g.SourceID = {srcid}
-AND td.TimeControlID = {tcid}
-AND r.RatingID = {ratingid}
-AND eg.EvaluationGroupID = {egid}
+AND g.SourceID = ?
+AND td.TimeControlID = ?
+AND r.RatingID = ?
+AND eg.EvaluationGroupID = ?
 
 GROUP BY
-100*CP_Loss
+    100*CP_Loss
 """
-    df = pd.read_sql(qry_text, engine)
+        params = [srcid, tcid, ratingid, egid]
+    df = pd.read_sql(qry_text, engine, params=params)
     if len(df) == 0:
         return None
     else:
@@ -209,27 +205,25 @@ def get_optimizations(engine, mdl, srcid, tcid, ratingid, egid):
         p_naught = [0, 1]
     elif mdl == 'CP_Loss':
         func = stats.gamma.pdf
-        qry_text = f"""
+        qry_text = """
 SELECT
-st.RecordCount,
-st.Average*100 AS Average,
-st.StandardDeviation*100 AS StandardDeviation
+    st.RecordCount
+    ,st.Average*100 AS Average
+    ,st.StandardDeviation*100 AS StandardDeviation
 
-FROM ChessWarehouse.stat.StatisticsSummary st
-JOIN ChessWarehouse.dim.Aggregations agg ON
-    st.AggregationID = agg.AggregationID
-JOIN ChessWarehouse.dim.Measurements m ON
-    st.MeasurementID = m.MeasurementID
+FROM ChessWarehouse.stat.StatisticsSummary AS st
+INNER JOIN ChessWarehouse.dim.Aggregations AS agg ON st.AggregationID = agg.AggregationID
+INNER JOIN ChessWarehouse.dim.Measurements AS m ON st.MeasurementID = m.MeasurementID
 
 WHERE agg.AggregationName = 'Evaluation'
 AND m.MeasurementName = 'ACPL'
 AND st.RecordCount > 0
-AND st.SourceID = {srcid}
-AND st.TimeControlID = {tcid}
-AND st.RatingID = {ratingid}
-AND st.EvaluationGroupID = {egid}
+AND st.SourceID = ?
+AND st.TimeControlID = ?
+AND st.RatingID = ?
+AND st.EvaluationGroupID = ?
 """
-        df = pd.read_sql(qry_text, engine)
+        df = pd.read_sql(qry_text, engine, params=[srcid, tcid, ratingid, egid])
         col_total = df['RecordCount'].sum()
         if col_total > 0:
             df['Weights'] = df['RecordCount'] / col_total
@@ -251,7 +245,7 @@ def main():
         level=logging.INFO
     )
 
-    vrs_num = '3.0'
+    vrs_num = '3.1'
     parser = argparse.ArgumentParser(
         description='Distribution Calculator',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -307,7 +301,7 @@ def main():
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
-        query={"odbc_connect": conn_str}
+        query={'odbc_connect': conn_str}
     )
     engine = sa.create_engine(connection_url)
     conn = engine.connect().connection
@@ -328,9 +322,8 @@ def main():
 
     if val_mdl == 'Evaluation':
         csr = conn.cursor()
-        sql_del = f'DELETE FROM ChessWarehouse.stat.EvalDistributions WHERE SourceID = {srcid} AND TimeControlID = {tcid} AND DistributionID = {dist_id}'
-        logging.debug(f'Delete query|{sql_del}')
-        csr.execute(sql_del)
+        sql_del = 'DELETE FROM ChessWarehouse.stat.EvalDistributions WHERE SourceID = ? AND TimeControlID = ? AND DistributionID = ?'
+        csr.execute(sql_del, parameters=[srcid, tcid, dist_id])
         conn.commit()
 
         p0 = param_dict['p0']
@@ -343,23 +336,21 @@ def main():
             cdf_val = stats.logistic.cdf(x, loc=p0, scale=p1)
 
             sql_cmd = 'INSERT INTO ChessWarehouse.stat.EvalDistributions (SourceID, TimeControlID, Evaluation, DistributionID, PDF, CDF) '
-            sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {x}, {dist_id}, {pdf_val}, {cdf_val})'
-            logging.debug(f'Insert query|{sql_cmd}')
-            csr.execute(sql_cmd)
+            sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?)'
+            csr.execute(sql_cmd, parameters=[srcid, tcid, x, dist_id, pdf_val, cdf_val])
             conn.commit()
     elif mdl == 'CP_Loss':
         # TODO: rework this so it's not so duplicative
         csr = conn.cursor()
-        sql_del = f'''
+        sql_del = '''
 DELETE FROM ChessWarehouse.stat.CPLossDistributions
-WHERE SourceID = {srcid}
-AND TimeControlID = {tcid}
-AND RatingID = {ratingid}
-AND EvaluationGroupID = {egid}
-AND DistributionID = {dist_id}
+WHERE SourceID = ?
+AND TimeControlID = ?
+AND RatingID = ?
+AND EvaluationGroupID = ?
+AND DistributionID = ?
 '''
-        logging.debug(f'Delete query|{sql_del}')
-        csr.execute(sql_del)
+        csr.execute(sql_del, parameters=[srcid, tcid, ratingid, egid, dist_id])
         conn.commit()
 
         p0 = param_dict['p0']
@@ -372,9 +363,8 @@ AND DistributionID = {dist_id}
             cdf_val = stats.gamma.cdf(x, p0, loc, 1/p1)
 
             sql_cmd = 'INSERT INTO ChessWarehouse.stat.CPLossDistributions (SourceID, TimeControlID, RatingID, EvaluationGroupID, CP_Loss, DistributionID, PDF, CDF) '
-            sql_cmd = sql_cmd + f'VALUES ({srcid}, {tcid}, {ratingid}, {egid}, {x/100}, {dist_id}, {pdf_val}, {cdf_val})'
-            logging.debug(f'Insert query|{sql_cmd}')
-            csr.execute(sql_cmd)
+            sql_cmd = sql_cmd + 'VALUES (?, ?, ?, ?, ?, ?)'
+            csr.execute(sql_cmd, parameters=[srcid, tcid, ratingid, egid, x/100, dist_id, pdf_val, cdf_val])
             conn.commit()
 
     conn.close()

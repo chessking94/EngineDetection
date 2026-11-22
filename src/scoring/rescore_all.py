@@ -15,17 +15,12 @@ def is_job_running(job_name, engine):
 SELECT
 CASE WHEN act.stop_execution_date IS NULL THEN 1 ELSE 0 END AS is_running
 
-FROM msdb.dbo.sysjobs job
-JOIN msdb.dbo.sysjobactivity act ON
-    job.job_id = act.job_id
-JOIN msdb.dbo.syssessions sess ON
-    sess.session_id = act.session_id
-JOIN (
-    SELECT
-    MAX(agent_start_date) AS max_agent_start_date
-    FROM msdb.dbo.syssessions
-) sess_max ON
-    sess.agent_start_date = sess_max.max_agent_start_date
+FROM msdb.dbo.sysjobs AS job
+INNER JOIN msdb.dbo.sysjobactivity AS act ON job.job_id = act.job_id
+INNER JOIN msdb.dbo.syssessions AS sess ON sess.session_id = act.session_id
+INNER JOIN (
+    SELECT MAX(agent_start_date) AS max_agent_start_date FROM msdb.dbo.syssessions
+) AS sess_max ON sess.agent_start_date = sess_max.max_agent_start_date
 
 WHERE job.name = '{job_name}'
 """
@@ -46,7 +41,7 @@ def run_job(job_name, engine):
 
 
 def run_script(script_path, script_name, parameters=None):
-    cmd_text = fr'"C:\Users\eehunt\code\src\EngineDetection\.venv\Scripts\python.exe" {script_name}'
+    cmd_text = fr'"D:\code\src\EngineDetection\.venv\Scripts\python.exe" {script_name}'
     cmd_text = f'{cmd_text} {parameters}' if parameters else cmd_text
     logging.info(f'Begin command "{cmd_text}"')
     result = subprocess.run(cmd_text, cwd=script_path, capture_output=True, text=True, shell=True)
@@ -66,7 +61,7 @@ def main():
     conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
-        query={"odbc_connect": conn_str}
+        query={'odbc_connect': conn_str},
     )
     engine = sa.create_engine(connection_url)
 
