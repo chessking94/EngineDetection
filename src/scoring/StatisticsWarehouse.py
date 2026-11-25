@@ -113,14 +113,22 @@ def main():
         choices=c.COLOR_CHOICES,
         help='Color'
     )
+    parser.add_argument(
+        '-d', '--db',
+        default='PROD',
+        choices=['PROD', 'DEV'],
+        help='Use Production Database'
+    )
 
     args = parser.parse_args()
     config = vars(args)
     data = validate_args(config)
     logging.debug(f'Arguments|{data}')
 
-    # conn_str = os.getenv('ConnectionStringOdbcDebug')
-    conn_str = os.getenv('ConnectionStringOdbcRelease')
+    if config['db'] == 'DEV':
+        conn_str = os.getenv('ConnectionStringOdbcDebug')
+    else:
+        conn_str = os.getenv('ConnectionStringOdbcRelease')
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={'odbc_connect': conn_str}

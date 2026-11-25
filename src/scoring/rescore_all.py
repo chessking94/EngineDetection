@@ -57,8 +57,12 @@ def main():
         level=logging.INFO
     )
 
-    # conn_str = os.getenv('ConnectionStringOdbcDebug')
-    conn_str = os.getenv('ConnectionStringOdbcRelease')
+    db = 'PROD'  # or DEV
+    if db == 'DEV':
+        conn_str = os.getenv('ConnectionStringOdbcDebug')
+    else:
+        conn_str = os.getenv('ConnectionStringOdbcRelease')
+
     connection_url = sa.engine.URL.create(
         drivername='mssql+pyodbc',
         query={'odbc_connect': conn_str},
@@ -68,25 +72,25 @@ def main():
     # step 0 (optional): Python script create_distribution.py for as many source/time control combinations as necessary
     script_path = os.path.dirname(__file__)
     script_name = 'create_distributions.py'
-    parameters = '-mEvaluation -sControl -tClassical'
+    parameters = f'-mEvaluation -sControl -tClassical -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sControl -tCorrespondence'
+    parameters = f'-mEvaluation -sControl -tCorrespondence -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sLichess -tBullet'
+    parameters = f'-mEvaluation -sLichess -tBullet -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sLichess -tBlitz'
+    parameters = f'-mEvaluation -sLichess -tBlitz -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sLichess -tRapid'
+    parameters = f'-mEvaluation -sLichess -tRapid -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sLichess -tClassical'
+    parameters = f'-mEvaluation -sLichess -tClassical -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-mEvaluation -sLichess -tCorrespondence'
+    parameters = f'-mEvaluation -sLichess -tCorrespondence -d{db}'
     run_script(script_path, script_name, parameters)
 
     # step 1: SQL job "Recalculate Move Scores"
@@ -100,13 +104,13 @@ def main():
     # step 3: Python script StatisticsWarehouse.py for as many source/time control combinations as necessary
     script_path = os.path.dirname(__file__)
     script_name = 'StatisticsWarehouse.py'
-    parameters = '-aEvent'
+    parameters = f'-aEvent -d{db}'
     run_script(script_path, script_name, parameters)
 
-    parameters = '-aGame'
+    parameters = f'-aGame -d{db}'
     run_script(script_path, script_name, parameters)
 
-    # parameters = '-aEvaluation'
+    # parameters = f'-aEvaluation -d{db}'
     # run_script(script_path, script_name, parameters)  # TODO: this is taking forever now
 
     # step 4: SQL job "Recalculate Fact Table Z-Scores"
