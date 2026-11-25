@@ -46,21 +46,31 @@ AND fe.MovesAnalyzed > 0
 
 
 # eval level
-def eval_qry(fld, src, tctype, rating, evalgroup, color):
+def eval_qry(fields, src, tcid, rating, evalgroup, color):
+    """ `fields` is unused right now, but query performance is better when written this way """
     qry = f'''
 SELECT
-{fld}
+    m.CP_Loss AS ACPL
+    ,m.ScACPL
 
-FROM ChessWarehouse.lake.vwEvaluationSummary
+FROM ChessWarehouse.lake.Moves AS m
+INNER JOIN ChessWarehouse.stat.MoveScores AS ms ON m.GameID = ms.GameID
+    AND m.MoveNumber = ms.MoveNumber
+    AND m.ColorID = ms.ColorID
+INNER JOIN ChessWarehouse.lake.Games AS g ON m.GameID = g.GameID
+INNER JOIN ChessWarehouse.dim.Sources AS s ON g.SourceID = s.SourceID
+INNER JOIN ChessWarehouse.dim.TimeControlDetail AS td ON g.TimeControlDetailID = td.TimeControlDetailID
+INNER JOIN ChessWarehouse.dim.TimeControls AS tc ON td.TimeControlID = tc.TimeControlID
 
-WHERE SourceID = {src}
-AND ColorID = {color}
-AND TimeControlID = {tctype}
-AND RatingID = {rating}
-AND EvaluationGroupID = {evalgroup}
-AND ACPL > 0
-AND MoveScored = 1
-AND Berserk = 0
+WHERE ms.ScoreID = 4
+AND g.SourceID = {src}
+AND m.ColorID = {color}
+AND tc.TimeControlID = {tcid}
+AND g.WhiteRatingID = {rating}
+AND m.T1_EvaluationGroupID = {evalgroup}
+AND m.CP_Loss > 0
+AND m.MoveScored = 1
+AND (CASE WHEN m.ColorID = 1 THEN g.WhiteBerserk ELSE g.BlackBerserk END) = 0
 '''
     return qry
 
@@ -84,31 +94,13 @@ AND Color = '{color}'
 
 def get_aggid(engine, agg):
     qry = 'SELECT AggregationID FROM ChessWarehouse.dim.Aggregations WHERE AggregationName = ?'
-    idval = int(pd.read_sql(qry, engine, params=[agg]).values[0][0])
+    idval = int(pd.read_sql(qry, engine, params=(agg,)).values[0][0])
     return idval
 
 
 def get_srcid(engine, src):
     qry = 'SELECT SourceID FROM ChessWarehouse.dim.Sources WHERE SourceName = ?'
-    idval = int(pd.read_sql(qry, engine, params=[src]).values[0][0])
-    return idval
-
-
-def get_fldid(engine, fld):
-    qry = 'SELECT MeasurementID FROM ChessWarehouse.dim.Measurements WHERE MeasurementName = ?'
-    idval = int(pd.read_sql(qry, engine, params=[fld]).values[0][0])
-    return idval
-
-
-def get_tcid(engine, tc):
-    qry = 'SELECT TimeControlID FROM ChessWarehouse.dim.TimeControls WHERE TimeControlName = ?'
-    idval = int(pd.read_sql(qry, engine, params=[tc]).values[0][0])
-    return idval
-
-
-def get_colorid(engine, color):
-    qry = 'SELECT ColorID FROM ChessWarehouse.dim.Colors WHERE Color = ?'
-    idval = int(pd.read_sql(qry, engine, params=[color]).values[0][0])
+    idval = int(pd.read_sql(qry, engine, params=(src,)).values[0][0])
     return idval
 
 
@@ -116,6 +108,18 @@ def get_flddict(engine):
     qry = 'SELECT MeasurementID, MeasurementName FROM ChessWarehouse.dim.Measurements'
     rs = pd.read_sql(qry, engine)
     return dict(zip(rs['MeasurementName'], rs['MeasurementID']))
+
+
+def get_tcdict(engine):
+    qry = 'SELECT TimeControlID, TimeControlName FROM ChessWarehouse.dim.TimeControls'
+    rs = pd.read_sql(qry, engine)
+    return dict(zip(rs['TimeControlName'], rs['TimeControlID']))
+
+
+def get_colordict(engine):
+    qry = 'SELECT ColorID, Color FROM ChessWarehouse.dim.Colors'
+    rs = pd.read_sql(qry, engine)
+    return dict(zip(rs['Color'], rs['ColorID']))
 
 
 def check_cov(engine, srcid, aggid, rating, tcid, colorid, egid, mid1, mid2):
@@ -135,7 +139,7 @@ AND EvaluationGroupID = ?
 AND MeasurementID1 = ?
 AND MeasurementID2 = ?
 '''
-    rs = pd.read_sql(qry, engine, params=[srcid, aggid, rating, tcid, colorid, egid, mid1, mid2])
+    rs = pd.read_sql(qry, engine, params=(srcid, aggid, rating, tcid, colorid, egid, mid1, mid2))
     if len(rs) > 0:
         rtn = True
     return rtn

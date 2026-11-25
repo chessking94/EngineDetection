@@ -74,7 +74,7 @@ def main():
     )
     parser.add_argument(
         '-a', '--agg',
-        default='Event',
+        default='Evaluation',
         choices=c.AGG_CHOICES,
         help='Aggregation level'
     )
@@ -123,7 +123,7 @@ def main():
     args = parser.parse_args()
     config = vars(args)
     data = validate_args(config)
-    logging.debug(f'Arguments|{data}')
+    logging.info(f'Arguments|{data}')
 
     if config['db'] == 'DEV':
         conn_str = os.getenv('ConnectionStringOdbcDebug')
